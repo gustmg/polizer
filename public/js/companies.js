@@ -1,3 +1,7 @@
+$('.newCompanyModal').modal();
+$('.updateCompanyModal').modal();
+$('.deleteCompanyModal').modal();
+
 $('#company_name').on('blur', function () {
 	if (!$('#company_name').hasClass('invalid')) {
 		$('#registrate_button').attr('disabled', false);
@@ -10,6 +14,10 @@ function submitNewCompany() {
 	$('#newCompanyForm').submit();
 }
 
-function submitDeleteCompany($company_id) {
-	
+function submitUpdateCompany(company_id) {
+	$('#updateCompanyForm'+company_id).submit();
+}
+
+function submitDeleteCompany(company_id) {
+	$('#deleteCompanyForm'+company_id).submit();
 }

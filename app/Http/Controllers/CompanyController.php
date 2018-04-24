@@ -88,6 +88,25 @@ class CompanyController extends Controller
     public function update(Request $request, $id)
     {
         //
+        $validatedData = $request->validate([
+            'company_name' => 'required|max:255',
+        ]);
+
+        $company = Company::find($id);
+        $company->company_name=$request->company_name;
+        $company->company_rfc=$request->company_rfc;
+        $company->pending_creditable_vat_account=$request->pending_creditable_vat_account;
+        $company->paid_creditable_vat_account=$request->paid_creditable_vat_account;
+        $company->transferred_vat_account=$request->transferred_vat_account;
+        $company->charged_transferred_vat_account=$request->charged_transferred_vat_account;
+        $company->fees_retention_isr_account=$request->fees_retention_isr_account;
+        $company->fees_retention_vat_account=$request->fees_retention_vat_account;
+        $company->freight_retention_vat_account=$request->freight_retention_vat_account;
+        $company->user_id=Auth::user()->id;
+
+        $company->save();
+
+        return Redirect::to('companies');
     }
 
     /**
@@ -99,5 +118,8 @@ class CompanyController extends Controller
     public function destroy($id)
     {
         //
+        $company=Company::find($id);
+        $company->delete();
+        return Redirect::to('companies');
     }
 }
