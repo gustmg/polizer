@@ -2,11 +2,11 @@ $('.newCompanyModal').modal();
 $('.updateCompanyModal').modal();
 $('.deleteCompanyModal').modal();
 
-$('#company_name').on('blur', function () {
-	if (!$('#company_name').hasClass('invalid')) {
-		$('#registrate_button').attr('disabled', false);
+$('.company_name').on('blur', function () {
+	if (!$('.company_name').hasClass('invalid')) {
+		$('.submit_button').attr('disabled', false);
 	} else {
-		$('#registrate_button').attr('disabled', true);
+		$('.submit_button').attr('disabled', true);
 	}
 });
 

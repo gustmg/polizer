@@ -27,18 +27,18 @@
         @endauth
     </style>
 </head>
-<body class="teal lighten-5">
+<body class="blue-grey lighten-5">
     <div id="app">
         @auth
         <div class="navbar-fixed">
             <nav>
-                <div id="nav-bar" class="nav-wrapper blue-grey darken-4 trans-color">
+                <div id="nav-bar" class="nav-wrapper teal lighten-1 trans-color">
                     <ul class="left">
                         <a href="#" data-activates="slide-out" class="menu hide-on-large-only"><i class="material-icons">menu</i></a>
                     </ul>
 
                     <a class="brand-logo right" href="{{ url('/') }}">
-                        <b class="teal-text text-lighten-5">polizer</b>
+                        <b>polizer</b>
                     </a>
 
                     <ul id="multiple-users-select-menu" class="right scale-transition scale-out">
@@ -48,7 +48,7 @@
             </nav>
         </div>
         <ul id="slide-out" class="collapsible side-nav fixed" data-collapsible="accordion" style="border-top:0;border-left:0;border-right: 0;width: 275px;">
-            <div class="card blue-grey darken-3" style="margin-top: 0;margin-bottom: 0;border-radius: 0;">
+            <div class="card cyan darken-3" style="margin-top: 0;margin-bottom: 0;border-radius: 0;">
                 <div class="card-content white-text">
                     <h5>{{Auth::user()->name}}</h5>
                     <a href="{{route('home')}}" class="btn-floating tooltipped halfway-fab waves-effect waves-light no-padding" data-position="bottom" data-delay="50" data-tooltip="Ir a la página principal"><i class="material-icons">home</i></a>
@@ -117,7 +117,6 @@
             @if ($errors->has('password'))
                 Materialize.toast('{{ $errors->first('password') }}', 2000);
             @endif
-
         });
     </script>
 </body>
