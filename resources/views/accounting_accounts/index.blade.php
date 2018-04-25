@@ -6,13 +6,13 @@
 	<div class="card hoverable col s12 m12" style="float: none;">
 			<div class="input-field valign-wrapper" >
 			<i class="material-icons prefix">search</i>
-			<input placeholder="Buscar" id="search_company" type="text" style="border-bottom: none!important;box-shadow: none!important;margin-bottom: 0;">
+			<input placeholder="Buscar" id="search_accounting_account" type="text" style="border-bottom: none!important;box-shadow: none!important;margin-bottom: 0;">
 		</div>
 	</div>
 </div>
 </div>
 <div class="row">
-	<div class="col s12 m10 offset-m1">
+	{{-- <div class="col s12 m10 offset-m1">
 		<ul class="collapsible popout" data-collapsible="accordion">
 			@foreach($companies as $key => $value)
 			<li>
@@ -252,81 +252,39 @@
 			</div>
 			@endforeach
 		</ul>
-    </div>    
+    </div> --}}    
 </div>
-<a style="position:fixed;bottom: 24px;right: 24px;" class="btn-floating btn-large waves-effect waves-light modal-trigger teal accent-4" href="#newCompanyModal">
+<a style="position:fixed;bottom: 24px;right: 24px;" class="btn-floating btn-large waves-effect waves-light modal-trigger teal accent-4" href="#newAccountingAccountModal">
 	<i class="material-icons">add</i>
 </a>
-<div id="newCompanyModal" class="modal newCompanyModal modal-fixed-footer">
+<div id="newAccountingAccountModal" class="modal newAccountingAccountModal modal-fixed-footer">
 	<div class="modal-content">
 		<div class="row">
 			<div class="col s12">
-				<h5>Nueva empresa</h5>
+				<h5>Nueva cuenta contable</h5>
 			</div>
-			<form id="newCompanyForm" class="col s12 no-padding" method="POST" action="companies">
+			<form id="newAccountingAccountForm" class="col s12 no-padding" method="POST" action="accounting_accounts">
 				{{ csrf_field() }}
 				<div class="row" style="margin-bottom: 10px;">
 					<div class="col s12 grey-text text-darken-2"><b>Información general</b></div>
-					<div class="input-field col s12 m7">
-			          <input id="company_name" name="company_name" type="text" class="validate company_name" required>
-			          <label for="company_name" data-error="Verifique este campo" data-success="Campo validado">Nombre de la empresa *</label>
+					<div class="input-field col s12 m6">
+			          <input id="accounting_account_number" name="accounting_account_number" type="text" class="validate accounting_account_number" required>
+			          <label for="accounting_account_number" data-error="Verifique este campo" data-success="Campo validado">Número de cuenta contable *</label>
 			        </div>
-			        <div class="input-field col s12 m5">
-			          <input id="company_rfc" name="company_rfc" type="text" class="validate">
-			          <label for="company_rfc">RFC de la empresa</label>
+			        <div class="input-field col s12 m12">
+			          <input id="accounting_account_description" name="accounting_account_description" type="text" class="validate">
+			          <label for="accounting_account_description">Descripción de la cuenta contable</label>
 			        </div>
 		        </div>
 		        <div class="row">
-					<div class="col s12 grey-text text-darken-2"><b>Cuentas contables</b></div>
-					<div class="col s12 m6">
-						<div class="input-field no-padding">
-				          <input id="pending_creditable_vat_account" name="pending_creditable_vat_account" name="pending_creditable_vat_account" placeholder="XXXX-XXX-XXX" type="text" class="validate">
-				          <label for="pending_creditable_vat_account">IVA Acreditable Pendiente</label>
-						</div>
-					</div>
-					<div class="col s12 m6">
-						<div class="input-field no-padding">
-				          <input id="paid_creditable_vat_account" name="paid_creditable_vat_account" placeholder="XXXX-XXX-XXX" type="text" class="validate">
-				          <label for="paid_creditable_vat_account">IVA Acreditable Pagado</label>
-						</div>
-					</div>
-					<div class="col s12 m6">
-						<div class="input-field no-padding">
-				          <input id="transferred_vat_account" name="transferred_vat_account" placeholder="XXXX-XXX-XXX" type="text" class="validate">
-				          <label for="transferred_vat_account">IVA Trasladado</label>
-						</div>
-					</div>
-					<div class="col s12 m6">
-						<div class="input-field no-padding">
-				          <input id="charged_transferred_vat_account" name="charged_transferred_vat_account" placeholder="XXXX-XXX-XXX" type="text" class="validate">
-				          <label for="charged_transferred_vat_account">IVA Trasladado Cobrado</label>
-						</div>
-					</div>
-					<div class="col s12 m6">
-						<div class="input-field no-padding">
-				          <input id="fees_retention_isr_account" name="fees_retention_isr_account" placeholder="XXXX-XXX-XXX" type="text" class="validate">
-				          <label for="fees_retention_isr_account">Retención ISR Honorarios</label>
-						</div>
-					</div>
-					<div class="col s12 m6">
-						<div class="input-field no-padding">
-				          <input id="fees_retention_vat_account" name="fees_retention_vat_account" placeholder="XXXX-XXX-XXX" type="text" class="validate">
-				          <label for="fees_retention_vat_account">Retención IVA Honorarios</label>
-						</div>
-					</div>
-					<div class="col s12 m6">
-						<div class="input-field no-padding">
-				          <input id="freight_retention_vat_account" name="freight_retention_vat_account" placeholder="XXXX-XXX-XXX" type="text" class="validate">
-				          <label for="freight_retention_vat_account">Retención IVA Fletes</label>
-						</div>
-					</div>
+					<div class="col s12 grey-text text-darken-2"><b>Tipo de cuenta contable</b></div>
 		        </div>
 			</form>
 		</div>
 	</div>
 	<div class="modal-footer">
 		<a href="#!" class="modal-action modal-close waves-effect btn-flat"><b>Cancelar</b></a>
-		<button id="registrate_button" onclick="submitNewCompany();" class="modal-action btn waves-effect submit_button" disabled><b>Registrar</b></button>
+		<button id="registrate_button" onclick="submitNewAccountingAccount();" class="modal-action btn waves-effect submit_button" disabled><b>Registrar</b></button>
 	</div>
 </div>
 @endsection

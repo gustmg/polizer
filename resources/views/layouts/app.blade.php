@@ -27,16 +27,15 @@
         @endauth
     </style>
 </head>
-<body class="blue-grey lighten-5">
+<body class="grey lighten-2">
     <div id="app">
         @auth
         <div class="navbar-fixed">
             <nav>
-                <div id="nav-bar" class="nav-wrapper teal lighten-1 trans-color">
+                <div id="nav-bar" class="nav-wrapper teal trans-color">
                     <ul class="left">
                         <a href="#" data-activates="slide-out" class="menu hide-on-large-only"><i class="material-icons">menu</i></a>
                     </ul>
-
                     <a class="brand-logo right" href="{{ url('/') }}">
                         <b>polizer</b>
                     </a>
@@ -48,10 +47,10 @@
             </nav>
         </div>
         <ul id="slide-out" class="collapsible side-nav fixed" data-collapsible="accordion" style="border-top:0;border-left:0;border-right: 0;width: 275px;">
-            <div class="card cyan darken-3" style="margin-top: 0;margin-bottom: 0;border-radius: 0;">
+            <div class="card black" style="margin-top: 0;margin-bottom: 0;border-radius: 0;">
                 <div class="card-content white-text">
                     <h5>{{Auth::user()->name}}</h5>
-                    <a href="{{route('home')}}" class="btn-floating tooltipped halfway-fab waves-effect waves-light no-padding" data-position="bottom" data-delay="50" data-tooltip="Ir a la página principal"><i class="material-icons">home</i></a>
+                    <a href="{{route('home')}}" class="btn-floating tooltipped halfway-fab waves-effect waves-light no-padding teal accent-4" data-position="bottom" data-delay="50" data-tooltip="Ir a la página principal"><i class="material-icons ">business</i></a>
                 </div>
             </div>
             <li class="no-padding" style="color: black;margin-left: 16px;">
@@ -73,7 +72,7 @@
                 <div class="collapsible-body">
                     <ul style="background-color:#ddd;">
                         <li><a href="{{ route('companies.index') }}">Empresas</a></li>
-                        <li><a href="#!">Proveedores</a></li>
+                        <li><a href="{{ route('accounting_accounts.index') }}">Proveedores</a></li>
                         <li><a href="#!">Clientes</a></li>
                         <li><a href="#!">Cuentas contables</a></li>
                         <li><a href="#!">Cuentas bancarias</a></li>
@@ -106,6 +105,9 @@
     <script src="{{ asset('js/materialize.js') }}"></script>
     @if (Route::currentRouteName()=='companies.index')
         <script src="{{ asset('js/companies.js') }}"></script>
+    @endif
+    @if (Route::currentRouteName()=='accounting_accounts.index')
+        <script src="{{ asset('js/accounting_accounts.js') }}"></script>
     @endif
     <script type="text/javascript">
         $(document).ready(function(){

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateAccountableAccountTypesTable extends Migration
+class CreateAccountingAccountTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class CreateAccountableAccountTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('accountable_account_types', function (Blueprint $table) {
-            $table->increments('accountable_account_type_id');
-            $table->string('accountable_account_type_description');
+        Schema::create('accounting_account_types', function (Blueprint $table) {
+            $table->increments('accounting_account_type_id');
+            $table->string('accounting_account_type_description');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ class CreateAccountableAccountTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('accountable_account_types');
+        Schema::dropIfExists('accounting_account_types');
     }
 }
