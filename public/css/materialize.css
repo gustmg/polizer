@@ -2514,7 +2514,7 @@ nav ul a span.badge {
     width: 85%; } }
 @media only screen and (min-width: 993px) {
   .container {
-    width: 70%; } }
+    width: 80%; } } /*Gustavo Mitre change's prev:70%*/
 .container .row {
   margin-left: -0.75rem;
   margin-right: -0.75rem; }
