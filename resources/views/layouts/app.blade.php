@@ -34,8 +34,17 @@
             <nav>
                 <div id="nav-bar" class="nav-wrapper teal trans-color">
                     <ul class="left">
-                        <a href="#" data-activates="slide-out" class="menu hide-on-large-only"><i class="material-icons">menu</i></a>
+                        <li><a href="#" data-activates="slide-out" class="menu hide-on-large-only"><i class="material-icons">menu</i></a></li>
+                        <li><a href="#selectWorkspaceCompanyModal" class="show-on-small breadcrumb modal-trigger hide-on-med-and-up"><i class="material-icons">business</i></a></li>
                     </ul>
+                    <a id="workspaceCompany" href="#selectWorkspaceCompanyModal" class="breadcrumb modal-trigger hide-on-small-only" style="margin-left: 10px;">
+                        @if (Session::has('company_workspace'))
+                            {{{ Session::get('company_workspace') }}}
+                        @else
+                            Elige una empresa como entorno de trabajo
+                        @endif
+                    </a>
+
                     <a class="brand-logo right" href="{{ url('/') }}">
                         <b>polizer</b>
                     </a>
@@ -50,12 +59,9 @@
             <div class="card black" style="margin-top: 0;margin-bottom: 0;border-radius: 0;">
                 <div class="card-content white-text">
                     <h5>{{Auth::user()->name}}</h5>
-                    <a href="{{route('home')}}" class="btn-floating tooltipped halfway-fab waves-effect waves-light no-padding teal accent-4" data-position="bottom" data-delay="50" data-tooltip="Ir a la página principal"><i class="material-icons ">business</i></a>
+                    <a href="{{route('home')}}" class="btn-floating halfway-fab waves-effect waves-light no-padding teal accent-4" data-position="bottom" data-delay="50"><i class="material-icons ">home</i></a>
                 </div>
             </div>
-            <li class="no-padding" style="color: black;margin-left: 16px;">
-                Módulos
-            </li>
             <li id="purchases-menu" class="no-padding">
                 <a class="collapsible-header">Integración de pólizas<i class="material-icons">library_add</i></a>
                 <div class="collapsible-body">
@@ -93,6 +99,25 @@
                 </form>
             </li>
         </ul>
+        <div id="selectWorkspaceCompanyModal" class="modal selectWorkspaceCompanyModal modal-fixed-footer">
+            <div style="height: 56px;padding-left: 12px;">
+                <h5>Empresa como entorno de trabajo</h5>
+            </div>
+            <div class="modal-content" style="max-height: calc(100% - 132px);padding-top: 0;padding-bottom: 0; overflow-y: auto;">
+                <form id="selectWorkspaceForm">
+                    @foreach($companies as $key => $value)
+                    <p>
+                        <input class="with-gap" name="company_workspace" type="radio" id="test{{$key}}" value="{{$value->company_id}}" data-company-name="{{$value->company_name}}"/>
+                        <label for="test{{$key}}">{{$value->company_name}}</label>
+                    </p>
+                    @endforeach
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="modal-action modal-close waves-effect btn-flat"><b>Cancelar</b></a>
+                <button id="select_button" class="modal-action btn-flat waves-effect" onclick="setWorkspaceCompany();"><b>Seleccionar</b></button>
+            </div>
+        </div>
         @endauth
 
         <main>
@@ -112,6 +137,7 @@
     <script type="text/javascript">
         $(document).ready(function(){
             $(".menu").sideNav();
+            $('.selectWorkspaceCompanyModal').modal();
 
             @if ($errors->has('email'))
                 Materialize.toast('{{ $errors->first('email') }}', 2000);
@@ -119,7 +145,32 @@
             @if ($errors->has('password'))
                 Materialize.toast('{{ $errors->first('password') }}', 2000);
             @endif
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
         });
+
+        function setWorkspaceCompany() {
+            var company_workspace_id=$('#selectWorkspaceForm :checked').val();
+            var company_workspace=$('#selectWorkspaceForm :checked').attr('data-company-name');
+
+            $.ajax({
+                url: "./workspace",
+                type: 'POST',
+                data: {company_workspace_id: company_workspace_id},
+            })
+            .done(function() {
+                Materialize.toast('Entorno de trabajo cambiado correctamente', 4000);
+                $("#workspaceCompany").text(company_workspace);
+                $('.selectWorkspaceCompanyModal').modal('close');
+            })
+            .fail(function() {
+                Materialize.toast('Error al seleccionar entorno de trabajo', 4000);
+            })
+        }
     </script>
 </body>
 </html>

@@ -2081,8 +2081,8 @@ video.responsive-video {
     display: inline-block;
     float: left;
     font-size: 24px; }
-  .breadcrumb:before {
-    content: '\E5CC';
+  .breadcrumb:after { /*Gustavo Mitre change prev: before*/
+    content: 'arrow_drop_down';
     color: rgba(255, 255, 255, 0.7);
     vertical-align: top;
     display: inline-block;
@@ -2090,7 +2090,7 @@ video.responsive-video {
     font-weight: normal;
     font-style: normal;
     font-size: 25px;
-    margin: 0 10px 0 8px;
+    margin: 0 10px 0 0;
     -webkit-font-smoothing: antialiased; }
   .breadcrumb:first-child:before {
     display: none; }
@@ -3513,12 +3513,12 @@ small {
       bottom: 0%; } }
   @media only screen and (min-width: 601px) and (max-width: 992px) {
     #toast-container {
-      left: 5%;
-      bottom: 7%;
+      right: 7%;
+      bottom: 10%;
       max-width: 90%; } }
   @media only screen and (min-width: 993px) {
     #toast-container {
-      top: 10%;
+      bottom: 10%;
       right: 7%;
       max-width: 86%; } }
 

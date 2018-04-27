@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
     <br>
     <div class="row">
         <div class="col s12 m8">
@@ -21,7 +20,7 @@
                 </li>
             </ul>
         </div>
-        <div class="col s12 m3 offset-m1">
+        <div class="col s12 m4">
             <b>Uso de la aplicación</b>
             <div class="card center">
             <div class="card-content"><i class="material-icons medium">insert_drive_file</i>
@@ -30,6 +29,11 @@
             </div>
             </div>
         </div>
+        @if (Session::has('company_workspace'))
+            {{{ Session::get('company_workspace') }}}
+            {{{ Session::get('company_workspace_id') }}}
+        @else
+            HOLA
+        @endif
     </div>
-</div>
 @endsection

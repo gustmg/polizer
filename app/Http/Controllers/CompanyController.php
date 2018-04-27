@@ -95,6 +95,10 @@ class CompanyController extends Controller
 
         $company->save();
 
+        if($request->session()->get('company_workspace_id')==$id){
+            $request->session()->put('company_workspace',$request->company_name);
+        }
+
         return Redirect::to('companies');
     }
 
@@ -109,6 +113,11 @@ class CompanyController extends Controller
         //
         $company=Company::find($id);
         $company->delete();
+
+        if(session()->get('company_workspace_id')==$id){
+            session()->forget('company_workspace');
+            session()->forget('company_workspace_id');
+        }
         return Redirect::to('companies');
     }
 }
