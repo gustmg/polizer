@@ -18,12 +18,8 @@ class CompanyController extends Controller
     public function index()
     {
         //
-        $companies=Company::all();
+        $companies=Company::where('user_id', Auth::user()->id)->get();
         return view::make('companies.index')->with('companies', $companies);
-    }
-
-    protected function create(array $data)
-    {
     }
 
     /**

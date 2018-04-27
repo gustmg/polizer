@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Company;
 
 class HomeController extends Controller
@@ -24,7 +25,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $companies=Company::all();
+        $companies=Company::where('user_id', Auth::user()->id)->get();
         return view('home')->with('companies', $companies);
     }
 }

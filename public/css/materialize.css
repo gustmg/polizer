@@ -2209,7 +2209,7 @@ table {
   table.highlight > tbody > tr {
     transition: background-color .25s ease; }
     table.highlight > tbody > tr:hover {
-      background-color: #f2f2f2; }
+      background-color: #bdbdbd; } /*Gustavo Mitre change prev: */
   table.centered thead tr th, table.centered tbody tr td {
     text-align: center; }
 

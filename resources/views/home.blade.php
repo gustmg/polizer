@@ -29,11 +29,6 @@
             </div>
             </div>
         </div>
-        @if (Session::has('company_workspace'))
-            {{{ Session::get('company_workspace') }}}
-            {{{ Session::get('company_workspace_id') }}}
-        @else
-            HOLA
-        @endif
     </div>
+    
 @endsection

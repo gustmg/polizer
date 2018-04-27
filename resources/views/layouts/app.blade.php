@@ -37,13 +37,17 @@
                         <li><a href="#" data-activates="slide-out" class="menu hide-on-large-only"><i class="material-icons">menu</i></a></li>
                         <li><a href="#selectWorkspaceCompanyModal" class="show-on-small breadcrumb modal-trigger hide-on-med-and-up"><i class="material-icons">business</i></a></li>
                     </ul>
-                    <a id="workspaceCompany" href="#selectWorkspaceCompanyModal" class="breadcrumb modal-trigger hide-on-small-only" style="margin-left: 10px;">
-                        @if (Session::has('company_workspace'))
-                            {{{ Session::get('company_workspace') }}}
-                        @else
-                            Elige una empresa como entorno de trabajo
-                        @endif
-                    </a>
+                    @if (count($companies)===0)
+                        <span id="workspaceCompany" class="breadcrumb modal-trigger hide-on-small-only disable-select tooltipped" style="margin-left: 10px;" data-position="right" data-delay="50" data-tooltip="No hay empresas registradas :^(">Elige una empresa como entorno de trabajo</span>
+                    @else
+                        <a id="workspaceCompany" href="#selectWorkspaceCompanyModal" class="breadcrumb modal-trigger hide-on-small-only" style="margin-left: 10px;">
+                            @if (Session::has('company_workspace'))
+                                {{{ Session::get('company_workspace') }}}
+                            @else
+                                Elige una empresa como entorno de trabajo
+                            @endif
+                        </a>
+                    @endif
 
                     <a class="brand-logo right" href="{{ url('/') }}">
                         <b>polizer</b>
@@ -62,30 +66,61 @@
                     <a href="{{route('home')}}" class="btn-floating halfway-fab waves-effect waves-light no-padding teal accent-4" data-position="bottom" data-delay="50"><i class="material-icons ">home</i></a>
                 </div>
             </div>
-            <li id="purchases-menu" class="no-padding">
-                <a class="collapsible-header">Integración de pólizas<i class="material-icons">library_add</i></a>
-                <div class="collapsible-body">
-                    <ul style="background-color:#ddd;">
-                        <li><a href="#!">Provisión</a></li>
-                        <li><a href="#!">Facturación</a></li>
-                        <li><a href="#!">Pago a proveedores</a></li>
-                        <li><a href="#!">Depósito de clientes</a></li>
-                    </ul>
-                </div>
+            <li class="no-padding">
+                <a href="{{ route('companies.index') }}" class="collapsible-header">Mis empresas<i class="material-icons">business</i></a>
             </li>
-            <li id="production-menu" class="no-padding">
-                <a class="collapsible-header"><i class="material-icons">business_center</i>Mis catálogos</a>
-                <div class="collapsible-body">
-                    <ul style="background-color:#ddd;">
-                        <li><a href="{{ route('companies.index') }}">Empresas</a></li>
-                        <li><a href="{{ route('accounting_accounts.index') }}">Proveedores</a></li>
-                        <li><a href="#!">Clientes</a></li>
-                        <li><a href="#!">Cuentas contables</a></li>
-                        <li><a href="#!">Cuentas bancarias</a></li>
-                    </ul>
-                </div>
-            </li>
-            <div class="divider"></div>
+            <div class="divider no-margin"></div>
+            @if(Session::has('company_workspace'))
+                <li class="no-padding company-workspace-menu">
+                    <a class="collapsible-header">Integración de pólizas<i class="material-icons">library_add</i></a>
+                    <div class="collapsible-body">
+                        <ul style="background-color:#ddd;">
+                            <li><a href="#!">Provisión</a></li>
+                            <li><a href="#!">Facturación</a></li>
+                            <li><a href="#!">Pago a proveedores</a></li>
+                            <li><a href="#!">Depósito de clientes</a></li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="no-padding company-workspace-menu">
+                    <a class="collapsible-header"><i class="material-icons">business_center</i>Mis catálogos</a>
+                    <div class="collapsible-body">
+                        <ul style="background-color:#ddd;">
+                            <li><a href="#">Proveedores</a></li>
+                            <li><a href="#!">Clientes</a></li>
+                            <li><a href="{{ route('accounting_accounts.index') }}">Cuentas contables</a></li>
+                            <li><a href="#!">Cuentas bancarias</a></li>
+                        </ul>
+                    </div>
+                </li>
+                <div class="divider no-margin"></div>
+            @else
+                <li class="no-padding company-workspace-menu" style="display: none;">
+                    <a class="collapsible-header">Integración de pólizas<i class="material-icons">library_add</i></a>
+                    <div class="collapsible-body">
+                        <ul style="background-color:#ddd;">
+                            <li><a href="#!">Provisión</a></li>
+                            <li><a href="#!">Facturación</a></li>
+                            <li><a href="#!">Pago a proveedores</a></li>
+                            <li><a href="#!">Depósito de clientes</a></li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="no-padding company-workspace-menu" style="display: none;">
+                    <a class="collapsible-header"><i class="material-icons">business_center</i>Mis catálogos</a>
+                    <div class="collapsible-body">
+                        <ul style="background-color:#ddd;">
+                            <li><a href="#">Proveedores</a></li>
+                            <li><a href="#!">Clientes</a></li>
+                            <li><a href="{{ route('accounting_accounts.index') }}">Cuentas contables</a></li>
+                            <li><a href="#!">Cuentas bancarias</a></li>
+                        </ul>
+                    </div>
+                </li>
+                <div class="divider no-margin company-workspace-menu" style="display: none;"></div>
+            @endif
+                    
+            
             <li class="no-padding">
                 <a class="collapsible-header">Ayuda<i class="material-icons">help</i></a>
             </li>
@@ -134,43 +169,58 @@
     @if (Route::currentRouteName()=='accounting_accounts.index')
         <script src="{{ asset('js/accounting_accounts.js') }}"></script>
     @endif
-    <script type="text/javascript">
-        $(document).ready(function(){
-            $(".menu").sideNav();
-            $('.selectWorkspaceCompanyModal').modal();
-
-            @if ($errors->has('email'))
-                Materialize.toast('{{ $errors->first('email') }}', 2000);
-            @endif
-            @if ($errors->has('password'))
-                Materialize.toast('{{ $errors->first('password') }}', 2000);
-            @endif
-
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-        });
-
-        function setWorkspaceCompany() {
-            var company_workspace_id=$('#selectWorkspaceForm :checked').val();
-            var company_workspace=$('#selectWorkspaceForm :checked').attr('data-company-name');
-
-            $.ajax({
-                url: "./workspace",
-                type: 'POST',
-                data: {company_workspace_id: company_workspace_id},
-            })
-            .done(function() {
-                Materialize.toast('Entorno de trabajo cambiado correctamente', 4000);
-                $("#workspaceCompany").text(company_workspace);
-                $('.selectWorkspaceCompanyModal').modal('close');
-            })
-            .fail(function() {
-                Materialize.toast('Error al seleccionar entorno de trabajo', 4000);
-            })
-        }
-    </script>
 </body>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $(".menu").sideNav();
+        $('.tooltipped').tooltip({delay: 50});
+        $('.selectWorkspaceCompanyModal').modal();
+
+        @if(session()->has('company_workspace_id'))
+            $('#workspaceCompany').on('click', function (){
+                $('#selectWorkspaceForm input[value="'+{{Session::get('company_workspace_id')}}+'"]').prop('checked',true);
+            });
+        @endif
+
+        @if ($errors->has('email'))
+            Materialize.toast('{{ $errors->first('email') }}', 2000);
+        @endif
+        
+        @if ($errors->has('password'))
+            Materialize.toast('{{ $errors->first('password') }}', 2000);
+        @endif
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+    });
+
+    function setWorkspaceCompany() {
+        var company_workspace_id=$('#selectWorkspaceForm :checked').val();
+        var company_workspace=$('#selectWorkspaceForm :checked').attr('data-company-name');
+
+        $.ajax({
+            url: "./workspace",
+            type: 'POST',
+            data: {company_workspace_id: company_workspace_id},
+        })
+        .done(function() {
+            Materialize.toast('Entorno de trabajo cambiado correctamente', 4000);
+            $("#workspaceCompany").text(company_workspace);
+            showCompanyWorkspaceMenu();
+            $('.selectWorkspaceCompanyModal').modal('close');
+            location.reload();
+        })
+        .fail(function() {
+            Materialize.toast('Error al seleccionar entorno de trabajo', 4000);
+        })
+    }
+
+    function showCompanyWorkspaceMenu() {
+        $('.company-workspace-menu').slideDown();
+    }
+</script>
+
 </html>

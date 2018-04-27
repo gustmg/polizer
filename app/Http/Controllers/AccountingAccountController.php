@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
 use App\AccountingAccount;
 use View;
+use App\Company;
 
 class AccountingAccountController extends Controller
 {
@@ -18,8 +19,9 @@ class AccountingAccountController extends Controller
     public function index()
     {
         //
-        $accounting_accounts=AccountingAccount::all();
-        return view::make('accounting_accounts.index')->with('accounting_accounts', $accounting_accounts);
+        $accounting_accounts=AccountingAccount::where('company_id', session()->get('company_workspace_id'))->get();
+        $companies=Company::all();
+        return view::make('accounting_accounts.index',['accounting_accounts' => $accounting_accounts, 'companies'=>$companies]);
     }
 
     /**
