@@ -17,10 +17,15 @@ class CreateClientsTable extends Migration
             $table->increments('client_id');
             $table->string('client_name');
             $table->string('client_rfc');
-            $table->string('client_accountable_account');
-            $table->integer('company_id');
-            $table->integer('counterpart_accountable_account');
+            $table->string('client_accounting_account');
+            $table->integer('company_id')->unsigned();
+            $table->integer('counterpart_accounting_account_id')->nullable()->unsigned();
             $table->timestamps();
+        });
+
+        Schema::table('clients', function (Blueprint $table) {
+            $table->foreign('company_id')->references('company_id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('counterpart_accounting_account_id')->references('accounting_account_id')->on('accounting_accounts')->onDelete('set null')->onUpdate('cascade');
         });
     }
 

@@ -86,8 +86,8 @@
                     <a class="collapsible-header"><i class="material-icons">business_center</i>Mis catálogos</a>
                     <div class="collapsible-body">
                         <ul style="background-color:#ddd;">
-                            <li><a href="#">Proveedores</a></li>
-                            <li><a href="#!">Clientes</a></li>
+                            <li><a href="{{route('providers.index')}}">Proveedores</a></li>
+                            <li><a href="{{route('clients.index')}}">Clientes</a></li>
                             <li><a href="{{ route('accounting_accounts.index') }}">Cuentas contables</a></li>
                             <li><a href="#!">Cuentas bancarias</a></li>
                         </ul>
@@ -159,17 +159,25 @@
             @yield('content')
         </main>
     </div>
-
-    <!-- Scripts -->
-    <script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
-    <script src="{{ asset('js/materialize.js') }}"></script>
-    @if (Route::currentRouteName()=='companies.index')
-        <script src="{{ asset('js/companies.js') }}"></script>
-    @endif
-    @if (Route::currentRouteName()=='accounting_accounts.index')
-        <script src="{{ asset('js/accounting_accounts.js') }}"></script>
-    @endif
 </body>
+<!-- Scripts -->
+<script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
+<script src="{{ asset('js/materialize.js') }}"></script>
+@if (Route::currentRouteName()=='companies.index')
+    <script src="{{ asset('js/companies.js') }}"></script>
+@endif
+@if (Route::currentRouteName()=='accounting_accounts.index')
+    <script src="{{ asset('js/accounting_accounts.js') }}"></script>
+@endif
+@if (Route::currentRouteName()=='providers.index')
+    <script src="{{ asset('js/providers.js') }}"></script>
+@endif
+@if (Route::currentRouteName()=='clients.index')
+    <script src="{{ asset('js/clients.js') }}"></script>
+@endif
+@if (Route::currentRouteName()=='bank_accounts.index')
+    <script src="{{ asset('js/bank_accounts.js') }}"></script>
+@endif
 <script type="text/javascript">
     $(document).ready(function(){
         $(".menu").sideNav();
@@ -222,5 +230,4 @@
         $('.company-workspace-menu').slideDown();
     }
 </script>
-
 </html>

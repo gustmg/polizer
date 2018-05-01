@@ -16,10 +16,16 @@ class CreateBankAccountsTable extends Migration
         Schema::create('bank_accounts', function (Blueprint $table) {
             $table->increments('bank_account_id');
             $table->integer('bank_account_number');
-            $table->integer('bank_id');
-            $table->integer('accountable_account_id');
-            $table->integer('company_id');
+            $table->integer('bank_id')->unsigned();
+            $table->integer('counterpart_accounting_account_id')->nullable()->unsigned();
+            $table->integer('company_id')->unsigned();
             $table->timestamps();
+        });
+
+        Schema::table('bank_accounts', function (Blueprint $table) {
+            $table->foreign('bank_id')->references('bank_id')->on('banks')->onDelete('restrict')->onUpdate('cascade');
+            $table->foreign('counterpart_accounting_account_id')->references('accounting_account_id')->on('accounting_accounts')->onDelete('set null')->onUpdate('cascade');
+            $table->foreign('company_id')->references('company_id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

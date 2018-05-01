@@ -21,5 +21,7 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::resource('companies', 'CompanyController');
 Route::resource('workspace', 'WorkspaceController');
+Route::resource('providers', 'ProviderController');
+Route::resource('clients', 'ClientController');
+Route::resource('bank_accounts', 'BankAccountController');
 Route::resource('accounting_accounts', 'AccountingAccountController');
-//Route::get('/companies','CompanyController@index')->name('companies');

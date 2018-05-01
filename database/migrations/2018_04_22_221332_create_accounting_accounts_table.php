@@ -17,9 +17,14 @@ class CreateAccountingAccountsTable extends Migration
             $table->increments('accounting_account_id');
             $table->string('accounting_account_number');
             $table->string('accounting_account_description');
-            $table->integer('company_id');
-            $table->integer('accounting_account_type_id');
+            $table->integer('company_id')->unsigned();
+            $table->integer('accounting_account_type_id')->unsigned();
             $table->timestamps();
+        });
+
+        Schema::table('accounting_accounts', function (Blueprint $table) {
+            $table->foreign('company_id')->references('company_id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('accounting_account_type_id')->references('accounting_account_type_id')->on('accounting_account_types')->onDelete('restrict')->onUpdate('cascade');
         });
     }
 
