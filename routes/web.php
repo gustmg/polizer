@@ -19,9 +19,9 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
-Route::resource('companies', 'CompanyController');
-Route::resource('workspace', 'WorkspaceController');
-Route::resource('providers', 'ProviderController');
-Route::resource('clients', 'ClientController');
-Route::resource('bank_accounts', 'BankAccountController');
-Route::resource('accounting_accounts', 'AccountingAccountController');
+Route::resource('companies', 'CompanyController')->middleware('auth');
+Route::resource('workspace', 'WorkspaceController')->middleware('auth');
+Route::resource('providers', 'ProviderController')->middleware('auth');
+Route::resource('clients', 'ClientController')->middleware('auth');
+Route::resource('bank_accounts', 'BankAccountController')->middleware('auth');
+Route::resource('accounting_accounts', 'AccountingAccountController')->middleware('auth');

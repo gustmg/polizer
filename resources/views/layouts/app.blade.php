@@ -89,7 +89,7 @@
                             <li><a href="{{route('providers.index')}}">Proveedores</a></li>
                             <li><a href="{{route('clients.index')}}">Clientes</a></li>
                             <li><a href="{{ route('accounting_accounts.index') }}">Cuentas contables</a></li>
-                            <li><a href="#!">Cuentas bancarias</a></li>
+                            <li><a href="{{ route('bank_accounts.index') }}">Cuentas bancarias</a></li>
                         </ul>
                     </div>
                 </li>
