@@ -75,10 +75,10 @@
                     <a class="collapsible-header">Integración de pólizas<i class="material-icons">library_add</i></a>
                     <div class="collapsible-body">
                         <ul style="background-color:#ddd;">
-                            <li><a href="#!">Provisión</a></li>
-                            <li><a href="#!">Facturación</a></li>
-                            <li><a href="#!">Pago a proveedores</a></li>
-                            <li><a href="#!">Depósito de clientes</a></li>
+                            <li><a href="{{ route ('provision_policy') }}">Provisión</a></li>
+                            <li><a href="">Facturación</a></li>
+                            <li><a href="">Pago a proveedores</a></li>
+                            <li><a href="">Depósito de clientes</a></li>
                         </ul>
                     </div>
                 </li>

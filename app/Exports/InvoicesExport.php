@@ -2,13 +2,13 @@
 	namespace App\Exports;
 
 	use Maatwebsite\Excel\Concerns\FromCollection;
-	use App\Company;
+	use App\User;
 
 	class InvoicesExport implements FromCollection
 	{
 	    public function collection()
 	    {	       
-	    	$users= Company::all(); 
+	    	$users= User::all(); 
 	        return $users;
 	    }
 	}
