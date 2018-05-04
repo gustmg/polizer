@@ -178,6 +178,9 @@
 @if (Route::currentRouteName()=='bank_accounts.index')
     <script src="{{ asset('js/bank_accounts.js') }}"></script>
 @endif
+@if (Route::currentRouteName()=='provision_policy')
+    <script src="{{ asset('js/provision_policy.js') }}"></script>
+@endif
 <script type="text/javascript">
     $(document).ready(function(){
         $(".menu").sideNav();
