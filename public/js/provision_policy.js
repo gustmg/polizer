@@ -3,6 +3,7 @@ standard_provision_files.addEventListener("change", getFiles, false);
 
 var files;
 var number_of_files;
+var jsonFilesData = [];
 
 function getFiles(e){
     files= e.target.files;
@@ -34,6 +35,7 @@ function readFile(index) {
 			var reader = new FileReader();
 			reader.onload = function (e){
 				getFileData(e);
+				setTimeout(agregaFilaTablaProvision.bind(null, index), 1);
 				readFile(index+1);
 			}
 			reader.readAsDataURL(file);
@@ -44,7 +46,7 @@ function readFile(index) {
 		}
 	}
 	else{
-		console.log('Se terminaron de leer los archivos');
+		console.log('Se leyeron todos los archivos');
 	}
 }
 
@@ -60,26 +62,50 @@ function validateExtension(file_extension) {
 function getFileData(e){
 	var file_data=e.target.result;
 	passFileDataToJson(file_data);
-	
 }
 
 function passFileDataToJson(file_data){
-	$.get(file_data, function (xml) {	
-		var datosXML = obtenerDatosXML(xml);
-		$(".section2").append("Nombre Emisor: "+datosXML.emisor.nombreEmisor+"<br>");
+	$.get(file_data, function (xml) {
 
-		// if(archivos_eliminados!=0){
-		// 	var no_fila=($("#tabla tbody tr").length)+archivos_eliminados;
-		// }
-		// else{
-		// 	var no_fila=($("#tabla tbody tr").length);
-		// }
+		jsonFilesData.push(obtenerDatosXML(xml));
+		
+		
+		//console.log(jsonFilesData[0]);
 
-		// agregaFilaTablaProvision(datosXML, no_fila);
+		
 		// verificaRfcEmisor(datosXML.emisor.rfcEmisor, no_fila, datosXML.emisor.nombreEmisor);
-		// $("table").trigger("update");
 		
 	});
+}
+
+function agregaFilaTablaProvision(index){
+	$('.collection').append(
+		'<li class="collection-item avatar" data-file-index="'+index+'">'+
+			'<i class="material-icons circle white-text">subject</i>'+
+			'<span>'+
+				'<b>'+jsonFilesData[index].emisor.nombreEmisor+' (RFC123456789)</b>'+
+			'</span>'+
+			'<a href="#!" class="secondary-content dropdown-button" data-activates="dropdown-menu'+index+'" data-alignment="right">'+
+				'<i class="material-icons">more_vert</i>'+
+			'</a><br>'+
+			'<span class="grey-text text-darken-2">'+
+				'<b>Serie:</b> <i>A</i>&nbsp;&nbsp;<b>Folio:</b> <i>1026</i>'+
+			'</span><br>'+
+			'<span class="grey-text text-darken-2">'+
+				'<b>Fecha de emisión:</b> <i>Marzo, 2015</i></span><br>'+
+			'<span class="grey-text text-darken-2">'+
+				'<b>Conceptos:</b> <i>Recarga telefónica&nbsp;&nbsp;</i>'+
+				'<a href="#">Ver todos los conceptos...</a>'+
+			'</span><br>'+
+			'<span class="grey-text text-darken-2">'+
+				'<b>Contrapartida:</b> <i>1200-000-000 Recarga telefónica</i>'+
+			'</span>'+
+			'<ul id="dropdown-menu'+index+'" class="dropdown-content" style="min-width: 200px;">'+
+				'<li><a href="#!">Agregar proveedor</a></li>'+
+				'<li><a href="#!">Cambiar cuenta destino</a></li>'+
+				'<li><a href="#!">Eliminar XML</a></li>'+
+			'</ul>'+
+		'</li>');
 }
 
 function obtenerDatosXML(xml){
@@ -143,9 +169,9 @@ function obtenerDatosXML(xml){
 				"totalImpuestosTrasladados" : impuestos.attr('totalImpuestosTrasladados')
 			}
 		}
-		// datosXML.comprobante.folio=validaDatoDefinido(datosXML.comprobante.folio);
-		// datosXML.comprobante.serie=validaDatoDefinido(datosXML.comprobante.serie);
-		// datosXML.receptor.nombreReceptor=validaDatoDefinido(datosXML.receptor.nombreReceptor);
+		datosXML.comprobante.folio=validaDatoDefinido(datosXML.comprobante.folio);
+		datosXML.comprobante.serie=validaDatoDefinido(datosXML.comprobante.serie);
+		datosXML.receptor.nombreReceptor=validaDatoDefinido(datosXML.receptor.nombreReceptor);
 	}
 
 	else if(comprobante.attr('Version')=='3.3'){
@@ -197,8 +223,73 @@ function obtenerDatosXML(xml){
 				"totalImpuestosTrasladados" : impuestos.attr('TotalImpuestosTrasladados')
 			}
 		}
-		// datosXML.comprobante.folio=validaDatoDefinido(datosXML.comprobante.folio);
-		// datosXML.comprobante.serie=validaDatoDefinido(datosXML.comprobante.serie);
+		datosXML.comprobante.folio=validaDatoDefinido(datosXML.comprobante.folio);
+		datosXML.comprobante.serie=validaDatoDefinido(datosXML.comprobante.serie);
 	}
 	return datosXML;
+}
+
+function validaDatoDefinido(dato){
+	if(typeof dato == 'undefined'){
+		dato=0;
+	}
+	return dato;
+}
+
+function personalizaTotal(total) {
+	for(i=0;i<total.length;i++){
+		if(total.charAt(i)=="."){
+			var separador=".";
+			var subcadenas_total=total.split(separador);
+			var centavos=subcadenas_total[1].substr(0,2);
+			total=subcadenas_total[0]+'.'+centavos;
+		}
+	}
+	return total;
+}
+
+function personalizaFecha(fecha) {
+	var mes=fecha.substr(5,2);
+	var dia=fecha.substr(8,2);
+	var mes_letra;
+	switch(mes){
+		case '01':
+			mes_letra='Ene';
+			break;
+		case '02':
+			mes_letra='Feb';
+			break;
+		case '03':
+			mes_letra='Mar';
+			break;
+		case '04':
+			mes_letra='Abr';
+			break;
+		case '05':
+			mes_letra='May';
+			break;	
+		case '06':
+			mes_letra='Jun';
+			break;
+		case '07':
+			mes_letra='Jul';
+			break;
+		case '08':
+			mes_letra='Ago';
+			break;
+		case '09':
+			mes_letra='Sep';
+			break;
+		case '10':
+			mes_letra='Oct';
+			break;
+		case '11':
+			mes_letra='Nov';
+			break;
+		case '12':
+			mes_letra='Dic';
+			break;
+	}
+	var fecha_personalizada= dia+'-'+mes_letra;
+	return fecha_personalizada;
 }
