@@ -11,6 +11,7 @@ use App\Company;
 use App\Provider;
 use View;
 use Session;
+use Route;
 
 class ProviderController extends Controller
 {
@@ -56,7 +57,9 @@ class ProviderController extends Controller
 
         $provider->save();
 
-        return Redirect::to('providers');
+        if(Route::currentRouteName()=='providers.index'){
+            return Redirect::to('providers');
+        }
     }
 
     /**

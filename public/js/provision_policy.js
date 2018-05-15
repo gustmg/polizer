@@ -1,31 +1,43 @@
 var standard_provision_files = document.getElementById("standard_provision_files");
 standard_provision_files.addEventListener("change", getFiles, false);
+var file_index;
+var concept_index;
+
+$('#modalContrapartida1').modal({
+	ready: function(modal, trigger) {
+		file_index = trigger.attr("data-file-index");
+		concept_index = trigger.attr("data-concept-index");
+	},
+});
+$('#modalRemoveFile').modal({
+	ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
+	    var remove_file_id = trigger.parent().parent().parent().attr('data-file-index');
+	    $('#removeFileConfirmButton').attr('onclick', 'removeFile('+remove_file_id+');');
+	},
+});
+$('select').material_select();
+
+function setConceptCounterpart(accounting_account_number, accounting_account_description) {
+	$('#conceptList'+file_index+' li:nth-child('+concept_index+')').attr('data-counterpart-account-number', accounting_account_number);
+	$('#conceptList'+file_index+' li:nth-child('+concept_index+') .counterpart').html('');
+	$('#conceptList'+file_index+' li:nth-child('+concept_index+') .counterpart').append(accounting_account_description);
+	$('#modalContrapartida1').modal('close');
+	//$('#conceptList'+file_index+':nth-child('+(concept_index+1)+') span:nth-child(2)').append(accounting_account_description);
+}
 
 var files;
 var number_of_files;
 var jsonFilesData = [];
+var total_uploaded_files = 0;
 
 function getFiles(e){
     files= e.target.files;
     number_of_files = files.length;
-    
-    
-    
-    readFile(0);
-
-    // $("#seccion1").fadeOut("slow",leeArchivos(archivos));  
-    // $.merge(lista_archivos,archivos);
-    // $("#mandaExcel").prop("disabled",false);
-    // $("#check-main").prop("disabled",false);
+	$(".section1").fadeOut(400,readFile(0));
 }
 
-// function removeSelectProvisionTypeSection(provision_type_id){
-// 	$(".section1").fadeOut('slow', function() {
-		
-// 	});
-// }
-
 function readFile(index) {
+	$('.progress').css('visibility', 'visible');
 	if( index != number_of_files){
 		var file = files[index];
 		var filename= files[index].name;
@@ -35,7 +47,8 @@ function readFile(index) {
 			var reader = new FileReader();
 			reader.onload = function (e){
 				getFileData(e);
-				setTimeout(agregaFilaTablaProvision.bind(null, index), 1);
+				setTimeout(agregaFilaTablaProvision.bind(null, total_uploaded_files), 1);
+				total_uploaded_files++;
 				readFile(index+1);
 			}
 			reader.readAsDataURL(file);
@@ -47,6 +60,9 @@ function readFile(index) {
 	}
 	else{
 		console.log('Se leyeron todos los archivos');
+		console.log("Total de archivos cargados: "+total_uploaded_files);
+		$('.progress').css('visibility', 'hidden');
+		$(".section2").delay(400).fadeIn(400);
 	}
 }
 
@@ -66,46 +82,83 @@ function getFileData(e){
 
 function passFileDataToJson(file_data){
 	$.get(file_data, function (xml) {
-
-		jsonFilesData.push(obtenerDatosXML(xml));
-		
-		
-		//console.log(jsonFilesData[0]);
-
-		
+		jsonFilesData.push(obtenerDatosXML(xml));		
 		// verificaRfcEmisor(datosXML.emisor.rfcEmisor, no_fila, datosXML.emisor.nombreEmisor);
-		
 	});
 }
 
 function agregaFilaTablaProvision(index){
-	$('.collection').append(
-		'<li class="collection-item avatar" data-file-index="'+index+'">'+
+	$('.collection-cfdi').append(
+		'<li class="collection-item avatar dismissable" data-file-index="'+index+'" data-rfc-provider="'+jsonFilesData[index].emisor.rfcEmisor+'">'+
 			'<i class="material-icons circle white-text">subject</i>'+
 			'<span>'+
-				'<b>'+jsonFilesData[index].emisor.nombreEmisor+' (RFC123456789)</b>'+
+				'<b>'+jsonFilesData[index].emisor.nombreEmisor+' ('+jsonFilesData[index].emisor.rfcEmisor+')</b>'+
 			'</span>'+
+			'<span id="unknown_provider'+index+'" class="red-text hide"><br><b><i>Proveedor no registrado</i></b></span>'+
 			'<a href="#!" class="secondary-content dropdown-button" data-activates="dropdown-menu'+index+'" data-alignment="right">'+
 				'<i class="material-icons">more_vert</i>'+
 			'</a><br>'+
 			'<span class="grey-text text-darken-2">'+
-				'<b>Serie:</b> <i>A</i>&nbsp;&nbsp;<b>Folio:</b> <i>1026</i>'+
+				'<b>Serie:</b> <i>'+jsonFilesData[index].comprobante.serie+'</i>&nbsp;&nbsp;<b>Folio:</b> <i>'+jsonFilesData[index].comprobante.folio+'</i>'+
 			'</span><br>'+
 			'<span class="grey-text text-darken-2">'+
-				'<b>Fecha de emisión:</b> <i>Marzo, 2015</i></span><br>'+
+				'<b>Fecha de emisión:</b> <i>'+personalizaFecha(jsonFilesData[index].comprobante.fecha)+'</i></span><br>'+
+				'<span class="grey-text text-darken-2">'+
+				'<b>Total:</b> <i>$'+personalizaTotal(jsonFilesData[index].comprobante.total)+'</i></span><br>'+
 			'<span class="grey-text text-darken-2">'+
-				'<b>Conceptos:</b> <i>Recarga telefónica&nbsp;&nbsp;</i>'+
-				'<a href="#">Ver todos los conceptos...</a>'+
+				'<b>Conceptos:</b>'+
+				'<ul id="conceptList'+index+'" class="collection card" style="border: none;overflow: visible;"></ul>'+
 			'</span><br>'+
-			'<span class="grey-text text-darken-2">'+
-				'<b>Contrapartida:</b> <i>1200-000-000 Recarga telefónica</i>'+
-			'</span>'+
 			'<ul id="dropdown-menu'+index+'" class="dropdown-content" style="min-width: 200px;">'+
-				'<li><a href="#!">Agregar proveedor</a></li>'+
-				'<li><a href="#!">Cambiar cuenta destino</a></li>'+
-				'<li><a href="#!">Eliminar XML</a></li>'+
+				'<li id="registerProvider'+index+'"><a href="#newProviderModal" class="modal-trigger newProviderFromProvision">Agregar proveedor</a></li>'+
+				'<li><a href="#modalRemoveFile" class="modal-trigger">Eliminar XML</a></li>'+
 			'</ul>'+
 		'</li>');
+	agregaConceptos(index)
+	$('.dropdown-button').dropdown();
+	$('select').material_select();
+}
+
+function agregaConceptos(indexJson){
+	var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
+
+	$.ajax({
+		url: '/provision_policy',
+		type: 'POST',
+		data: {_token: CSRF_TOKEN, handler: 'getProvider', provider_rfc : jsonFilesData[indexJson].emisor.rfcEmisor},
+	})
+	.done(function(data) {
+		if(data.length===0){
+			$.each(jsonFilesData[indexJson].concepto.descripciones, function(key, value) {
+				$('#conceptList'+indexJson).append(
+				'<li class="collection-item lighten-5" data-counterpart-account-number="0">'+
+					'<b>'+value+'</b> <span class="right">$'+jsonFilesData[indexJson].concepto.importes[key]+'</span><br>'+
+					'<b>Contrapartida:</b> <span class="counterpart">Contrapartida no asignada</span><br>'+
+					'<a href="#modalContrapartida1" class="modal-trigger" data-file-index="'+indexJson+'" data-concept-index="'+(key+1)+'">Cambiar contrapartida para este concepto</a>'+
+				'</li>');
+			});
+			$("#unknown_provider"+indexJson).removeClass('hide');
+		}
+		else{
+			$.each(jsonFilesData[indexJson].concepto.descripciones, function(key, value) {
+				$('#conceptList'+indexJson).append(
+				'<li class="collection-item lighten-5" data-counterpart-account-number="'+data[0].counterpart_account.accounting_account_number+'">'+
+					'<b>'+value+'</b> <span class="right">$'+jsonFilesData[indexJson].concepto.importes[key]+'</span><br>'+
+					'<b>Contrapartida:</b> <span class="counterpart">'+data[0].counterpart_account.accounting_account_description+'</span><br>'+
+					'<a href="#modalContrapartida1" class="modal-trigger" data-file-index="'+indexJson+'" data-concept-index="'+(key+1)+'">Cambiar contrapartida para este concepto</a>'+
+				'</li>');
+			});
+			$("#registerProvider"+indexJson).remove();
+		}
+	})
+	.fail(function() {
+		console.log("Error al buscar proveedor");
+	})
+}
+
+function removeFile(no_file){
+	$('#modalRemoveFile').modal('close');
+	$('li[data-file-index="'+no_file+'"]').fadeOut(400);
 }
 
 function obtenerDatosXML(xml){
@@ -254,42 +307,42 @@ function personalizaFecha(fecha) {
 	var mes_letra;
 	switch(mes){
 		case '01':
-			mes_letra='Ene';
+			mes_letra='Enero';
 			break;
 		case '02':
-			mes_letra='Feb';
+			mes_letra='Febrero';
 			break;
 		case '03':
-			mes_letra='Mar';
+			mes_letra='Marzo';
 			break;
 		case '04':
-			mes_letra='Abr';
+			mes_letra='Abril';
 			break;
 		case '05':
-			mes_letra='May';
+			mes_letra='Mayo';
 			break;	
 		case '06':
-			mes_letra='Jun';
+			mes_letra='Junio';
 			break;
 		case '07':
-			mes_letra='Jul';
+			mes_letra='Julio';
 			break;
 		case '08':
-			mes_letra='Ago';
+			mes_letra='Agosto';
 			break;
 		case '09':
-			mes_letra='Sep';
+			mes_letra='Septiembre';
 			break;
 		case '10':
-			mes_letra='Oct';
+			mes_letra='Octubre';
 			break;
 		case '11':
-			mes_letra='Nov';
+			mes_letra='Noviembre';
 			break;
 		case '12':
-			mes_letra='Dic';
+			mes_letra='Diciembre';
 			break;
 	}
-	var fecha_personalizada= dia+'-'+mes_letra;
+	var fecha_personalizada= dia+' de '+mes_letra;
 	return fecha_personalizada;
 }

@@ -56,6 +56,9 @@
                     <ul id="multiple-users-select-menu" class="right scale-transition scale-out">
                         <li><a href="#" class="tooltipped black-text" data-position="bottom" data-delay="50" data-tooltip="Eliminar usuarios seleccionados"><i class="material-icons">delete</i></a></li>
                     </ul>
+                    <div class="progress" style="margin-top: -2px;visibility: hidden;">
+                        <div class="indeterminate"></div>
+                    </div>
                 </div>
             </nav>
         </div>
@@ -180,6 +183,7 @@
 @endif
 @if (Route::currentRouteName()=='provision_policy')
     <script src="{{ asset('js/provision_policy.js') }}"></script>
+    <script src="{{ asset('js/providers.js') }}"></script>
 @endif
 <script type="text/javascript">
     $(document).ready(function(){

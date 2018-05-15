@@ -20,7 +20,6 @@ class AccountingAccountController extends Controller
      */
     public function index()
     {
-        //
         $accounting_accounts=AccountingAccount::where('company_id', session()->get('company_workspace_id'))->get();
         $companies=Company::where('user_id', Auth::user()->id)->get();
         $accounting_account_types=AccountingAccountType::all();

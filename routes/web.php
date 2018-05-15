@@ -29,3 +29,4 @@ Route::resource('bank_accounts', 'BankAccountController')->middleware('auth');
 Route::resource('accounting_accounts', 'AccountingAccountController')->middleware('auth');
 //Rutas para generación de pólizas
 Route::get('provision_policy', 'ProvisionPolicyController@index')->middleware('auth')->name('provision_policy');
+Route::post('/provision_policy', 'ProvisionPolicyController@handler');
