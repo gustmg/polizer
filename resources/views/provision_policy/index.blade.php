@@ -1,7 +1,27 @@
 @extends('layouts.app')
 @section('content')
-<div class="container">
-	<div class="row section1">
+<div id="menu_navbar" class="row white valign-wrapper" style="height: 48px;display: none;">
+	<div class="col s2" style="margin-left: 4px;">
+		<a id="back_prev" class="selectable">
+			<i class="material-icons black-text">arrow_back</i>
+		</a>
+	</div>
+	<div class="col s10 right-align" style="margin-right: 4px;">
+		<a>
+			<i class="material-icons black-text">search</i>
+		</a>
+		&nbsp;&nbsp;
+		<a id="add_standard_provision_files" class="selectable">
+			<i class="material-icons black-text">note_add</i>
+		</a>
+		&nbsp;&nbsp;
+		<a id="send_json_files" class="selectable">
+			<i class="material-icons black-text">send</i>
+		</a>
+	</div>
+</div>
+<div class="container section1">
+	<div class="row">
 		<div class="col s12 m6">
 			<div class="card">
 				<div class="card-content" style="padding: 8px 24px 0 24px;">
@@ -23,7 +43,7 @@
 					</div>
 				</div>
 				<div class="card-action right-align">
-					<label class="btn">
+					<label id="add_files" class="btn">
 						<b>Cargar CFDI's</b>
 						<input type="file" style="display: none;" name="standard_provision_files" id="standard_provision_files" accept=".xml" multiple>
 					</label>
@@ -116,8 +136,10 @@
 			</div>
 		</div>
 	</div>
-	<div class="row section2">
-		<ul class="collection collection-cfdi" style="overflow: visible;">
+</div>
+<div class="container section2">
+	<div class="row">
+		<ul class="col s12 collection collection-cfdi" style="overflow: visible;">
 			<div id="modalContrapartida1" class="modal modal-fixed-footer">
 				<div class="modal-content">
 					<ul class="collection with-header">

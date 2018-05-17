@@ -50,7 +50,12 @@ class ProvisionPolicyController extends Controller
             $provider->counterpart_accounting_account_id=$request->counterpart_accounting_account_id;
 
             $provider->save();
-            return $provider;
+
+            $provider_saved = Provider::with('counterpart_account')->where([
+                ['company_id', '=', session()->get('company_workspace_id')],
+                ['provider_rfc', '=', $request->provider_rfc]
+            ])->get();
+            return $provider_saved;
         }
     }
 }

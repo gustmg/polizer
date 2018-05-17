@@ -58,8 +58,11 @@ function ajaxNewProvider() {
 		$(".collection-cfdi li").each(function(index){
 			$("#newProviderModal").modal('close');
 			if($(this).attr('data-rfc-provider')===data.provider_rfc){
-				console.log("Eliminando warning de archivo "+$(this).attr('data-file-index'));
-				$("#unknown_provider"+$(this).attr('data-file-index')).addClass('hide');
+				$('li[data-rfc-provider='+data[0].provider_rfc+']').removeClass('red').removeClass('darken-4').removeClass('white-text').removeClass('scrollspy');
+				$('li[data-rfc-provider='+data[0].provider_rfc+'] .subtext').addClass('grey-text').addClass('text-darken-2').removeClass('white-text');
+				$('li[data-rfc-provider='+data[0].provider_rfc+'] .counterpart').html('');
+				$('li[data-rfc-provider='+data[0].provider_rfc+'] .counterpart').append(data[0].counterpart_account.accounting_account_description);
+				$('li[data-rfc-provider='+data[0].provider_rfc+'] .collection-concept').attr('data-counterpart-account-number', data[0].counterpart_account.accounting_account_number);
 				$("#registerProvider"+$(this).attr('data-file-index')).remove();
 			}
 		});
@@ -93,4 +96,3 @@ function createSelectCounterpart() {
 	$('.selectNew').val(0);
 	$('.selectNew').material_select();
 }
-

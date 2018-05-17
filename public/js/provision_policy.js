@@ -1,5 +1,11 @@
 var standard_provision_files = document.getElementById("standard_provision_files");
+var add_standard_provision_files = document.getElementById("add_standard_provision_files");
+var back_prev_section = document.getElementById("back_prev");
+var send_json_files = document.getElementById("send_json_files");
+add_standard_provision_files.addEventListener("click", triggerAddFiles,false);
 standard_provision_files.addEventListener("change", getFiles, false);
+back_prev_section.addEventListener("click", returnSection, false);
+send_json_files.addEventListener("click", sendJsonFiles, false);
 var file_index;
 var concept_index;
 
@@ -25,6 +31,10 @@ function setConceptCounterpart(accounting_account_number, accounting_account_des
 	//$('#conceptList'+file_index+':nth-child('+(concept_index+1)+') span:nth-child(2)').append(accounting_account_description);
 }
 
+function returnSection() {
+	location.reload();
+}
+
 var files;
 var number_of_files;
 var jsonFilesData = [];
@@ -34,6 +44,10 @@ function getFiles(e){
     files= e.target.files;
     number_of_files = files.length;
 	$(".section1").fadeOut(400,readFile(0));
+}
+
+function triggerAddFiles() {
+	$("#add_files").trigger('click');
 }
 
 function readFile(index) {
@@ -62,7 +76,8 @@ function readFile(index) {
 		console.log('Se leyeron todos los archivos');
 		console.log("Total de archivos cargados: "+total_uploaded_files);
 		$('.progress').css('visibility', 'hidden');
-		$(".section2").delay(400).fadeIn(400);
+		$('.section2').delay(400).fadeIn(400);
+		$('#menu_navbar').slideDown(400);
 	}
 }
 
@@ -96,17 +111,17 @@ function agregaFilaTablaProvision(index){
 			'</span>'+
 			'<span id="unknown_provider'+index+'" class="red-text hide"><br><b><i>Proveedor no registrado</i></b></span>'+
 			'<a href="#!" class="secondary-content dropdown-button" data-activates="dropdown-menu'+index+'" data-alignment="right">'+
-				'<i class="material-icons">more_vert</i>'+
+				'<i class="material-icons subtext">more_vert</i>'+
 			'</a><br>'+
-			'<span class="grey-text text-darken-2">'+
+			'<span class="subtext grey-text text-darken-2">'+
 				'<b>Serie:</b> <i>'+jsonFilesData[index].comprobante.serie+'</i>&nbsp;&nbsp;<b>Folio:</b> <i>'+jsonFilesData[index].comprobante.folio+'</i>'+
 			'</span><br>'+
-			'<span class="grey-text text-darken-2">'+
+			'<span class="subtext grey-text text-darken-2">'+
 				'<b>Fecha de emisión:</b> <i>'+personalizaFecha(jsonFilesData[index].comprobante.fecha)+'</i></span><br>'+
-				'<span class="grey-text text-darken-2">'+
+				'<span class="subtext grey-text text-darken-2">'+
 				'<b>Total:</b> <i>$'+personalizaTotal(jsonFilesData[index].comprobante.total)+'</i></span><br>'+
 			'<span class="grey-text text-darken-2">'+
-				'<b>Conceptos:</b>'+
+				'<b class="subtext">Conceptos:</b>'+
 				'<ul id="conceptList'+index+'" class="collection card" style="border: none;overflow: visible;"></ul>'+
 			'</span><br>'+
 			'<ul id="dropdown-menu'+index+'" class="dropdown-content" style="min-width: 200px;">'+
@@ -131,18 +146,21 @@ function agregaConceptos(indexJson){
 		if(data.length===0){
 			$.each(jsonFilesData[indexJson].concepto.descripciones, function(key, value) {
 				$('#conceptList'+indexJson).append(
-				'<li class="collection-item lighten-5" data-counterpart-account-number="0">'+
+				'<li class="collection-item collection-concept" data-counterpart-account-number="0">'+
 					'<b>'+value+'</b> <span class="right">$'+jsonFilesData[indexJson].concepto.importes[key]+'</span><br>'+
 					'<b>Contrapartida:</b> <span class="counterpart">Contrapartida no asignada</span><br>'+
 					'<a href="#modalContrapartida1" class="modal-trigger" data-file-index="'+indexJson+'" data-concept-index="'+(key+1)+'">Cambiar contrapartida para este concepto</a>'+
 				'</li>');
 			});
-			$("#unknown_provider"+indexJson).removeClass('hide');
+			$('li[data-rfc-provider='+jsonFilesData[indexJson].emisor.rfcEmisor+']').addClass('red').addClass('darken-4').addClass('white-text').addClass('scrollspy');
+			$('li[data-rfc-provider='+jsonFilesData[indexJson].emisor.rfcEmisor+'] .subtext').removeClass('grey-text').removeClass('text-darken-2').addClass('white-text');
+			//$('li[data-rfc-provider='+jsonFilesData[indexJson].emisor.rfcEmisor+'] i.circle').html('');
+			//$('li[data-rfc-provider='+jsonFilesData[indexJson].emisor.rfcEmisor+'] i.circle').html('warning');
 		}
 		else{
 			$.each(jsonFilesData[indexJson].concepto.descripciones, function(key, value) {
 				$('#conceptList'+indexJson).append(
-				'<li class="collection-item lighten-5" data-counterpart-account-number="'+data[0].counterpart_account.accounting_account_number+'">'+
+				'<li class="collection-item collection-concept" data-counterpart-account-number="'+data[0].counterpart_account.accounting_account_number+'">'+
 					'<b>'+value+'</b> <span class="right">$'+jsonFilesData[indexJson].concepto.importes[key]+'</span><br>'+
 					'<b>Contrapartida:</b> <span class="counterpart">'+data[0].counterpart_account.accounting_account_description+'</span><br>'+
 					'<a href="#modalContrapartida1" class="modal-trigger" data-file-index="'+indexJson+'" data-concept-index="'+(key+1)+'">Cambiar contrapartida para este concepto</a>'+
@@ -158,7 +176,51 @@ function agregaConceptos(indexJson){
 
 function removeFile(no_file){
 	$('#modalRemoveFile').modal('close');
-	$('li[data-file-index="'+no_file+'"]').fadeOut(400);
+	$('li[data-file-index="'+no_file+'"]').fadeOut(400).remove();
+}
+
+function sendJsonFiles(){
+	$('.progress').css('visibility', 'visible');
+	var jsonFiles=[];
+	if(verifyUnregisteredProviders()!=0){
+		$('.progress').css('visibility', 'hidden');
+		Materialize.toast('No se pudo procesar la petición. El proveedor de algún comprobante no está registrado.', 4000);
+	}
+	else{
+		if(verifyUnregisteredProviders()!=0){
+			$('.progress').css('visibility', 'hidden');
+			Materialize.toast('No se pudo procesar la petición. Hay conceptos sin contrapartida.', 4000);
+		}
+		else{
+			Materialize.toast('Procesando archivos.', 4000);
+			$('.collection-cfdi li.avatar').each(function(index){
+				var indexJsonFile=$(this).attr("data-file-index");
+				jsonFiles.push(jsonFilesData[indexJsonFile]);
+				
+			});
+			//TO-DO send json to excel by ajax
+			console.log(jsonFiles);
+		}
+		
+	}
+}
+
+function verifyUnregisteredProviders() {
+	var amount_unregistered_providers=0;
+	$('.collection-cfdi li.avatar').each(function(index){
+		if($(this).hasClass('red')){
+			amount_unregistered_providers++;
+		}
+	});
+	return amount_unregistered_providers;
+}
+
+function verifyUnasignedCounterparts() {
+	var amount_unasigned_counterparts=0;
+	$('.collection-cfdi li.avatar .counterpart:contains("Contrapartida no asignada");').each(function(index){
+		amount_unasigned_counterparts++;
+	});
+	return amount_unasigned_counterparts;
 }
 
 function obtenerDatosXML(xml){
