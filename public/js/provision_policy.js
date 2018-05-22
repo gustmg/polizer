@@ -1,13 +1,17 @@
 var standard_provision_files = document.getElementById("standard_provision_files");
 var add_standard_provision_files = document.getElementById("add_standard_provision_files");
 var back_prev_section = document.getElementById("back_prev");
+var cfdi_config = document.getElementById("cfdi_config");
 var send_json_files = document.getElementById("send_json_files");
 add_standard_provision_files.addEventListener("click", triggerAddFiles,false);
 standard_provision_files.addEventListener("change", getFiles, false);
 back_prev_section.addEventListener("click", returnSection, false);
+cfdi_config.addEventListener("click", openCfdiConfigModal, false);
 send_json_files.addEventListener("click", sendJsonFiles, false);
 var file_index;
 var concept_index;
+var generate_by_provider=0;
+$('#cfdi_by_provider_toggle').prop('checked', false);
 
 $('#modalContrapartida1').modal({
 	ready: function(modal, trigger) {
@@ -16,19 +20,42 @@ $('#modalContrapartida1').modal({
 	},
 });
 $('#modalRemoveFile').modal({
-	ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
+	ready: function(modal, trigger) {
 	    var remove_file_id = trigger.parent().parent().parent().attr('data-file-index');
 	    $('#removeFileConfirmButton').attr('onclick', 'removeFile('+remove_file_id+');');
 	},
 });
+$('#modalFilesConfig').modal();
 $('select').material_select();
 
 function setConceptCounterpart(accounting_account_number, accounting_account_description) {
 	$('#conceptList'+file_index+' li:nth-child('+concept_index+')').attr('data-counterpart-account-number', accounting_account_number);
 	$('#conceptList'+file_index+' li:nth-child('+concept_index+') .counterpart').html('');
 	$('#conceptList'+file_index+' li:nth-child('+concept_index+') .counterpart').append(accounting_account_description);
+	jsonFilesData[file_index].concepto.contrapartidas[concept_index-1]=accounting_account_number;
+	//console.log(jsonFilesData[file_index]);
 	$('#modalContrapartida1').modal('close');
-	//$('#conceptList'+file_index+':nth-child('+(concept_index+1)+') span:nth-child(2)').append(accounting_account_description);
+}
+
+function openCfdiConfigModal() {
+	$('#modalFilesConfig').modal('open');
+}
+
+function validateIndexSerie() {
+	if($('#cfdi_index_serie').val() < 1){
+		$('#saveChanges').attr('disabled', true);
+	}
+	else
+		$('#saveChanges').attr('disabled', false);
+}
+
+function setProviderToggle() {
+	if($('#cfdi_by_provider_toggle').is(':checked')){
+		generate_by_provider=1;
+	}
+	else{
+		generate_by_provider=0;
+	}
 }
 
 function returnSection() {
@@ -68,13 +95,13 @@ function readFile(index) {
 			reader.readAsDataURL(file);
 		}
 		else{
-			console.log('El archivo no. '+index+' no tiene una extension xml');
+			//console.log('El archivo no. '+index+' no tiene una extension xml');
 			readFile(index+1);
 		}
 	}
 	else{
-		console.log('Se leyeron todos los archivos');
-		console.log("Total de archivos cargados: "+total_uploaded_files);
+		//console.log('Se leyeron todos los archivos');
+		//console.log("Total de archivos cargados: "+total_uploaded_files);
 		$('.progress').css('visibility', 'hidden');
 		$('.section2').delay(400).fadeIn(400);
 		$('#menu_navbar').slideDown(400);
@@ -98,7 +125,6 @@ function getFileData(e){
 function passFileDataToJson(file_data){
 	$.get(file_data, function (xml) {
 		jsonFilesData.push(obtenerDatosXML(xml));		
-		// verificaRfcEmisor(datosXML.emisor.rfcEmisor, no_fila, datosXML.emisor.nombreEmisor);
 	});
 }
 
@@ -158,6 +184,8 @@ function agregaConceptos(indexJson){
 			//$('li[data-rfc-provider='+jsonFilesData[indexJson].emisor.rfcEmisor+'] i.circle').html('warning');
 		}
 		else{
+			var counterpart= [];
+			var provider_accounting_account=[data[0].provider_accounting_account];
 			$.each(jsonFilesData[indexJson].concepto.descripciones, function(key, value) {
 				$('#conceptList'+indexJson).append(
 				'<li class="collection-item collection-concept" data-counterpart-account-number="'+data[0].counterpart_account.accounting_account_number+'">'+
@@ -165,43 +193,69 @@ function agregaConceptos(indexJson){
 					'<b>Contrapartida:</b> <span class="counterpart">'+data[0].counterpart_account.accounting_account_description+'</span><br>'+
 					'<a href="#modalContrapartida1" class="modal-trigger" data-file-index="'+indexJson+'" data-concept-index="'+(key+1)+'">Cambiar contrapartida para este concepto</a>'+
 				'</li>');
+				counterpart.push(data[0].counterpart_account.accounting_account_number);
+				//console.log(counterpart);
 			});
 			$("#registerProvider"+indexJson).remove();
+			$.extend(jsonFilesData[indexJson].concepto.contrapartidas, counterpart);
+			$.extend(jsonFilesData[indexJson].proveedor.cuentaContable, provider_accounting_account);
+			//console.log(jsonFilesData[indexJson]);
 		}
 	})
 	.fail(function() {
-		console.log("Error al buscar proveedor");
+		//console.log("Error al buscar proveedor");
 	})
 }
 
 function removeFile(no_file){
 	$('#modalRemoveFile').modal('close');
 	$('li[data-file-index="'+no_file+'"]').fadeOut(400).remove();
+	if($('.collection-cfdi .avatar').length===0){
+		location.reload();
+	}
 }
 
+
 function sendJsonFiles(){
-	$('.progress').css('visibility', 'visible');
+	setProviderToggle();
 	var jsonFiles=[];
 	if(verifyUnregisteredProviders()!=0){
-		$('.progress').css('visibility', 'hidden');
 		Materialize.toast('No se pudo procesar la petición. El proveedor de algún comprobante no está registrado.', 4000);
 	}
 	else{
 		if(verifyUnregisteredProviders()!=0){
-			$('.progress').css('visibility', 'hidden');
 			Materialize.toast('No se pudo procesar la petición. Hay conceptos sin contrapartida.', 4000);
 		}
 		else{
-			Materialize.toast('Procesando archivos.', 4000);
+			$('#menu_navbar').slideUp();
+			$('.progress').css('visibility', 'visible');
+			Materialize.toast('Procesando archivos.', 2000);
 			$('.collection-cfdi li.avatar').each(function(index){
 				var indexJsonFile=$(this).attr("data-file-index");
-				jsonFiles.push(jsonFilesData[indexJsonFile]);
-				
+				jsonFiles.push(JSON.stringify(jsonFilesData[indexJsonFile]));
 			});
-			//TO-DO send json to excel by ajax
-			console.log(jsonFiles);
+			
+			//console.log(jsonFiles);
+			$.ajax({
+				url: '/provision_policy',
+				type: 'POST',
+				data: {handler: 'export' , jsonFiles: jsonFiles, generateByProvider: generate_by_provider, cfdiIndexSerie: $('#cfdi_index_serie').val()},
+			})
+			.done(function(data) {
+				$('#menu_navbar').slideDown();
+				Materialize.toast('Archivo generado.', 2000);
+				window.location.href = data;
+
+			})
+			.fail(function() {
+				$('#menu_navbar').slideDown();
+				Materialize.toast('Hubo un error al generar el archivo.', 2000);
+				console.log("error");
+			})
+			.always(function() {
+				$('.progress').css('visibility', 'hidden');
+			});
 		}
-		
 	}
 }
 
@@ -233,6 +287,8 @@ function obtenerDatosXML(xml){
 	var impuestos     = $(xml).find("cfdi\\:Impuestos, Impuestos");
 	var descripciones = [];
 	var importes    = [];
+	var contrapartidas = [];
+	var cuenta_proveedor = [];
 	var impuesto_iva;
 	var datosXML;
 
@@ -277,11 +333,16 @@ function obtenerDatosXML(xml){
 
 			"concepto" : {
 				"descripciones" : descripciones,
-				"importes"	: importes
+				"importes"	: importes,
+				"contrapartidas" : contrapartidas
 			},
 
 			"impuestos" : {
 				"totalImpuestosTrasladados" : impuestos.attr('totalImpuestosTrasladados')
+			},
+
+			"proveedor" : {
+				"cuentaContable" : cuenta_proveedor
 			}
 		}
 		datosXML.comprobante.folio=validaDatoDefinido(datosXML.comprobante.folio);
@@ -331,11 +392,16 @@ function obtenerDatosXML(xml){
 
 			"concepto" : {
 				"descripciones" : descripciones,
-				"importes"	: importes
+				"importes"	: importes,
+				"contrapartidas" : contrapartidas
 			},
 
 			"impuestos" : {
 				"totalImpuestosTrasladados" : impuestos.attr('TotalImpuestosTrasladados')
+			},
+
+			"proveedor" : {
+				"cuentaContable" : cuenta_proveedor
 			}
 		}
 		datosXML.comprobante.folio=validaDatoDefinido(datosXML.comprobante.folio);

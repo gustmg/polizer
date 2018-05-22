@@ -42,14 +42,17 @@ function validateForm(){
 }
 
 function submitNewBankAccount() {
+	$('#new_bank_account_button').attr('disabled', true);
 	$('#newBankAccountForm').submit();
 }
 
 function submitUpdateBankAccount(bank_account_id) {
+	$('#update_bank_account_button').attr('disabled', true);
 	$('#updateBankAccountForm'+bank_account_id).submit();
 }
 
 function submitDeleteBankAccount(bank_account_id) {
+	$('#delete_bank_account_button').attr('disabled', true);
 	$('#deleteBankAccountForm'+bank_account_id).submit();
 }
 

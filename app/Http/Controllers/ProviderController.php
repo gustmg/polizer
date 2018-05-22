@@ -57,9 +57,7 @@ class ProviderController extends Controller
 
         $provider->save();
 
-        if(Route::currentRouteName()=='providers.index'){
-            return Redirect::to('providers');
-        }
+        return Redirect::to('providers');
     }
 
     /**

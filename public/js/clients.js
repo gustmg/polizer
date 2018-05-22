@@ -29,14 +29,17 @@ function validateForm(){
 }
 
 function submitNewClient() {
+	$('#new_client_button').attr('disabled', true);
 	$('#newClientForm').submit();
 }
 
 function submitUpdateClient(client_id) {
+	$('#update_client_button').attr('disabled', true);
 	$('#updateClientForm'+client_id).submit();
 }
 
 function submitDeleteClient(client_id) {
+	$('#delete_client_button').attr('disabled', true);
 	$('#deleteClientForm'+client_id).submit();
 }
 

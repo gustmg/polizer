@@ -26,7 +26,7 @@
                                 </div>
 
                                 <div class="input-field col s12">
-                                    <p>¿Has olvidado tu contraseña? <a href="{{ route('password.request') }}">{{ __('Reestablecer mi contraseña')}}</a></p>
+                                    {{-- <p>¿Has olvidado tu contraseña? <a href="{{ route('password.request') }}">{{ __('Reestablecer mi contraseña')}}</a></p> --}}
                                     <p>¿Aún no eres usuario? <a href="{{ route('register') }}">{{ __('Crea una cuenta') }}</a></p>
                                 </div>
                             </div>

@@ -11,13 +11,16 @@ $('.company_name').on('blur', function () {
 });
 
 function submitNewCompany() {
+	$('#add_company_button').attr('disabled', true);
 	$('#newCompanyForm').submit();
 }
 
 function submitUpdateCompany(company_id) {
+	$('#update_company_button').attr('disabled', true);
 	$('#updateCompanyForm'+company_id).submit();
 }
 
 function submitDeleteCompany(company_id) {
+	$('#delete_company_button').attr('disabled', true);
 	$('#deleteCompanyForm'+company_id).submit();
 }

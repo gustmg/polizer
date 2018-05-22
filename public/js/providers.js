@@ -38,10 +38,12 @@ function validateForm(){
 }
 
 function submitNewProvider() {
+	$('.submit_button').attr('disabled', true);
 	$('#newProviderForm').submit();
 }
 
 function ajaxNewProvider() {
+	$('.submit_button').attr('disabled', true);
 	var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 	$.ajax({
 		url: '/provision_policy',
@@ -55,15 +57,24 @@ function ajaxNewProvider() {
 		},
 	})
 	.done(function(data) {
-		$(".collection-cfdi li").each(function(index){
+		$(".collection-cfdi .avatar").each(function(index){
 			$("#newProviderModal").modal('close');
-			if($(this).attr('data-rfc-provider')===data.provider_rfc){
+			if($(this).attr('data-rfc-provider')===data[0].provider_rfc){
 				$('li[data-rfc-provider='+data[0].provider_rfc+']').removeClass('red').removeClass('darken-4').removeClass('white-text').removeClass('scrollspy');
 				$('li[data-rfc-provider='+data[0].provider_rfc+'] .subtext').addClass('grey-text').addClass('text-darken-2').removeClass('white-text');
 				$('li[data-rfc-provider='+data[0].provider_rfc+'] .counterpart').html('');
 				$('li[data-rfc-provider='+data[0].provider_rfc+'] .counterpart').append(data[0].counterpart_account.accounting_account_description);
 				$('li[data-rfc-provider='+data[0].provider_rfc+'] .collection-concept').attr('data-counterpart-account-number', data[0].counterpart_account.accounting_account_number);
 				$("#registerProvider"+$(this).attr('data-file-index')).remove();
+				//Agrega conceptos a Json
+				var counterpart= [];
+				var provider_accounting_account=[data[0].provider_accounting_account];
+				$.each(jsonFilesData[$(this).attr('data-file-index')].concepto.descripciones, function(key, value) {
+					counterpart.push(data[0].counterpart_account.accounting_account_number);
+					//console.log(counterpart);
+				});
+				$.extend(jsonFilesData[$(this).attr('data-file-index')].concepto.contrapartidas, counterpart);
+				$.extend(jsonFilesData[$(this).attr('data-file-index')].proveedor.cuentaContable, provider_accounting_account);
 			}
 		});
 		console.log("success");
@@ -77,10 +88,12 @@ function ajaxNewProvider() {
 }
 
 function submitUpdateProvider(provider_id) {
+	$('#update_provider_button').attr('disabled', true);
 	$('#updateProviderForm'+provider_id).submit();
 }
 
 function submitDeleteProvider(provider_id) {
+	$('#delete_provider_button').attr('disabled', true);
 	$('#deleteProviderForm'+provider_id).submit();
 }
 

@@ -25,7 +25,6 @@
 					<div class="col s12 grey-text text-darken-2"><b>Cuenta de contrapartida</b></div>
 					<div class="input-field col s8">
 						<select id="counterpart_accounting_account_id" name="counterpart_accounting_account_id" class="selectNew">
-							<option value="0" disabled selected>Elige una cuenta contable</option>
 							<optgroup label="Inventarios">
 								@foreach($accounting_accounts as $key => $value)
 									@if($value->accounting_account_type_id===2)

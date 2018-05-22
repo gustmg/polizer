@@ -17,14 +17,17 @@ function validateForm(){
 }
 
 function submitNewAccountingAccount() {
+	$('#new_accounting_account_button').attr('disabled', true);
 	$('#newAccountingAccountForm').submit();
 }
 
 function submitUpdateAccountingAccount(accounting_account_id) {
+	$('#update_accounting_account_button').attr('disabled', true);
 	$('#updateAccountingAccountForm'+accounting_account_id).submit();
 }
 
 function submitDeleteAccountingAccount(accounting_account_id) {
+	$('#delete_accounting_account_button').attr('disabled', true);
 	$('#deleteAccountingAccountForm'+accounting_account_id).submit();
 }
 

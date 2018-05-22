@@ -20,6 +20,7 @@ Route::get('/excel', 'ExcelController@export');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/excel_create', 'ExcelController@export')->name('excel_create');
 //Rutas para objetos de datos
 Route::resource('companies', 'CompanyController')->middleware('auth');
 Route::resource('workspace', 'WorkspaceController')->middleware('auth');

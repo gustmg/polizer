@@ -93,7 +93,7 @@
 						<div class="modal-footer">
 							<a href="#deleteBankAccountModal{{$value->bank_account_id}}" class="modal-action modal-close modal-trigger left" style="margin-top: 10px;margin-left: 10px;"><i class="material-icons black-text">delete</i></a>
 							<a href="#!" class="modal-action modal-close waves-effect btn-flat"><b>Cancelar</b></a>
-							<button id="submit_button" onclick="submitUpdateBankAccount({{$value->bank_account_id}});" class="modal-action btn waves-effect submit_button">
+							<button id="update_bank_account_button" onclick="submitUpdateBankAccount({{$value->bank_account_id}});" class="modal-action btn waves-effect submit_button">
 								<b>Editar</b>
 							</button>
 						</div>
@@ -108,7 +108,7 @@
 							</div>
 							<div class="modal-footer">
 								<a href="#!" class="modal-action modal-close waves-effect btn-flat"><b>Cancelar</b></a>
-								<button id="delete_button" onclick="submitDeleteBankAccount({{$value->bank_account_id}});" class="modal-action btn-flat waves-effect"><b>Eliminar</b></button>
+								<button id="delete_bank_account_button" onclick="submitDeleteBankAccount({{$value->bank_account_id}});" class="modal-action btn-flat waves-effect"><b>Eliminar</b></button>
 							</div>
 						</div>
 					@endforeach
@@ -165,7 +165,7 @@
 	</div>
 	<div class="modal-footer">
 		<a href="#!" class="modal-action modal-close waves-effect btn-flat"><b>Cancelar</b></a>
-		<button id="submit_button" onclick="submitNewBankAccount();" class="modal-action btn waves-effect submit_button" disabled><b>Registrar</b></button>
+		<button id="new_bank_account_button" onclick="submitNewBankAccount();" class="modal-action btn waves-effect submit_button" disabled><b>Registrar</b></button>
 	</div>
 </div>
 @endsection

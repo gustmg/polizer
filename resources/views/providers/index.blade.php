@@ -65,7 +65,6 @@
 			        					<div class="col s12 grey-text text-darken-2"><b>Cuenta de contrapartida</b></div>
 			        					<div class="input-field col s8">
 			        						<select class="selectUpdate">
-			        							<option value="0" disabled selected>Elige una cuenta contable</option>
 			        							<optgroup label="Inventarios">
 			        								@foreach($accounting_accounts as $key => $value2)
 			        									@if($value2->accounting_account_type_id===2)
