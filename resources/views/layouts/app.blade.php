@@ -79,7 +79,7 @@
                     <div class="collapsible-body">
                         <ul style="background-color:#ddd;">
                             <li><a href="{{ route ('provision_policy') }}">Provisión</a></li>
-                            <li><a href="#">Facturación</a></li>
+                            <li><a href="{{ route ('billing_policy') }}">Facturación</a></li>
                             <li><a href="#">Pago a proveedores</a></li>
                             <li><a href="#">Depósito de clientes</a></li>
                         </ul>
@@ -185,8 +185,19 @@
     <script src="{{ asset('js/provision_policy.js') }}"></script>
     <script src="{{ asset('js/providers.js') }}"></script>
 @endif
+@if (Route::currentRouteName()=='billing_policy')
+    <script src="{{ asset('js/billing_policy.js') }}"></script>
+    <script src="{{ asset('js/clients.js') }}"></script>
+@endif
+
 <script type="text/javascript">
     $(document).ready(function(){
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
         $(".menu").sideNav();
         $('.tooltipped').tooltip({delay: 50});
         $('.selectWorkspaceCompanyModal').modal();
@@ -204,12 +215,6 @@
         @if ($errors->has('password'))
             Materialize.toast('{{ $errors->first('password') }}', 2000);
         @endif
-
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
     });
 
     function setWorkspaceCompany() {

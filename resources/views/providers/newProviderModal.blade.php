@@ -27,21 +27,21 @@
 						<select id="counterpart_accounting_account_id" name="counterpart_accounting_account_id" class="selectNew">
 							<optgroup label="Inventarios">
 								@foreach($accounting_accounts as $key => $value)
-									@if($value->accounting_account_type_id===2)
+									@if($value->accounting_account_type_id==2)
 										<option value="{{$value->accounting_account_id}}">{{$value->accounting_account_description}}</option>
 									@endif
 								@endforeach
 							</optgroup>
 							<optgroup label="Gastos de Venta">
-								@foreach($accounting_accounts as $key => $value)
-									@if($value->accounting_account_type_id===5)
+								@foreach($accounting_accounts as $key2 => $value)
+									@if($value->accounting_account_type_id==5)
 										<option value="{{$value->accounting_account_id}}">{{$value->accounting_account_description}}</option>
 									@endif
 								@endforeach
 							</optgroup>
 							<optgroup label="Gastos de Administración">
-								@foreach($accounting_accounts as $key => $value)
-									@if($value->accounting_account_type_id===6)
+								@foreach($accounting_accounts as $key3 => $value)
+									@if($value->accounting_account_type_id==6)
 										<option value="{{$value->accounting_account_id}}">{{$value->accounting_account_description}}</option>
 									@endif
 								@endforeach

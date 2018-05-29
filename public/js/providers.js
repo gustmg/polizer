@@ -46,7 +46,7 @@ function ajaxNewProvider() {
 	$('.submit_button').attr('disabled', true);
 	var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 	$.ajax({
-		url: '/provision_policy',
+		url: 'ajax',
 		type: 'POST',
 		data: { _token: CSRF_TOKEN,
 				handler: 'newProvider',

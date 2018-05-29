@@ -49,7 +49,7 @@
 				<div class="card-action right-align">
 					<label id="add_files" class="btn">
 						<b>Cargar CFDI's</b>
-						<input type="file" style="display: none;" name="standard_provision_files" id="standard_provision_files" accept=".xml" multiple>
+						<input type="file" style="display: none;" name="standard_provision_files" id="standard_provision_files" accept=".xml" onclick="setProvisionType(1);" multiple>
 					</label>
 				</div>
 			</div>
@@ -78,7 +78,7 @@
 				<div class="card-action right-align">
 					<label class="btn">
 						<b>Cargar CFDI's</b>
-						<input type="file" style="display: none;" name="standard_provision_files" id="standard_provision_files" accept=".xml" multiple>
+						<input type="file" style="display: none;" name="standard_provision_files" id="ieps_provision_files" accept=".xml" onclick="setProvisionType(2);" multiple>
 					</label>
 				</div>
 			</div>
@@ -106,7 +106,7 @@
 				<div class="card-action right-align">
 					<label class="btn">
 						<b>Cargar CFDI's</b>
-						<input type="file" style="display: none;" name="standard_provision_files" id="standard_provision_files" accept=".xml" multiple>
+						<input type="file" style="display: none;" name="standard_provision_files" id="honorarium_provision_files" accept=".xml" onclick="setProvisionType(3);" multiple>
 					</label>
 				</div>
 			</div>
@@ -134,7 +134,7 @@
 				<div class="card-action right-align">
 					<label class="btn">
 						<b>Cargar CFDI's</b>
-						<input type="file" style="display: none;" name="standard_provision_files" id="standard_provision_files" accept=".xml" multiple>
+						<input type="file" style="display: none;" name="standard_provision_files" id="freight_provision_files" accept=".xml" onclick="setProvisionType(4);" multiple>
 					</label>
 				</div>
 			</div>
@@ -150,7 +150,7 @@
 				<ul class="collection with-header">
 					<li class="collection-header teal white-text"><h5>Inventarios</h5></li>
 					@foreach($accounting_accounts as $key => $accounting_account)
-						@if($accounting_account->accounting_account_type_id ===2)
+						@if($accounting_account->accounting_account_type_id ==2)
 							<a onclick="setConceptCounterpart('{{$accounting_account->accounting_account_number}}','{{$accounting_account->accounting_account_description}}');" class="collection-item selectable">
 								<span><b>
 									{{$accounting_account->accounting_account_number}}
@@ -161,7 +161,7 @@
 					@endforeach
 					<li class="collection-header teal white-text"><h5>Gastos de Venta</h5></li>
 					@foreach($accounting_accounts as $key => $accounting_account)
-						@if($accounting_account->accounting_account_type_id ===5)
+						@if($accounting_account->accounting_account_type_id ==5)
 							<a onclick="setConceptCounterpart('{{$accounting_account->accounting_account_number}}','{{$accounting_account->accounting_account_description}}');" class="collection-item selectable">
 								<span data-accounting-account-number="{{$accounting_account->accounting_account_number}}"><b>
 									{{$accounting_account->accounting_account_number}}
@@ -172,7 +172,7 @@
 					@endforeach
 					<li class="collection-header teal white-text"><h5>Gastos de administración</h5></li>
 					@foreach($accounting_accounts as $key => $accounting_account)
-						@if($accounting_account->accounting_account_type_id ===6)
+						@if($accounting_account->accounting_account_type_id ==6)
 							<a onclick="setConceptCounterpart('{{$accounting_account->accounting_account_number}}','{{$accounting_account->accounting_account_description}}');" class="collection-item selectable">
 								<span><b>
 									{{$accounting_account->accounting_account_number}}

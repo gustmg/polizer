@@ -96,7 +96,7 @@
 						<div class="modal-footer">
 							<a href="#deleteProviderModal{{$value->provider_id}}" class="modal-action modal-close modal-trigger left" style="margin-top: 10px;margin-left: 10px;"><i class="material-icons black-text">delete</i></a>
 							<a href="#!" class="modal-action modal-close waves-effect btn-flat"><b>Cancelar</b></a>
-							<button id="submit_button" onclick="submitUpdateProvider({{$value->provider_id}});" class="modal-action btn waves-effect submit_button">
+							<button id="update_provider_button" onclick="submitUpdateProvider({{$value->provider_id}});" class="modal-action btn waves-effect submit_button">
 								<b>Editar</b>
 							</button>
 						</div>

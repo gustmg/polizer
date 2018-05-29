@@ -60,14 +60,14 @@ class ProvisionPolicyController extends Controller
             return $provider_saved;
         }
         else if($request->handler==="export"){
-            // $GLOBALS['generate_by_provider'] = $request->generateByProvider;
-            $GLOBALS['generate_by_provider'] = 0;
+            $GLOBALS['provision_type'] = $request->provisionType;
+            $GLOBALS['generate_by_provider'] = $request->generateByProvider;;
             $GLOBALS['cfdi_index_serie'] = $request->cfdiIndexSerie;
             $GLOBALS['jsonFiles'] = array();
             $GLOBALS['row_index'] = 3;
             $GLOBALS['company'] = Company::where('company_id', session()->get('company_workspace_id'))->get();
             $GLOBALS['cfdi_key'] = 0;
-            $GLOBALS['next_cfdi_index'] = 0;
+
 
             foreach ($request->jsonFiles as $key => $cfdi) {
                 array_push($GLOBALS['jsonFiles'], json_decode($cfdi));
@@ -86,8 +86,10 @@ class ProvisionPolicyController extends Controller
                     ProvisionPolicyController::generatePolicy($sheet, $GLOBALS['jsonFiles'][0]);
                 });
             })->store('xlsx', storage_path('app/public'));
+            //})->store('xlsx', public_path('storage'));
 
             $url = Storage::url($file_name.'.xlsx');
+            //$url = 'https://www.polizer.mx/polizer_app/storage/'.$file_name.'.xlsx';
             return $url;
         }
     }
@@ -105,22 +107,48 @@ class ProvisionPolicyController extends Controller
     }
 
     public function generatePolicyItem($sheet, $cfdi) {
-        foreach($cfdi->concepto->descripciones as $key => $concepto){
-            $sheet->row($GLOBALS['row_index'], array(
-                '',
-                $cfdi->concepto->contrapartidas[$key],
-                '0',
-                'CREACIÓN DE PASIVO - '.ProvisionPolicyController::formateaDescripcion($cfdi->concepto->descripciones[$key]).' - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
-                '1',
-                $cfdi->concepto->importes[$key],
-                '',
-                '0',
-                '0'
-            ));
-            $GLOBALS['row_index']=$GLOBALS['row_index']+1;
-            ProvisionPolicyController::generatePolicyItemRows($sheet, $cfdi);
+        if($GLOBALS['provision_type']==1 || $GLOBALS['provision_type']==3 || $GLOBALS['provision_type']==4){ //STANDARD AND HONORARIUM PROVISION
+            foreach($cfdi->concepto->descripciones as $key => $concepto){
+                $sheet->row($GLOBALS['row_index'], array(
+                    '',
+                    $cfdi->concepto->contrapartidas[$key],
+                    '0',
+                    'CREACIÓN DE PASIVO - '.ProvisionPolicyController::formateaDescripcion($cfdi->concepto->descripciones[$key]).' - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                    '1',
+                    $cfdi->concepto->importes[$key],
+                    '',
+                    '0',
+                    '0'
+                ));
+                
+                $GLOBALS['row_index']=$GLOBALS['row_index']+1;
+                ProvisionPolicyController::generatePolicyItemRows($sheet, $cfdi);
+            }
+
+            ProvisionPolicyController::generatePolicyVatItem($sheet, $GLOBALS['jsonFiles'][$GLOBALS['cfdi_key']]);
         }
-        ProvisionPolicyController::generatePolicyVatItem($sheet, $GLOBALS['jsonFiles'][$GLOBALS['cfdi_key']]);
+        else if($GLOBALS['provision_type']==2){ //IEPS PROPVISION
+            $GLOBALS['ieps'] = number_format((float)$cfdi->comprobante->total-($cfdi->traslado->importe/0.16)-$cfdi->traslado->importe, 2, '.', '');
+
+            foreach($cfdi->concepto->descripciones as $key => $concepto){
+                $sheet->row($GLOBALS['row_index'], array(
+                    '',
+                    $cfdi->concepto->contrapartidas[$key],
+                    '0',
+                    'CREACIÓN DE PASIVO - '.ProvisionPolicyController::formateaDescripcion($cfdi->concepto->descripciones[$key]).' - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                    '1',
+                    number_format((float)$cfdi->concepto->importes[$key]-$GLOBALS['ieps'], 2, '.', ''),
+                    '',
+                    '0',
+                    '0'
+                ));
+
+                $GLOBALS['row_index']=$GLOBALS['row_index']+1;
+                ProvisionPolicyController::generatePolicyItemRows($sheet, $cfdi);
+            }
+
+            ProvisionPolicyController::generatePolicyIepsItem($sheet, $GLOBALS['jsonFiles'][$GLOBALS['cfdi_key']]);
+        }
     }
 
     public function generatePolicyVatItem($sheet, $cfdi) {
@@ -130,58 +158,99 @@ class ProvisionPolicyController extends Controller
             '0',
             'CREACIÓN DE PASIVO - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
             '1',
-            $cfdi->comprobante->subtotal,
+            $cfdi->traslado->importe,
             '',
             '0',
             '0'
         ));
+            
         $GLOBALS['row_index']=$GLOBALS['row_index']+1;
         ProvisionPolicyController::generatePolicyItemRows($sheet, $cfdi);
         ProvisionPolicyController::generatePolicyProviderItem($sheet, $cfdi);
     }
 
-    public function generatePolicyProviderItem($sheet, $cfdi) {
+    public function generatePolicyIepsItem($sheet, $cfdi) {
         $sheet->row($GLOBALS['row_index'], array(
             '',
-            $cfdi->proveedor->cuentaContable[0],
+            $cfdi->concepto->contrapartidas[$key],
             '0',
             'CREACIÓN DE PASIVO - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
             '1',
+            $GLOBALS['ieps'],
             '',
-            $cfdi->comprobante->total,
             '0',
             '0'
         ));
+
         $GLOBALS['row_index']=$GLOBALS['row_index']+1;
         ProvisionPolicyController::generatePolicyItemRows($sheet, $cfdi);
+        ProvisionPolicyController::generatePolicyVatItem($sheet, $cfdi);
+    }
 
-        if($GLOBALS['generate_by_provider']=='1'){
-            $GLOBALS['next_cfdi_index'] = $GLOBALS['next_cfdi_index']+1;
-            ProvisionPolicyController::verifyNextProvider($sheet);
-        }
-        else{
+    public function generatePolicyProviderItem($sheet, $cfdi) {
+        if($GLOBALS['provision_type']==1 || $GLOBALS['provision_type']==2){ //STANDARD AND IEPS PROVISION
             $sheet->row($GLOBALS['row_index'], array(
                 '',
-                'FIN_PARTIDAS'
+                $cfdi->proveedor->cuentaContable[0],
+                '0',
+                'CREACIÓN DE PASIVO - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                '1',
+                '',
+                $cfdi->comprobante->total,
+                '0',
+                '0'
+            ));
+        }
+        else if($GLOBALS['provision_type']==3){ //HONORARIUM PROVISION
+            $sheet->row($GLOBALS['row_index'], array(
+                '',
+                $cfdi->proveedor->cuentaContable[0],
+                '0',
+                'CREACIÓN DE PASIVO - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                '1',
+                '',
+                $cfdi->comprobante->subtotal + $cfdi->traslado->importe,
+                '0',
+                '0'
+            ));
+        }
+        else if($GLOBALS['provision_type']==4){ //FREIGHT PROVISION
+            $sheet->row($GLOBALS['row_index'], array(
+                '',
+                $cfdi->proveedor->cuentaContable[0],
+                '0',
+                'CREACIÓN DE PASIVO - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                '1',
+                '',
+                $cfdi->comprobante->total + ($cfdi->concepto->importes[0]*.04),
+                '0',
+                '0'
             ));
         }
 
+        
         $GLOBALS['row_index']=$GLOBALS['row_index']+1;
-        $GLOBALS['cfdi_key']=$GLOBALS['cfdi_key']+1;
-        if($GLOBALS['cfdi_key'] < count($GLOBALS['jsonFiles'])){
-            ProvisionPolicyController::generatePolicy($sheet, $GLOBALS['jsonFiles'][$GLOBALS['cfdi_key']]);
-        }
-    }
+        ProvisionPolicyController::generatePolicyItemRows($sheet, $cfdi);
 
-    public function verifyNextProvider($sheet) {
-        if($GLOBALS['next_cfdi_index'] < count($GLOBALS['jsonFiles'])){
-            if($GLOBALS['jsonFiles'][$GLOBALS['next_cfdi_index']]->emisor->rfcEmisor === $GLOBALS['jsonFiles'][$GLOBALS['cfdi_key']]->emisor->rfcEmisor){
-               ProvisionPolicyController::generatePolicyItem($sheet, $GLOBALS['jsonFiles'][$GLOBALS['next_cfdi_index']]);
+        if(ProvisionPolicyController::validateNextCfdi()){
+            $GLOBALS['cfdi_key']=$GLOBALS['cfdi_key']+1;
+            if($GLOBALS['generate_by_provider']=='1'){
+                if(ProvisionPolicyController::comparePrevRfc()){
+                    ProvisionPolicyController::generatePolicyItem($sheet, $GLOBALS['jsonFiles'][$GLOBALS['cfdi_key']]);
+                }
+                else{
+                    ProvisionPolicyController::writePolicyFooter($sheet);
+                    $GLOBALS['row_index']=$GLOBALS['row_index']+1;
+                    ProvisionPolicyController::generatePolicy($sheet, $GLOBALS['jsonFiles'][$GLOBALS['cfdi_key']]);
+                }
             }
             else{
-                //ProvisionPolicyController::generatePolicy($sheet, $GLOBALS['jsonFiles'][$GLOBALS['next_cfdi_index']]);
+                ProvisionPolicyController::writePolicyFooter($sheet);
+                $GLOBALS['row_index']=$GLOBALS['row_index']+1;
+                ProvisionPolicyController::generatePolicy($sheet, $GLOBALS['jsonFiles'][$GLOBALS['cfdi_key']]);
             }
         }
+        ProvisionPolicyController::writePolicyFooter($sheet);
     }
 
     public function generatePolicyItemRows($sheet, $cfdi) {
@@ -217,11 +286,34 @@ class ProvisionPolicyController extends Controller
         $GLOBALS['row_index']=$GLOBALS['row_index']+1;
     }
 
-    
-
     public function formateaDescripcion ($descripcion){
         $len_descripcion=strlen($descripcion);
         $concepto=substr($descripcion,-$len_descripcion,20);
         return $concepto;
+    }
+
+    public function writePolicyFooter ($sheet){
+        $sheet->row($GLOBALS['row_index'], array(
+            '',
+            'FIN_PARTIDAS'
+        ));
+    }
+
+    public function validateNextCfdi() {
+        if($GLOBALS['cfdi_key']+1 < count($GLOBALS['jsonFiles'])){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    public function comparePrevRfc() {
+        if($GLOBALS['jsonFiles'][$GLOBALS['cfdi_key']-1]->emisor->rfcEmisor === $GLOBALS['jsonFiles'][$GLOBALS['cfdi_key']]->emisor->rfcEmisor){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }

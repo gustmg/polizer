@@ -1,24 +1,18 @@
-var standard_provision_files = document.getElementById("standard_provision_files");
-var ieps_provision_files = document.getElementById("ieps_provision_files");
-var honorarium_provision_files = document.getElementById("honorarium_provision_files");
-var freight_provision_files = document.getElementById("freight_provision_files");
-var add_standard_provision_files = document.getElementById("add_standard_provision_files");
+var standard_billing_files = document.getElementById("standard_billing_files");
+var add_billing_files = document.getElementById("add_billing_files");
 var back_prev_section = document.getElementById("back_prev");
 var cfdi_config = document.getElementById("cfdi_config");
 var send_json_files = document.getElementById("send_json_files");
-standard_provision_files.addEventListener("change", getFiles, false);
-ieps_provision_files.addEventListener("change", getFiles, false);
-honorarium_provision_files.addEventListener("change", getFiles, false);
-freight_provision_files.addEventListener("change", getFiles, false);
-add_standard_provision_files.addEventListener("click", triggerAddFiles,false);
+standard_billing_files.addEventListener("change", getFiles, false);
+add_billing_files.addEventListener("click", triggerAddFiles,false);
 back_prev_section.addEventListener("click", returnSection, false);
 cfdi_config.addEventListener("click", openCfdiConfigModal, false);
 send_json_files.addEventListener("click", sendJsonFiles, false);
 var file_index;
 var concept_index;
-var generate_by_provider=0;
+var generate_by_client=0;
 var provisionType;
-$('#cfdi_by_provider_toggle').prop('checked', false);
+$('#cfdi_by_client_toggle').prop('checked', false);
 
 $('#modalContrapartida1').modal({
 	ready: function(modal, trigger) {
@@ -35,8 +29,8 @@ $('#modalRemoveFile').modal({
 $('#modalFilesConfig').modal();
 $('select').material_select();
 
-function setProvisionType(idProvisionType){
-	provisionType=idProvisionType;
+function setBillingType(idBillingType){
+	billingType=idBillingType;
 }
 
 function setConceptCounterpart(accounting_account_number, accounting_account_description) {
@@ -60,12 +54,12 @@ function validateIndexSerie() {
 		$('#saveChanges').attr('disabled', false);
 }
 
-function setProviderToggle() {
-	if($('#cfdi_by_provider_toggle').is(':checked')){
-		generate_by_provider=1;
+function setClientToggle() {
+	if($('#cfdi_by_client_toggle').is(':checked')){
+		generate_by_client=1;
 	}
 	else{
-		generate_by_provider=0;
+		generate_by_client=0;
 	}
 }
 
@@ -99,7 +93,7 @@ function readFile(index) {
 			var reader = new FileReader();
 			reader.onload = function (e){
 				getFileData(e);
-				setTimeout(agregaFilaTablaProvision.bind(null, total_uploaded_files), 1);
+				setTimeout(agregaFilaTablaFacturacion.bind(null, total_uploaded_files), 1);
 				total_uploaded_files++;
 				readFile(index+1);
 			}
@@ -135,21 +129,17 @@ function getFileData(e){
 }
 
 function passFileDataToJson(file_data){
-	// $.get(file_data, function (xml) {
-	// 	jsonFilesData.push(obtenerDatosXML(xml));
-	// });
-	
 	jsonFilesData.push(obtenerDatosXML($.parseXML(file_data)));	
 }
 
-function agregaFilaTablaProvision(index){
+function agregaFilaTablaFacturacion(index){
 	$('.collection-cfdi').append(
-		'<li class="collection-item avatar dismissable" data-file-index="'+index+'" data-rfc-provider="'+jsonFilesData[index].emisor.rfcEmisor+'">'+
+		'<li class="collection-item avatar dismissable" data-file-index="'+index+'" data-rfc-client="'+jsonFilesData[index].emisor.rfcEmisor+'">'+
 			'<i class="material-icons circle white-text">subject</i>'+
 			'<span>'+
-				'<b>'+jsonFilesData[index].emisor.nombreEmisor+' ('+jsonFilesData[index].emisor.rfcEmisor+')</b>'+
+				'<b>'+jsonFilesData[index].receptor.nombreReceptor+' ('+jsonFilesData[index].receptor.rfcReceptor+')</b>'+
 			'</span>'+
-			'<span id="unknown_provider'+index+'" class="red-text hide"><br><b><i>Proveedor no registrado</i></b></span>'+
+			'<span id="unknown_client'+index+'" class="red-text hide"><br><b><i>Proveedor no registrado</i></b></span>'+
 			'<a href="#!" class="secondary-content dropdown-button" data-activates="dropdown-menu'+index+'" data-alignment="right">'+
 				'<i class="material-icons subtext">more_vert</i>'+
 			'</a><br>'+
@@ -165,7 +155,7 @@ function agregaFilaTablaProvision(index){
 				'<ul id="conceptList'+index+'" class="collection card" style="border: none;overflow: visible;"></ul>'+
 			'</span><br>'+
 			'<ul id="dropdown-menu'+index+'" class="dropdown-content" style="min-width: 200px;">'+
-				'<li id="registerProvider'+index+'"><a href="#newProviderModal" class="modal-trigger newProviderFromProvision">Agregar proveedor</a></li>'+
+				'<li id="registerClient'+index+'"><a href="#newClientModal" class="modal-trigger newClientFromProvision">Agregar cliente</a></li>'+
 				'<li><a href="#modalRemoveFile" class="modal-trigger">Eliminar XML</a></li>'+
 			'</ul>'+
 		'</li>');
@@ -178,9 +168,9 @@ function agregaConceptos(indexJson){
 	var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 
 	$.ajax({
-		url: 'ajaxProvision',
+		url: 'ajaxBilling',
 		type: 'POST',
-		data: {_token: CSRF_TOKEN, handler: 'getProvider', provider_rfc : jsonFilesData[indexJson].emisor.rfcEmisor},
+		data: {_token: CSRF_TOKEN, handler: 'getClient', client_rfc : jsonFilesData[indexJson].receptor.rfcReceptor},
 	})
 	.done(function(data) {
 		if(data.length===0){
@@ -192,14 +182,14 @@ function agregaConceptos(indexJson){
 					'<a href="#modalContrapartida1" class="modal-trigger" data-file-index="'+indexJson+'" data-concept-index="'+(key+1)+'">Cambiar contrapartida para este concepto</a>'+
 				'</li>');
 			});
-			$('li[data-rfc-provider='+jsonFilesData[indexJson].emisor.rfcEmisor+']').addClass('red').addClass('darken-4').addClass('white-text').addClass('scrollspy');
-			$('li[data-rfc-provider='+jsonFilesData[indexJson].emisor.rfcEmisor+'] .subtext').removeClass('grey-text').removeClass('text-darken-2').addClass('white-text');
-			//$('li[data-rfc-provider='+jsonFilesData[indexJson].emisor.rfcEmisor+'] i.circle').html('');
-			//$('li[data-rfc-provider='+jsonFilesData[indexJson].emisor.rfcEmisor+'] i.circle').html('warning');
+			$('li[data-rfc-client='+jsonFilesData[indexJson].receptor.rfcReceptor+']').addClass('red').addClass('darken-4').addClass('white-text').addClass('scrollspy');
+			$('li[data-rfc-client='+jsonFilesData[indexJson].receptor.rfcReceptor+'] .subtext').removeClass('grey-text').removeClass('text-darken-2').addClass('white-text');
+			//$('li[data-rfc-client='+jsonFilesData[indexJson].emisor.rfcEmisor+'] i.circle').html('');
+			//$('li[data-rfc-client='+jsonFilesData[indexJson].emisor.rfcEmisor+'] i.circle').html('warning');
 		}
 		else{
 			var counterpart= [];
-			var provider_accounting_account=[data[0].provider_accounting_account];
+			var client_accounting_account=[data[0].client_accounting_account];
 			$.each(jsonFilesData[indexJson].concepto.descripciones, function(key, value) {
 				$('#conceptList'+indexJson).append(
 				'<li class="collection-item collection-concept" data-counterpart-account-number="'+data[0].counterpart_account.accounting_account_number+'">'+
@@ -210,9 +200,9 @@ function agregaConceptos(indexJson){
 				counterpart.push(data[0].counterpart_account.accounting_account_number);
 				//console.log(counterpart);
 			});
-			$("#registerProvider"+indexJson).remove();
+			$("#registerClient"+indexJson).remove();
 			$.extend(jsonFilesData[indexJson].concepto.contrapartidas, counterpart);
-			$.extend(jsonFilesData[indexJson].proveedor.cuentaContable, provider_accounting_account);
+			$.extend(jsonFilesData[indexJson].cliente.cuentaContable, client_accounting_account);
 			//console.log(jsonFilesData[indexJson]);
 		}
 	})
@@ -230,13 +220,13 @@ function removeFile(no_file){
 }
 
 function sendJsonFiles(){
-	setProviderToggle();
+	setClientToggle();
 	var jsonFiles=[];
-	if(verifyUnregisteredProviders()!=0){
-		Materialize.toast('No se pudo procesar la petición. El proveedor de algún comprobante no está registrado.', 4000);
+	if(verifyUnregisteredClients()!=0){
+		Materialize.toast('No se pudo procesar la petición. El cliente de algún comprobante no está registrado.', 4000);
 	}
 	else{
-		if(verifyUnregisteredProviders()!=0){
+		if(verifyUnregisteredClients()!=0){
 			Materialize.toast('No se pudo procesar la petición. Hay conceptos sin contrapartida.', 4000);
 		}
 		else{
@@ -250,9 +240,9 @@ function sendJsonFiles(){
 			
 			//console.log(jsonFiles);
 			$.ajax({
-				url: 'ajaxProvision',
+				url: 'ajaxBilling',
 				type: 'POST',
-				data: {handler: 'export' , provisionType: provisionType, jsonFiles: jsonFiles, generateByProvider: generate_by_provider, cfdiIndexSerie: $('#cfdi_index_serie').val()},
+				data: {handler: 'export' , provisionType: provisionType, jsonFiles: jsonFiles, generateByClient: generate_by_client, cfdiIndexSerie: $('#cfdi_index_serie').val()},
 			})
 			.done(function(data) {
 				$('#menu_navbar').slideDown();
@@ -271,14 +261,14 @@ function sendJsonFiles(){
 	}
 }
 
-function verifyUnregisteredProviders() {
-	var amount_unregistered_providers=0;
+function verifyUnregisteredClients() {
+	var amount_unregistered_clients=0;
 	$('.collection-cfdi li.avatar').each(function(index){
 		if($(this).hasClass('red')){
-			amount_unregistered_providers++;
+			amount_unregistered_clients++;
 		}
 	});
-	return amount_unregistered_providers;
+	return amount_unregistered_clients;
 }
 
 function verifyUnasignedCounterparts() {
@@ -300,7 +290,7 @@ function obtenerDatosXML(xml){
 	var descripciones = [];
 	var importes    = [];
 	var contrapartidas = [];
-	var cuenta_proveedor = [];
+	var cuenta_cliente = [];
 	var impuesto_iva;
 	var datosXML;
 
@@ -353,8 +343,8 @@ function obtenerDatosXML(xml){
 				"totalImpuestosTrasladados" : impuestos.attr('totalImpuestosTrasladados')
 			},
 
-			"proveedor" : {
-				"cuentaContable" : cuenta_proveedor
+			"cliente" : {
+				"cuentaContable" : cuenta_cliente
 			}
 		}
 		datosXML.comprobante.folio=validaDatoDefinido(datosXML.comprobante.folio);
@@ -412,8 +402,8 @@ function obtenerDatosXML(xml){
 				"totalImpuestosTrasladados" : impuestos.attr('TotalImpuestosTrasladados')
 			},
 
-			"proveedor" : {
-				"cuentaContable" : cuenta_proveedor
+			"cliente" : {
+				"cuentaContable" : cuenta_cliente
 			}
 		}
 		datosXML.comprobante.folio=validaDatoDefinido(datosXML.comprobante.folio);
