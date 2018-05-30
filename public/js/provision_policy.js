@@ -2,14 +2,15 @@ var standard_provision_files = document.getElementById("standard_provision_files
 var ieps_provision_files = document.getElementById("ieps_provision_files");
 var honorarium_provision_files = document.getElementById("honorarium_provision_files");
 var freight_provision_files = document.getElementById("freight_provision_files");
-var add_standard_provision_files = document.getElementById("add_standard_provision_files");
-var back_prev_section = document.getElementById("back_prev");
-var cfdi_config = document.getElementById("cfdi_config");
-var send_json_files = document.getElementById("send_json_files");
 standard_provision_files.addEventListener("change", getFiles, false);
 ieps_provision_files.addEventListener("change", getFiles, false);
 honorarium_provision_files.addEventListener("change", getFiles, false);
 freight_provision_files.addEventListener("change", getFiles, false);
+
+var add_standard_provision_files = document.getElementById("add_standard_provision_files");
+var back_prev_section = document.getElementById("back_prev");
+var cfdi_config = document.getElementById("cfdi_config");
+var send_json_files = document.getElementById("send_json_files");
 add_standard_provision_files.addEventListener("click", triggerAddFiles,false);
 back_prev_section.addEventListener("click", returnSection, false);
 cfdi_config.addEventListener("click", openCfdiConfigModal, false);
@@ -18,6 +19,7 @@ var file_index;
 var concept_index;
 var generate_by_provider=0;
 var provisionType;
+
 $('#cfdi_by_provider_toggle').prop('checked', false);
 
 $('#modalContrapartida1').modal({
@@ -103,7 +105,6 @@ function readFile(index) {
 				total_uploaded_files++;
 				readFile(index+1);
 			}
-			//reader.readAsDataURL(file);
 			reader.readAsText(file);
 		}
 		else{
@@ -135,9 +136,6 @@ function getFileData(e){
 }
 
 function passFileDataToJson(file_data){
-	// $.get(file_data, function (xml) {
-	// 	jsonFilesData.push(obtenerDatosXML(xml));
-	// });
 	
 	jsonFilesData.push(obtenerDatosXML($.parseXML(file_data)));	
 }

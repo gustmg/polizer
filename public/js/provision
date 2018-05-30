@@ -1,0 +1,4 @@
+var standard_provision_files = document.getElementById("standard_provision_files");
+var ieps_provision_files = document.getElementById("ieps_provision_files");
+var honorarium_provision_files = document.getElementById("honorarium_provision_files");
+var freight_provision_files = document.getElementById("freight_provision_files");

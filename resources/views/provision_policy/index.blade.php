@@ -1,23 +1,32 @@
 @extends('layouts.app')
 @section('content')
 <div id="menu_navbar" class="row white valign-wrapper" style="height: 48px;display: none;">
-	<div class="col s2" style="margin-left: 4px;">
+	<div class="col s4" style="margin-left: 4px;">
 		<a id="back_prev" class="selectable">
 			<i class="material-icons black-text">arrow_back</i>
 		</a>
 	</div>
-	<div class="col s10 right-align" style="margin-right: 4px;">
-		<a id="cfdi_config" class="selectable">
-			<i class="material-icons black-text">settings</i>
-		</a>
-		&nbsp;&nbsp;
+	<div class="col s4">
 		<a>
 			<i class="material-icons black-text">search</i>
+		</a>
+	</div>
+	<div class="col s4 right-align" style="margin-right: 4px;">
+		<a id="toggle_select_all_rows" class="selectable">
+			<i class="material-icons black-text">select_all</i>
 		</a>
 		&nbsp;&nbsp;
 		<a id="add_standard_provision_files" class="selectable">
 			<i class="material-icons black-text">note_add</i>
 		</a>
+		&nbsp;&nbsp;
+		<a id="delete_rows" class="selectable">
+			<i class="material-icons black-text">delete</i>
+		</a>		
+		&nbsp;&nbsp;
+		<a id="cfdi_config" class="selectable">
+			<i class="material-icons black-text">settings</i>
+		</a>		
 		&nbsp;&nbsp;
 		<a id="send_json_files" class="selectable">
 			<i class="material-icons black-text">get_app</i>
@@ -141,10 +150,56 @@
 		</div>
 	</div>
 </div>
-<div class="container section2">
+<div class="container section2" style="width: 95%;display: none;">
 	<div class="row">
-		<ul class="col s12 collection collection-cfdi" style="overflow: visible;">
-		</ul>
+		<table class="card highlight col s12" style="table-layout: fixed;">
+		    <thead>
+		        <tr>
+		            <th style="width: 5%;"></th>
+		            <th style="width: 7%;" class="center-align">Fecha</th>
+		            <th style="width: 10%;" class="center-align">Serie</th>
+		            <th style="width: 25%;">Proveedor</th>
+		            <th style="width: 30%;">Descripcion</th>
+		            <th style="width: 10%;" class="center-align">Total</th>
+		            <th style="width: 10%;" class="center-align">Opciones</th>
+		        </tr>
+		    </thead>
+		    <tbody>
+		        {{-- <tr data-file-index="" data-rfc-provider="">
+		            <td class="center-align valign-wrapper">
+		                <input type="checkbox" class="filled-in row-select" id="row-select-1" checked="checked" />
+		                <label for="row-select-1"></label>
+		            </td>
+		            <td style="width: 7%;" class="center-align">Ene. 01</td>
+		            <td style="width: 10%;" class="center-align">01</td>
+		            <td style="width: 25%;" class="hover">
+		            	<span class="truncate" >Nombre del Proveedor SA de CV</span>
+		                <div class="card-panel" style="position: absolute;display: none;">
+		                    <span>Nombre competo del proveedor</span><br>
+		                    <span>RFC123456789</span><br>
+		                    <span>FOLIO: 1234</span><br>
+		                    <span>Serie: 00</span><br>
+		                </div>
+		            </td>
+		            <td style="width: 30%;">
+		            	<span class="truncate">Primer descripcion de cfdi</span>
+		            </td>
+		            <td style="width: 10%;" class="center-align">$1234.56</td>
+		            <td style="width: 10%;" class="center-align">
+						<a href="#newProviderModal" class="modal-trigger newProviderFromProvision">
+							<i class="material-icons black-text">person_add</i>
+						</a>
+						&nbsp;
+						<a href="#modalShowConcepts" class="modal-trigger">
+							<i class="material-icons black-text">list</i>
+						</a>
+		            </td>
+				</tr> --}}
+		    </tbody>
+		</table>
+
+		{{-- <ul class="col s12 collection collection-cfdi" style="overflow: visible;">
+		</ul> --}}
 		<div id="modalContrapartida1" class="modal modal-fixed-footer">
 			<div class="modal-content">
 				<ul class="collection with-header">
@@ -213,6 +268,30 @@
 					   </label>
 					 </div>
 				</div>
+			</div>
+			<div class="modal-footer">
+				<button id="saveChanges" class="btn modal-close"><b>Listo</b></button>
+			</div>
+		</div>
+		<div id="modalShowConcepts" class="modal modal-fixed-footer">
+			<div class="modal-content">
+				<ul id="conceptList" class="collection">
+					<li class="collection-item">
+						<div class="row no-margin">
+							<div class="col s6">
+								<span ><b class="truncate">Descripción del concepto verdaderamente</b> $200.00</span>
+							</div>
+							<div class="col s6">
+								<select class="browser-default secondary-content">
+								    <option value="" disabled selected>Choose your option</option>
+								    <option value="1">Option 1</option>
+								    <option value="2">Option 2</option>
+								    <option value="3">Option 3</option>
+								</select>
+							</div>
+						</div>
+					</li>
+				</ul>
 			</div>
 			<div class="modal-footer">
 				<button id="saveChanges" class="btn modal-close"><b>Listo</b></button>

@@ -16,14 +16,14 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style type="text/css">
         @auth
-        header,nav, main, footer {
+        /*header,nav, main, footer {
             padding-left: 275px;
         }
         @media only screen and (max-width : 992px) {
           header, nav, main, footer {
             padding-left: 0;
           }
-        }
+        }*/
         @endauth
     </style>
 </head>
@@ -34,7 +34,7 @@
             <nav>
                 <div id="nav-bar" class="nav-wrapper teal trans-color">
                     <ul class="left">
-                        <li><a href="#" data-activates="slide-out" class="menu hide-on-large-only"><i class="material-icons">menu</i></a></li>
+                        <li><a href="#" data-activates="slide-out" class="menu"><i class="material-icons">menu</i></a></li>
                         <li><a href="#selectWorkspaceCompanyModal" class="show-on-small breadcrumb modal-trigger hide-on-med-and-up"><i class="material-icons">business</i></a></li>
                     </ul>
                     @if (count($companies)===0)
@@ -62,7 +62,7 @@
                 </div>
             </nav>
         </div>
-        <ul id="slide-out" class="collapsible side-nav fixed" data-collapsible="accordion" style="border-top:0;border-left:0;border-right: 0;width: 275px;">
+        <ul id="slide-out" class="collapsible side-nav" data-collapsible="accordion" style="border-top:0;border-left:0;border-right: 0;width: 275px;">
             <div class="card black" style="margin-top: 0;margin-bottom: 0;border-radius: 0;">
                 <div class="card-content white-text">
                     <h5>{{Auth::user()->name}}</h5>
@@ -182,7 +182,8 @@
     <script src="{{ asset('js/bank_accounts.js') }}"></script>
 @endif
 @if (Route::currentRouteName()=='provision_policy')
-    <script src="{{ asset('js/provision_policy.js') }}"></script>
+    <script src="{{ asset('js/provision.js') }}"></script>
+    <script src="{{ asset('js/jquery.hoverIntent.min.js') }}"></script>
     <script src="{{ asset('js/providers.js') }}"></script>
 @endif
 @if (Route::currentRouteName()=='billing_policy')
