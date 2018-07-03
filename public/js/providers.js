@@ -1,23 +1,24 @@
 $('.newProviderModal').modal({
 	ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
 	    if(trigger.hasClass('newProviderFromProvision')){
-	    	var index_file_id = trigger.parent().parent().parent().attr('data-file-index');
+	    	var index_file_id = trigger.parent().parent().attr('data-file-index');
 	    	$('#provider_name').val(jsonFilesData[index_file_id].emisor.nombreEmisor);
 	    	$('label[for="provider_name"]').addClass('active');
 	    	$('#provider_rfc').val(jsonFilesData[index_file_id].emisor.rfcEmisor);
 	    	$('label[for="provider_rfc"]').addClass('active');
 	    }
 	},
+	complete: function(){
+		$('#provider_name').val('');
+		$('label[for="provider_name"]').removeClass('active');
+		$('#provider_rfc').val('');
+		$('label[for="provider_rfc"]').removeClass('active');
+		$('#provider_accounting_account').val('');
+		$('#counterpart_accounting_account_id').val('');
+	}
 });
 $('.updateProviderModal').modal();
 $('.deleteProviderModal').modal();
-
-$('.selectNew').on('change', function(event) {
-	$('.selectNew').material_select('destroy');
-	$('.selectNew').material_select();
-	$('.selectNew').val($(this).val());
-	$('.selectNew option[value="'+$(this).val()+'"]').attr("selected", "selected");
-});
 
 $('.selectUpdate').on('change', function(event) {
 	$('.selectUpdate').material_select('destroy');
@@ -40,13 +41,16 @@ function validateForm(){
 function submitNewProvider() {
 	$('.submit_button').attr('disabled', true);
 	$('#newProviderForm').submit();
+	//$('#newProviderForm').off('submit');
+
 }
 
 function ajaxNewProvider() {
-	$('.submit_button').attr('disabled', true);
+	// $('.submit_button').attr('disabled', true);
 	var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
+
 	$.ajax({
-		url: 'ajax',
+		url: 'ajaxProvision',
 		type: 'POST',
 		data: { _token: CSRF_TOKEN,
 				handler: 'newProvider',
@@ -57,24 +61,19 @@ function ajaxNewProvider() {
 		},
 	})
 	.done(function(data) {
-		$(".collection-cfdi .avatar").each(function(index){
-			$("#newProviderModal").modal('close');
+		$("#newProviderModal").modal('close');
+		$("tr").each(function(index){
 			if($(this).attr('data-rfc-provider')===data[0].provider_rfc){
-				$('li[data-rfc-provider='+data[0].provider_rfc+']').removeClass('red').removeClass('darken-4').removeClass('white-text').removeClass('scrollspy');
-				$('li[data-rfc-provider='+data[0].provider_rfc+'] .subtext').addClass('grey-text').addClass('text-darken-2').removeClass('white-text');
-				$('li[data-rfc-provider='+data[0].provider_rfc+'] .counterpart').html('');
-				$('li[data-rfc-provider='+data[0].provider_rfc+'] .counterpart').append(data[0].counterpart_account.accounting_account_description);
-				$('li[data-rfc-provider='+data[0].provider_rfc+'] .collection-concept').attr('data-counterpart-account-number', data[0].counterpart_account.accounting_account_number);
-				$("#registerProvider"+$(this).attr('data-file-index')).remove();
-				//Agrega conceptos a Json
-				var counterpart= [];
-				var provider_accounting_account=[data[0].provider_accounting_account];
-				$.each(jsonFilesData[$(this).attr('data-file-index')].concepto.descripciones, function(key, value) {
-					counterpart.push(data[0].counterpart_account.accounting_account_number);
-					//console.log(counterpart);
+				$(this).find('.provider-name').removeClass('red-text');
+				$(this).find('.newProviderFromProvision').remove();
+				var row_index=$(this).attr('data-file-index');
+				$('#modalShowConcepts'+row_index+' .accounting-account-list').each(function(){
+					$(this).val(data[0].counterpart_accounting_account_id);
 				});
-				$.extend(jsonFilesData[$(this).attr('data-file-index')].concepto.contrapartidas, counterpart);
-				$.extend(jsonFilesData[$(this).attr('data-file-index')].proveedor.cuentaContable, provider_accounting_account);
+				setConceptsToJson(row_index);
+				var provider_accounting_account=[data[0].provider_accounting_account];
+				$.extend(jsonFilesData[row_index].proveedor.cuentaContable, provider_accounting_account);
+				//console.log(jsonFilesData[row_index]);
 			}
 		});
 		console.log("success");
@@ -88,12 +87,12 @@ function ajaxNewProvider() {
 }
 
 function submitUpdateProvider(provider_id) {
-	$('#update_provider_button').attr('disabled', true);
+	$('.update_provider_button').attr('disabled', true);
 	$('#updateProviderForm'+provider_id).submit();
 }
 
 function submitDeleteProvider(provider_id) {
-	$('#delete_provider_button').attr('disabled', true);
+	$('.delete_provider_button').attr('disabled', true);
 	$('#deleteProviderForm'+provider_id).submit();
 }
 
@@ -102,10 +101,4 @@ function updateProviderModal(id, counterpart_account_id) {
 	$('.selectUpdate').material_select('destroy');
 	$('.selectUpdate').val(counterpart_account_id);
 	$('.selectUpdate').material_select();
-}
-
-function createSelectCounterpart() {
-	$('.selectNew').material_select('destroy');
-	$('.selectNew').val(0);
-	$('.selectNew').material_select();
 }

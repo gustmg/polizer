@@ -8505,21 +8505,21 @@ if (Vel) {
     return {
 
       // The title label to use for the month nav buttons
-      labelMonthNext: 'Next month',
-      labelMonthPrev: 'Previous month',
+      labelMonthNext: 'Mes siguiente',
+      labelMonthPrev: 'Mes anterior',
 
       // The title label to use for the dropdown selectors
-      labelMonthSelect: 'Select a month',
-      labelYearSelect: 'Select a year',
+      labelMonthSelect: 'Elige un mes',
+      labelYearSelect: 'Elige un año',
 
       // Months and weekdays
-      monthsFull: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-      monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-      weekdaysFull: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-      weekdaysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+      monthsFull: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+      monthsShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dec'],
+      weekdaysFull: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+      weekdaysShort: ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
 
       // Materialize modified
-      weekdaysLetter: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+      weekdaysLetter: ['D', 'L', 'M', 'X', 'J', 'V', 'S'],
 
       // Today and clear
       today: 'Today',
@@ -8530,7 +8530,7 @@ if (Vel) {
       closeOnSelect: false,
 
       // The format to show on the `input` element
-      format: 'd mmmm, yyyy',
+      format: 'd/mm/yyyy',
 
       // Classes
       klass: {

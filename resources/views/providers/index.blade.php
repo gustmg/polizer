@@ -12,7 +12,7 @@
 </div>
 </div>
 <div class="row">
-    @if(count($providers)===0)
+    @if(count($providers)==0)
     	<h5 class="center"><b>No hay proveedores registrados. :^(</b></h5>
 	@else
 		<div class="col s12">
@@ -31,7 +31,7 @@
 						<td class="center">{{$value->provider_accounting_account}}</td>
 						<td class="truncate">{{$value->provider_name}}</td>
 						<td class="center">{{$value->provider_rfc}}</td>
-						@if($value->counterpart_accounting_account_id === null)
+						@if($value->counterpart_accounting_account_id == null)
 							<td class="center">N / A</td>
 						@else
 							<td class="center tooltipped" data-position="bottom" data-delay="600" data-tooltip="{{$value->counterpart_account->accounting_account_description}}">{{$value->counterpart_account->accounting_account_number}}</td>
@@ -63,25 +63,25 @@
 							        </div>
 							        <div class="row">
 			        					<div class="col s12 grey-text text-darken-2"><b>Cuenta de contrapartida</b></div>
-			        					<div class="input-field col s8">
-			        						<select class="selectUpdate">
+			        					<div class="col s8">
+			        						<select class="selectUpdate browser-default">
 			        							<optgroup label="Inventarios">
 			        								@foreach($accounting_accounts as $key => $value2)
-			        									@if($value2->accounting_account_type_id===2)
+			        									@if($value2->accounting_account_type_id==2)
 			        										<option value="{{$value2->accounting_account_id}}">{{$value2->accounting_account_description}}</option>
 			        									@endif
 			        								@endforeach
 			        							</optgroup>
 			        							<optgroup label="Gastos de Venta">
 			        								@foreach($accounting_accounts as $key => $value3)
-			        									@if($value3->accounting_account_type_id===5)
+			        									@if($value3->accounting_account_type_id==5)
 			        										<option value="{{$value3->accounting_account_id}}">{{$value3->accounting_account_description}}</option>
 			        									@endif
 			        								@endforeach
 			        							</optgroup>
 			        							<optgroup label="Gastos de Administración">
 			        								@foreach($accounting_accounts as $key => $value4)
-			        									@if($value4->accounting_account_type_id===6)
+			        									@if($value4->accounting_account_type_id==6)
 			        										<option value="{{$value4->accounting_account_id}}">{{$value4->accounting_account_description}}</option>
 			        									@endif
 			        								@endforeach
@@ -96,7 +96,7 @@
 						<div class="modal-footer">
 							<a href="#deleteProviderModal{{$value->provider_id}}" class="modal-action modal-close modal-trigger left" style="margin-top: 10px;margin-left: 10px;"><i class="material-icons black-text">delete</i></a>
 							<a href="#!" class="modal-action modal-close waves-effect btn-flat"><b>Cancelar</b></a>
-							<button id="update_provider_button" onclick="submitUpdateProvider({{$value->provider_id}});" class="modal-action btn waves-effect submit_button">
+							<button id="update_provider_button" onclick="submitUpdateProvider({{$value->provider_id}});" class="modal-action btn waves-effect submit_button update_provider_button">
 								<b>Editar</b>
 							</button>
 						</div>
@@ -111,16 +111,17 @@
 							</div>
 							<div class="modal-footer">
 								<a href="#!" class="modal-action modal-close waves-effect btn-flat"><b>Cancelar</b></a>
-								<button id="delete_button" onclick="submitDeleteProvider({{$value->provider_id}});" class="modal-action btn-flat waves-effect"><b>Eliminar</b></button>
+								<button id="delete_provider_button" onclick="submitDeleteProvider({{$value->provider_id}});" class="modal-action btn-flat waves-effect delete_provider_button"><b>Eliminar</b></button>
 							</div>
 						</div>
 					@endforeach
 				</tbody>
 			</table>
 		</div>
+		{{ $providers->links('pagination') }}
     @endif
 </div>
-<a style="position:fixed;bottom: 24px;right: 24px;" class="btn-floating btn-large waves-effect waves-light modal-trigger teal accent-4" href="#newProviderModal" onclick="createSelectCounterpart();">
+<a style="position:fixed;bottom: 24px;right: 24px;" class="btn-floating btn-large waves-effect waves-light modal-trigger teal accent-4" href="#newProviderModal">
 	<i class="material-icons">add</i>
 </a>
 @include('providers.newProviderModal')

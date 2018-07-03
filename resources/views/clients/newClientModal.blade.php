@@ -23,8 +23,8 @@
 		        </div>
 		        <div class="row">
 					<div class="col s12 grey-text text-darken-2"><b>Cuenta de contrapartida</b></div>
-					<div class="input-field col s8">
-						<select name="counterpart_accounting_account_id" class="selectNew">
+					<div class="col s8">
+						<select id="counterpart_accounting_account_id" name="counterpart_accounting_account_id" class="accounting-account-list browser-default selectNew">
 							<option value="0" disabled selected>Elige una cuenta contable</option>
 							<optgroup label="Ventas / Ingresos">
 								@foreach($accounting_accounts as $key => $value)
@@ -41,6 +41,10 @@
 	</div>
 	<div class="modal-footer">
 		<a href="#!" class="modal-action modal-close waves-effect btn-flat"><b>Cancelar</b></a>
-		<button id="new_client_button" onclick="submitNewClient();" class="modal-action btn waves-effect submit_button" disabled><b>Registrar</b></button>
+		@if (Route::currentRouteName()=='clients.index')
+			<button id="submit_button" onclick="submitNewClient();" class="modal-action btn waves-effect submit_button" disabled><b>Registrar</b></button>
+		@else
+			<button id="submit_button" onclick="ajaxNewClient();" class="modal-action btn waves-effect submit_button" disabled><b>Registrar</b></button>
+		@endif
 	</div>
 </div>

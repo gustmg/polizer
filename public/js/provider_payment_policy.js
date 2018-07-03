@@ -1,6 +1,8 @@
 //Objetos para cargar archivos
-var standard_billing_files = document.getElementById("standard_billing_files");
-standard_billing_files.addEventListener("change", getFiles, false);
+var standard_provider_payment_files = document.getElementById("standard_provider_payment_files");
+var honorarium_provider_payment_files = document.getElementById("honorarium_provider_payment_files");
+standard_provider_payment_files.addEventListener("change", getFiles, false);
+honorarium_provider_payment_files.addEventListener("change", getFiles, false);
 
 var policyType;
 
@@ -31,7 +33,7 @@ function readFile(index) {
 			var reader = new FileReader();
 			reader.onload = function (e){
 				getFileData(e);
-				setTimeout(agregaFilaTablaFacturacion.bind(null, total_uploaded_files), 1);
+				setTimeout(agregaFilaTablaProvision.bind(null, total_uploaded_files), 1);
 				total_uploaded_files++;
 				readFile(index+1);
 			}
@@ -49,7 +51,6 @@ function readFile(index) {
 		$('.progress').css('visibility', 'hidden');
 		$('.section2').delay(400).fadeIn(400);
 		$('#menu_navbar').slideDown(400);
-		$(".billing-tablesorter").trigger("update");
 	}
 }
 
@@ -83,7 +84,13 @@ function obtenerDatosXML(xml){
 	var importes    = [];
 	var contrapartidas = [];
 	var cuenta_proveedor = [];
-	var cuenta_cliente = [];
+	var cuenta_bancaria_origen='0';
+	var cuenta_contable_origen='0';
+	var cuenta_bancaria_destino='0';
+	var cuenta_contable_destino='0';
+	var numero_cheque='0';
+	var banco_origen= '0';
+	var banco_destino= '0';
 	var impuesto_iva;
 	var datosXML;
 
@@ -104,7 +111,7 @@ function obtenerDatosXML(xml){
 				"subtotal"         : comprobante.attr('subTotal'),
 				"total"            : comprobante.attr('total'),
 				"tipoDeComprobante": comprobante.attr('tipoDeComprobante'),
-				"metodoDePago"     : comprobante.attr('metodoDePago'),
+				"formaPago"     : comprobante.attr('metodoDePago'),
 				"serie"            : comprobante.attr('serie')
 			},
 
@@ -140,8 +147,17 @@ function obtenerDatosXML(xml){
 				"cuentaContable" : cuenta_proveedor
 			},
 
-			"cliente" : {
-				"cuentaContable" : cuenta_cliente
+			"datosOrigen" : {
+				"cuentaBancariaOrigen" : cuenta_bancaria_origen,
+				"cuentaContableOrigen" : cuenta_contable_origen,
+				"bancoOrigen" : banco_origen
+			},
+
+			"datosDestino" : {
+				"cuentaBancariaDestino" : cuenta_bancaria_destino,
+				"cuentaContableDestino" : cuenta_contable_destino,
+				"numeroCheque" : numero_cheque,
+				"bancoDestino" : banco_destino
 			}
 		}
 		datosXML.comprobante.folio=validaDatoDefinido(datosXML.comprobante.folio);
@@ -167,7 +183,7 @@ function obtenerDatosXML(xml){
 				"subtotal"         : comprobante.attr('SubTotal'),
 				"total"            : comprobante.attr('Total'),
 				"tipoDeComprobante": comprobante.attr('TipoDeComprobante'),
-				"metodoDePago"     : comprobante.attr('FormaPago'),
+				"formaPago"     : comprobante.attr('FormaPago'),
 				"serie"            : comprobante.attr('Serie')
 			},
 
@@ -203,8 +219,17 @@ function obtenerDatosXML(xml){
 				"cuentaContable" : cuenta_proveedor
 			},
 
-			"cliente" : {
-				"cuentaContable" : cuenta_cliente
+			"datosOrigen" : {
+				"cuentaBancariaOrigen" : cuenta_bancaria_origen,
+				"cuentaContableOrigen" : cuenta_contable_origen,
+				"bancoOrigen" : banco_origen
+			},
+
+			"datosDestino" : {
+				"cuentaBancariaDestino" : cuenta_bancaria_destino,
+				"cuentaContableDestino" : cuenta_contable_destino,
+				"numeroCheque" : numero_cheque,
+				"bancoDestino" : banco_destino
 			}
 		}
 		datosXML.comprobante.folio=validaDatoDefinido(datosXML.comprobante.folio);
@@ -279,51 +304,90 @@ function personalizaFecha(fecha) {
 }
 
 //Funciones para mostrar tabla
-function agregaFilaTablaFacturacion(index){
+function agregaFilaTablaProvision(index){
 	$('tbody').append(
-    '<tr data-file-index="'+index+'" data-rfc-client="'+jsonFilesData[index].receptor.rfcReceptor+'">'+
-        '<td class="center-align valign-wrapper">'+
-            '<input type="checkbox" class="filled-in row-select" id="row-select-'+index+'"/>'+
-            '<label for="row-select-'+index+'"></label>'+
-        '</td>'+
-        '<td style="width: 7%;" class="center-align">'+personalizaFecha(jsonFilesData[index].comprobante.fecha)+'</td>'+
-        '<td style="width: 10%;" class="center-align">'+jsonFilesData[index].comprobante.folio+'</td>'+
-        '<td style="width: 25%;" class="hover-'+index+'">'+
-        	'<span class="truncate client-name" style="width: 90%;">'+jsonFilesData[index].receptor.nombreReceptor+'</span>'+
+	'<tr data-file-index="'+index+'" data-rfc-provider="'+jsonFilesData[index].emisor.rfcEmisor+'">'+
+		'<td class="center-align">'+
+			'<input type="checkbox" class="filled-in row-select" id="row-select-'+index+'"/>'+
+			'<label for="row-select-'+index+'" style="height: 16px;"></label>'+
+		'</td>'+
+		'<td class="center-align" style="width: 10%;">'+
+			'<input id="fecha-'+index+'" type="date">'+
+		'</td>'+
+		'<td class="center-align" style="width: 10%;">'+
+			jsonFilesData[index].comprobante.serie+
+		'</td>'+
+		'<td style="width: 25%;" class="hover-'+index+'">'+
+        	'<span class="truncate provider-name" style="width: 90%;">'+jsonFilesData[index].emisor.nombreEmisor+'</span>'+
             '<div class="card-panel card-panel-'+index+'" style="position: absolute;display: none;">'+
-                '<span>'+jsonFilesData[index].receptor.nombreReceptor+'</span><br>'+
-                '<span>'+jsonFilesData[index].receptor.rfcReceptor+'</span><br>'+
+                '<span>'+jsonFilesData[index].emisor.nombreEmisor+'</span><br>'+
+                '<span>'+jsonFilesData[index].emisor.rfcEmisor+'</span><br>'+
                 '<span>FOLIO: '+jsonFilesData[index].comprobante.folio+'</span><br>'+
                 '<span>Serie: '+jsonFilesData[index].comprobante.serie+'</span><br>'+
             '</div>'+
         '</td>'+
-        '<td style="width: 30%;">'+
-        	'<span class="truncate" style="width: 90%;">'+jsonFilesData[index].concepto.descripciones[0]+'</span>'+
-        '</td>'+
-        '<td style="width: 10%;" class="center-align">$'+personalizaTotal(jsonFilesData[index].comprobante.total)+'</td>'+
-        '<td style="width: 10%;" class="center-align">'+
-			'<a href="#newClientModal" class="modal-trigger newClientFromProvision">'+
-				'<i class="material-icons black-text">person_add</i>'+
-			'</a>'+
-			'&nbsp;'+
-			'<a href="#modalShowConcepts'+index+'" class="modal-trigger">'+
-				'<i class="material-icons black-text">list</i>'+
-			'</a>'+
-	        '<div id="modalShowConcepts'+index+'" class="modal modal-fixed-footer">'+
-				'<div class="modal-content">'+
-					'<ul id="conceptList'+index+'" class="collection">'+
-					'</ul>'+
-				'</div>'+
-				'<div class="modal-footer">'+
-					'<button class="btn modal-close" onclick="addConceptsToJson('+index+')"><b>Listo</b></button>'+
-				'</div>'+
+		'<td class="center-align" style="width: 10%;">$'+
+			personalizaTotal(jsonFilesData[index].comprobante.total)+
+		'</td>'+
+		'<td style="width: 30%;">'+
+			'<div>'+
+				'<h6 class="center-align"><b>Forma de Pago</b></h6>'+
+    			'<select class="select-payform browser-default" data-file-index="'+index+'" onchange="changeDestiny(this);">'+
+					'<option selected value="01">01 - Efectivo</option>'+
+					'<option value="02">02 - Cheque</option>'+
+					'<option value="03">03 - Transferencia</option>'+
+				'</select>'+
 			'</div>'+
-        '</td>'+
+			'<div class="origin-'+index+'" data-file-index="'+index+'">'+
+    			'<h6 class="center-align"><b>Origen</b></h6>'+
+			'</div>'+
+			'<div class="destiny-'+index+'" data-file-index="'+index+'">'+
+    			'<h6 class="center-align"><b>Destino</b></h6>'+
+			'</div>'+
+		'</td>'+
 	'</tr>');
 	$('#modalShowConcepts'+index).modal({dismissible: false,});
 	makeHoverIntent(index);
-	loadConcepts(index);
-	verifyClient(index);
+	loadBankAccounts(index);
+	verifyProvider(index);
+	setPayform(index);
+}
+
+function setPayform (index){
+	if(	jsonFilesData[index].comprobante.formaPago == '01' ||
+		jsonFilesData[index].comprobante.formaPago == '02' ||
+		jsonFilesData[index].comprobante.formaPago == '03'){
+		$('.select-payform[data-file-index="'+index+'"]').val(jsonFilesData[index].comprobante.formaPago);
+	}
+	changeDestiny($('.select-payform[data-file-index="'+index+'"]'));
+}
+
+function changeDestiny(select) {
+	var index_row = $(select).attr('data-file-index');
+	if($(select).val()==1){
+		$('.destiny-'+index_row).hide();
+	}else if($(select).val()==2){
+		$('.destiny-'+index_row).html('');
+		$('.destiny-'+index_row).append('<h6 class="center-align"><b>Destino</b></h6>');
+		$('.destiny-'+index_row).append('<div class="input-field">'+
+				'<input id="check-number-'+index_row+'" type="text" class="validate" pattern="[0-9]+" data-length="5" maxlength="5">'+
+				'<label for="check-number-'+index_row+'">Número de cheque</label>'+
+        	'</div>');
+		$('#check-number-'+index_row).characterCounter();
+		$('.destiny-'+index_row).show();
+	}else if($(select).val()==3){
+		var list= $('.bank-accounts').html();
+		$('.destiny-'+index_row).html('');
+		$('.destiny-'+index_row).append('<h6 class="center-align"><b>Destino</b></h6>');
+		$('.destiny-'+index_row).append('<div class="input-field">'+
+				'<input id="bank-account-destiny-'+index_row+'" type="text" class="validate" pattern="[0-9]+" data-length="18" maxlength="18">'+
+				'<label for="bank-account-destiny-'+index_row+'">Cuenta bancaria destino</label>'+
+        	'</div>');
+		$('#bank-account-destiny-'+index_row).characterCounter();
+		$('.destiny-'+index_row).show();
+	}else{
+		$('.destiny-'+index_row).hide();
+	}
 }
 
 //Makes hover card on each provider column
@@ -338,20 +402,10 @@ function makeHoverIntent (index){
 	);
 }
 
-function loadConcepts (file_index){
-	var list= $('.accounts').html();
-	$.each(jsonFilesData[file_index].concepto.descripciones, function(key, description) {
-		$('#conceptList'+file_index).append(
-		'<li class="collection-item" data-counterpart-account-number="0">'+
-			'<div class="row no-margin">'+
-				'<div class="col s6 left-align">'+
-					'<span ><b class="truncate">'+description+'</b> '+jsonFilesData[file_index].concepto.importes[key]+'</span>'+
-				'</div>'+
-				'<div class="col s6 accounting-accounts-column-'+file_index+'">'+list+
-				'</div>'+
-			'</div>'+
-		'</li>');
-	});
+function loadBankAccounts (file_index){
+	var list= $('.bank-accounts').html();
+	$('.origin-'+file_index).append(list);
+	// $('.destiny-'+file_index).append(list);
 }
 
 function setConceptsToJson(json_index) {
@@ -363,26 +417,26 @@ function setConceptsToJson(json_index) {
 	//console.log(jsonFilesData[json_index]);
 }
 
-function verifyClient(row_index) {
+function verifyProvider(row_index) {
 	var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 
 	$.ajax({
-		url: 'ajaxBilling',
+		url: 'ajaxProvision',
 		type: 'POST',
-		data: {_token: CSRF_TOKEN, handler: 'getClient', client_rfc : jsonFilesData[row_index].receptor.rfcReceptor},
+		data: {_token: CSRF_TOKEN, handler: 'getProvider', provider_rfc : jsonFilesData[row_index].emisor.rfcEmisor},
 	})
 	.done(function(data) {
 		if(data.length===0){
 			$('tr[data-file-index="'+row_index+'"] td:nth-child(4) span.truncate').addClass('red-text');
 		}
 		else{
-			$('tr[data-file-index="'+row_index+'"] td:nth-child(7) .newClientFromProvision').remove();
+			$('tr[data-file-index="'+row_index+'"] td:nth-child(7) .newProviderFromProvision').remove();
 			$('#modalShowConcepts'+row_index+' .accounting-account-list').each(function(){
 				$(this).val(data[0].counterpart_accounting_account_id); //Set default counterpart on concept list
 			});
 			setConceptsToJson(row_index); //Pass counterpart accounts to json
-			var client_accounting_account=[data[0].client_accounting_account];
-			setClientAccountToJson(row_index, client_accounting_account);
+			var provider_accounting_account=[data[0].provider_accounting_account];
+			setProviderAccountToJson(row_index, provider_accounting_account);
 			//console.log(jsonFilesData[row_index]);
 		}
 	})
@@ -391,34 +445,49 @@ function verifyClient(row_index) {
 	})
 }
 
-function setClientAccountToJson(row_index, client_accounting_account) {
-	$.extend(jsonFilesData[row_index].cliente.cuentaContable, client_accounting_account);
+function setProviderAccountToJson(row_index, provider_accounting_account) {
+	$.extend(jsonFilesData[row_index].proveedor.cuentaContable, provider_accounting_account);
 }
 
 function sendJsonFiles(){
 	setGenerateByToggle();
 	var jsonFiles=[];
-	if(verifyUnregisteredClients()!=0){
-		Materialize.toast('No se pudo procesar la petición. El cliente de algún comprobante no está registrado.', 4000);
+	if(verifyUnregisteredProviders()!=0){
+		Materialize.toast('No se pudo procesar la petición. El proveedor de algún comprobante no está registrado.', 4000);
 	}
 	else{
-		if(verifyUnregisteredClients()!=0){
+		if(verifyUnregisteredProviders()!=0){
 			Materialize.toast('No se pudo procesar la petición. Hay conceptos sin contrapartida.', 4000);
 		}
 		else{
-			$('#menu_navbar').slideUp();
+			// $('#menu_navbar').slideUp();
 			$('.progress').css('visibility', 'visible');
 			Materialize.toast('Procesando archivos.', 2000);
 			$('tbody tr').each(function(index){
 				var indexJsonFile=$(this).attr("data-file-index");
+				jsonFilesData[indexJsonFile].comprobante.fecha=$('#fecha-'+indexJsonFile).val();
+				jsonFilesData[indexJsonFile].datosOrigen.cuentaBancariaOrigen=$('.origin-'+indexJsonFile+' select option:selected').attr('data-bank-account-number');
+				jsonFilesData[indexJsonFile].datosOrigen.cuentaContableOrigen=$('.origin-'+indexJsonFile+' select option:selected').val();
+				jsonFilesData[indexJsonFile].datosOrigen.bancoOrigen=$('.origin-'+indexJsonFile+' select option:selected').parent().attr('data-bank-id');
+				jsonFilesData[indexJsonFile].comprobante.formaPago=$('.select-payform[data-file-index="'+indexJsonFile+'"] option:selected').val();
+				// console.log(jsonFilesData[indexJsonFile].datosOrigen.cuentaBancariaOrigen);
+				// console.log(jsonFilesData[indexJsonFile].datosOrigen.cuentaContableOrigen);
+				//console.log(jsonFilesData[indexJsonFile].datosOrigen.bancoOrigen);
+
+				if($('.select-payform[data-file-index="'+indexJsonFile+'"] option:selected').val()=='02'){
+					jsonFilesData[indexJsonFile].datosDestino.numeroCheque=$('#check-number-'+indexJsonFile).val();
+					// console.log(jsonFilesData[indexJsonFile].datosDestino.numeroCheque);
+				}else if($('.select-payform[data-file-index="'+indexJsonFile+'"] option:selected').val()=='03'){
+					jsonFilesData[indexJsonFile].datosDestino.cuentaBancariaDestino=$('#bank-account-destiny-'+indexJsonFile).val();
+					// console.log(jsonFilesData[indexJsonFile].datosDestino.cuentaBancariaDestino);
+				}
 				jsonFiles.push(JSON.stringify(jsonFilesData[indexJsonFile]));
 			});
-			
-			//console.log(policyType);
+
 			$.ajax({
-				url: 'ajaxBilling',
+				url: 'ajaxProviderPayment',
 				type: 'POST',
-				data: {handler: 'export' , policyType: policyType, jsonFiles: jsonFiles, generateByClient: generate_by_toggle, cfdiIndexSerie: $('#cfdi_index_serie').val()},
+				data: {handler: 'export' , policyType: policyType, jsonFiles: jsonFiles, generateByProvider: generate_by_toggle, cfdiIndexSerie: $('#cfdi_index_serie').val()},
 			})
 			.done(function(data) {
 				$('#menu_navbar').slideDown();
@@ -438,12 +507,12 @@ function sendJsonFiles(){
 	}
 }
 
-function verifyUnregisteredClients() {
-	var amount_unregistered_clients=0;
-	$('.client-name').each(function(index){
+function verifyUnregisteredProviders() {
+	var amount_unregistered_providers=0;
+	$('.provider-name').each(function(index){
 		if($(this).hasClass('red-text')){
-			amount_unregistered_clients++;
+			amount_unregistered_providers++;
 		}
 	});
-	return amount_unregistered_clients;
+	return amount_unregistered_providers;
 }

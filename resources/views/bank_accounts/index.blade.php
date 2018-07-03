@@ -12,7 +12,7 @@
 </div>
 </div>
 <div class="row">
-    @if(count($bank_accounts)===0)
+    @if(count($bank_accounts)==0)
     	<h5 class="center"><b>No hay cuentas bancarias registradas. :^(</b></h5>
 	@else
 		<div class="col s12">
@@ -28,12 +28,12 @@
 					@foreach($bank_accounts as $key => $value)
 					<tr onclick="updateBankAccountModal({{$value->bank_account_id}},{{$value->bank->bank_id}},{{$value->counterpart_accounting_account_id}});" style="cursor: pointer;" class="modal-trigger" href="#updateBankAccountModal{{$value->bank_account_id}}">
 						<td class="center">{{$value->bank_account_number}}</td>
-						@if($value->counterpart_accounting_account_id === null)
+						@if($value->counterpart_accounting_account_id == null)
 							<td class="center">N / A</td>
 						@else
 							<td class="center tooltipped" data-position="bottom" data-delay="600" data-tooltip="{{$value->counterpart_account->accounting_account_number}}">{{$value->counterpart_account->accounting_account_description}}</td>
 						@endif
-						@if($value->bank_id === null)
+						@if($value->bank_id == null)
 							<td class="center">N / A</td>
 						@else
 							<td class="center">
@@ -71,7 +71,7 @@
 			        					<div class="col s12 grey-text text-darken-2"><b>Cuenta de contrapartida</b></div>
 			        					<div class="input-field col s8">
 			        						<select class="selectUpdateAccountingAccount"
-			        							@if(count($accounting_accounts)===0) 
+			        							@if(count($accounting_accounts)==0) 
 			        								disabled>
 													<option>No hay cuentas contables registardas</option>
 												@else
@@ -147,7 +147,7 @@
 					<div class="col s12 grey-text text-darken-2"><b>Cuenta de contrapartida</b></div>
 					<div class="input-field col s8">
 						<select name="counterpart_accounting_account_id" class="selectNewAccountingAccount" 
-							@if(count($accounting_accounts)===0) disabled>
+							@if(count($accounting_accounts)==0) disabled>
 								<option>No hay cuentas contables registardas</option>
 							@else
 								>

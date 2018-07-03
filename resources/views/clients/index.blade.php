@@ -89,18 +89,18 @@
 						</div>
 					</div>
 					<form id="deleteClientForm{{$value->client_id}}" method="POST" action="{{ route('clients.destroy', $value->client_id) }}">
-							{{ csrf_field() }}
-							@method('DELETE')
-						</form>
-						<div id="deleteClientModal{{$value->client_id}}" class="modal deleteClientModal">
-							<div class="modal-content">
-								<h5>Eliminar cliente?</h5>
-							</div>
-							<div class="modal-footer">
-								<a href="#!" class="modal-action modal-close waves-effect btn-flat"><b>Cancelar</b></a>
-								<button id="delete_client_button" onclick="submitDeleteClient({{$value->client_id}});" class="modal-action btn-flat waves-effect"><b>Eliminar</b></button>
-							</div>
+						{{ csrf_field() }}
+						@method('DELETE')
+					</form>
+					<div id="deleteClientModal{{$value->client_id}}" class="modal deleteClientModal">
+						<div class="modal-content">
+							<h5>Eliminar cliente?</h5>
 						</div>
+						<div class="modal-footer">
+							<a href="#!" class="modal-action modal-close waves-effect btn-flat"><b>Cancelar</b></a>
+							<button id="delete_client_button" onclick="submitDeleteClient({{$value->client_id}});" class="modal-action btn-flat waves-effect"><b>Eliminar</b></button>
+						</div>
+					</div>
 					@endforeach
 				</tbody>
 			</table>

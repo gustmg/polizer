@@ -13,7 +13,7 @@
 </div>
 <div class="row">
 	<div class="col s12 m10 offset-m1">
-		@if(count($companies)===0)
+		@if(count($companies)==0)
 			<h5 class="center"><b>No hay empresas registradas. :^(</b></h5>
 		@else
 			<ul class="collapsible popout" data-collapsible="accordion">

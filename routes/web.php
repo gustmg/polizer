@@ -33,3 +33,5 @@ Route::get('provision_policy', 'ProvisionPolicyController@index')->middleware('a
 Route::post('ajaxProvision', 'ProvisionPolicyController@handler');
 Route::get('billing_policy', 'BillingPolicyController@index')->middleware('auth')->name('billing_policy');
 Route::post('ajaxBilling', 'BillingPolicyController@handler');
+Route::get('provider_payment_policy', 'ProviderPaymentPolicyController@index')->middleware('auth')->name('provider_payment_policy');
+Route::post('ajaxProviderPayment', 'ProviderPaymentPolicyController@handler');

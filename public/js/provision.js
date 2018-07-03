@@ -8,11 +8,10 @@ ieps_provision_files.addEventListener("change", getFiles, false);
 honorarium_provision_files.addEventListener("change", getFiles, false);
 freight_provision_files.addEventListener("change", getFiles, false);
 
-//Handler para tipo de provisión
-var provisionType;
+var policyType;
 
-function setProvisionType(idProvisionType){
-	provisionType=idProvisionType;
+function setPolicyType(idPolicyType){
+	policyType=idPolicyType;
 }
 
 //Objetos para manejo de archivos
@@ -20,14 +19,6 @@ var files;
 var number_of_files;
 var jsonFilesData = [];
 var total_uploaded_files = 0;
-
-//Modals
-$('#modalShowConcepts').modal({
-	ready: function(modal, trigger) {
-		file_index = trigger.parent().parent().attr("data-file-index");
-		
-	},
-});
 
 function getFiles(e){
     files= e.target.files;
@@ -58,12 +49,13 @@ function readFile(index) {
 		}
 	}
 	else{
-		console.log('Se leyeron todos los archivos');
-		console.log("Total de archivos cargados: "+total_uploaded_files);
-		console.log(jsonFilesData);
+		// console.log('Se leyeron todos los archivos');
+		// console.log("Total de archivos cargados: "+total_uploaded_files);
+		// console.log(jsonFilesData);
 		$('.progress').css('visibility', 'hidden');
 		$('.section2').delay(400).fadeIn(400);
 		$('#menu_navbar').slideDown(400);
+		$(".provision-tablesorter").trigger("update");
 	}
 }
 
@@ -243,43 +235,43 @@ function personalizaFecha(fecha) {
 	var mes_letra;
 	switch(mes){
 		case '01':
-			mes_letra='Enero';
+			mes_letra='Ene';
 			break;
 		case '02':
-			mes_letra='Febrero';
+			mes_letra='Feb';
 			break;
 		case '03':
-			mes_letra='Marzo';
+			mes_letra='Mar';
 			break;
 		case '04':
-			mes_letra='Abril';
+			mes_letra='Abr';
 			break;
 		case '05':
-			mes_letra='Mayo';
+			mes_letra='May';
 			break;	
 		case '06':
-			mes_letra='Junio';
+			mes_letra='Jun';
 			break;
 		case '07':
-			mes_letra='Julio';
+			mes_letra='Jul';
 			break;
 		case '08':
-			mes_letra='Agosto';
+			mes_letra='Ago';
 			break;
 		case '09':
-			mes_letra='Septiembre';
+			mes_letra='Sep';
 			break;
 		case '10':
-			mes_letra='Octubre';
+			mes_letra='Oct';
 			break;
 		case '11':
-			mes_letra='Noviembre';
+			mes_letra='Nov';
 			break;
 		case '12':
-			mes_letra='Diciembre';
+			mes_letra='Dic';
 			break;
 	}
-	var fecha_personalizada= dia+' de '+mes_letra;
+	var fecha_personalizada= dia+'-'+mes_letra;
 	return fecha_personalizada;
 }
 
@@ -292,9 +284,9 @@ function agregaFilaTablaProvision(index){
             '<label for="row-select-'+index+'"></label>'+
         '</td>'+
         '<td style="width: 7%;" class="center-align">'+personalizaFecha(jsonFilesData[index].comprobante.fecha)+'</td>'+
-        '<td style="width: 10%;" class="center-align">'+jsonFilesData[index].comprobante.serie+'</td>'+
+        '<td style="width: 10%;" class="center-align">'+jsonFilesData[index].comprobante.folio+'</td>'+
         '<td style="width: 25%;" class="hover-'+index+'">'+
-        	'<span class="truncate" style="width: 90%;">'+jsonFilesData[index].emisor.nombreEmisor+'</span>'+
+        	'<span class="truncate provider-name" style="width: 90%;">'+jsonFilesData[index].emisor.nombreEmisor+'</span>'+
             '<div class="card-panel card-panel-'+index+'" style="position: absolute;display: none;">'+
                 '<span>'+jsonFilesData[index].emisor.nombreEmisor+'</span><br>'+
                 '<span>'+jsonFilesData[index].emisor.rfcEmisor+'</span><br>'+
@@ -311,14 +303,27 @@ function agregaFilaTablaProvision(index){
 				'<i class="material-icons black-text">person_add</i>'+
 			'</a>'+
 			'&nbsp;'+
-			'<a href="#modalShowConcepts" class="modal-trigger" onclick="loadConcepts('+index+');">'+
+			'<a href="#modalShowConcepts'+index+'" class="modal-trigger">'+
 				'<i class="material-icons black-text">list</i>'+
 			'</a>'+
+	        '<div id="modalShowConcepts'+index+'" class="modal modal-fixed-footer">'+
+				'<div class="modal-content">'+
+					'<ul id="conceptList'+index+'" class="collection">'+
+					'</ul>'+
+				'</div>'+
+				'<div class="modal-footer">'+
+					'<button class="btn modal-close" onclick="addConceptsToJson('+index+')"><b>Listo</b></button>'+
+				'</div>'+
+			'</div>'+
         '</td>'+
 	'</tr>');
+	$('#modalShowConcepts'+index).modal({dismissible: false,});
 	makeHoverIntent(index);
+	loadConcepts(index);
+	verifyProvider(index);
 }
 
+//Makes hover card on each provider column
 function makeHoverIntent (index){
 	$( ".hover-"+index).hoverIntent(
 	  function() {
@@ -331,23 +336,111 @@ function makeHoverIntent (index){
 }
 
 function loadConcepts (file_index){
-	$('#conceptList').html('');
+	var list= $('.accounts').html();
 	$.each(jsonFilesData[file_index].concepto.descripciones, function(key, description) {
-		$('#conceptList').append(
-		'<li class="collection-item">'+
+		$('#conceptList'+file_index).append(
+		'<li class="collection-item" data-counterpart-account-number="0">'+
 			'<div class="row no-margin">'+
-				'<div class="col s6">'+
-					'<span ><b class="truncate">'+description+'</b> $200.00</span>'+
+				'<div class="col s6 left-align">'+
+					'<span ><b class="truncate">'+description+'</b> '+jsonFilesData[file_index].concepto.importes[key]+'</span>'+
 				'</div>'+
-				'<div class="col s6">'+
-					'<select class="browser-default secondary-content">'+
-					    '<option value="" disabled selected>Choose your option</option>'+
-					    '<option value="1">Option 1</option>'+
-					    '<option value="2">Option 2</option>'+
-					    '<option value="3">Option 3</option>'+
-					'</select>'+
+				'<div class="col s6 accounting-accounts-column-'+file_index+'">'+list+
 				'</div>'+
 			'</div>'+
 		'</li>');
 	});
+}
+
+function setConceptsToJson(json_index) {
+	var counterpart_list= [];
+	$('#conceptList'+json_index+' li div div:nth-child(2) select').each(function(){
+		counterpart_list.push($(this).find(':selected').attr('data-accounting-account-number'));
+	});
+	$.extend(jsonFilesData[json_index].concepto.contrapartidas, counterpart_list);
+	//console.log(jsonFilesData[json_index]);
+}
+
+function verifyProvider(row_index) {
+	var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
+
+	$.ajax({
+		url: 'ajaxProvision',
+		type: 'POST',
+		data: {_token: CSRF_TOKEN, handler: 'getProvider', provider_rfc : jsonFilesData[row_index].emisor.rfcEmisor},
+	})
+	.done(function(data) {
+		if(data.length===0){
+			$('tr[data-file-index="'+row_index+'"] td:nth-child(4) span.truncate').addClass('red-text');
+		}
+		else{
+			$('tr[data-file-index="'+row_index+'"] td:nth-child(7) .newProviderFromProvision').remove();
+			$('#modalShowConcepts'+row_index+' .accounting-account-list').each(function(){
+				$(this).val(data[0].counterpart_accounting_account_id); //Set default counterpart on concept list
+			});
+			setConceptsToJson(row_index); //Pass counterpart accounts to json
+			var provider_accounting_account=[data[0].provider_accounting_account];
+			setProviderAccountToJson(row_index, provider_accounting_account);
+			//console.log(jsonFilesData[row_index]);
+		}
+	})
+	.fail(function() {
+		//console.log("Error al buscar proveedor");
+	})
+}
+
+function setProviderAccountToJson(row_index, provider_accounting_account) {
+	$.extend(jsonFilesData[row_index].proveedor.cuentaContable, provider_accounting_account);
+}
+
+function sendJsonFiles(){
+	setGenerateByToggle();
+	var jsonFiles=[];
+	if(verifyUnregisteredProviders()!=0){
+		Materialize.toast('No se pudo procesar la petición. El proveedor de algún comprobante no está registrado.', 4000);
+	}
+	else{
+		if(verifyUnregisteredProviders()!=0){
+			Materialize.toast('No se pudo procesar la petición. Hay conceptos sin contrapartida.', 4000);
+		}
+		else{
+			$('#menu_navbar').slideUp();
+			$('.progress').css('visibility', 'visible');
+			Materialize.toast('Procesando archivos.', 2000);
+			$('tbody tr').each(function(index){
+				var indexJsonFile=$(this).attr("data-file-index");
+				jsonFiles.push(JSON.stringify(jsonFilesData[indexJsonFile]));
+			});
+			
+			//console.log(policyType);
+			$.ajax({
+				url: 'ajaxProvision',
+				type: 'POST',
+				data: {handler: 'export' , policyType: policyType, jsonFiles: jsonFiles, generateByProvider: generate_by_toggle, cfdiIndexSerie: $('#cfdi_index_serie').val()},
+			})
+			.done(function(data) {
+				$('#menu_navbar').slideDown();
+				Materialize.toast('Archivo generado.', 2000);
+				window.location.href = data;
+			})
+			.fail(function(data) {
+				console.log(data);
+				$('#menu_navbar').slideDown();
+				Materialize.toast('Hubo un error al generar el archivo.', 2000);
+				console.log("error");
+			})
+			.always(function() {
+				$('.progress').css('visibility', 'hidden');
+			});
+		}
+	}
+}
+
+function verifyUnregisteredProviders() {
+	var amount_unregistered_providers=0;
+	$('.provider-name').each(function(index){
+		if($(this).hasClass('red-text')){
+			amount_unregistered_providers++;
+		}
+	});
+	return amount_unregistered_providers;
 }

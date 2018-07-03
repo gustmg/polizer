@@ -22,7 +22,7 @@ class ProviderController extends Controller
      */
     public function index()
     {
-        $providers=Provider::with('counterpart_account')->where('company_id', session()->get('company_workspace_id'))->get();
+        $providers=Provider::with('counterpart_account')->where('company_id', session()->get('company_workspace_id'))->paginate(10);
         $companies=Company::where('user_id', Auth::user()->id)->get();
         $accounting_account_types=AccountingAccountType::all();
         $accounting_accounts=AccountingAccount::where(function($query){
@@ -48,16 +48,16 @@ class ProviderController extends Controller
             'provider_accounting_account' => 'required|max:255',
         ]);
 
-        $provider=new Provider;
-        $provider->provider_name=$request->provider_name;
-        $provider->provider_rfc=$request->provider_rfc;
-        $provider->provider_accounting_account=$request->provider_accounting_account;
-        $provider->company_id=Session::get('company_workspace_id');
-        $provider->counterpart_accounting_account_id=$request->counterpart_accounting_account_id;
-
-        $provider->save();
-
-        return Redirect::to('providers');
+        if(!Provider::where([['provider_rfc','=',$request->provider_rfc],['company_id','=',Session::get('company_workspace_id')]])->exists()){
+            $provider=new Provider;
+            $provider->provider_name=$request->provider_name;
+            $provider->provider_rfc=$request->provider_rfc;
+            $provider->provider_accounting_account=$request->provider_accounting_account;
+            $provider->company_id=Session::get('company_workspace_id');
+            $provider->counterpart_accounting_account_id=$request->counterpart_accounting_account_id;
+            $provider->save();
+            return Redirect::to('providers');
+        }
     }
 
     /**

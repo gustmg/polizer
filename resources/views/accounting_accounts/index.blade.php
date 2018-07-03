@@ -12,7 +12,7 @@
 </div>
 </div>
 <div class="row">
-    @if(count($accounting_accounts)===0)
+    @if(count($accounting_accounts)==0)
     	<h5 class="center"><b>No hay cuentas contables registradas. :^(</b></h5>
 	@else
 		<div class="col s12">

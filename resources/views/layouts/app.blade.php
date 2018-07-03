@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#009688" />
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -80,7 +81,7 @@
                         <ul style="background-color:#ddd;">
                             <li><a href="{{ route ('provision_policy') }}">Provisión</a></li>
                             <li><a href="{{ route ('billing_policy') }}">Facturación</a></li>
-                            <li><a href="#">Pago a proveedores</a></li>
+                            <li><a href="{{ route ('provider_payment_policy') }}">Pago a proveedores</a></li>
                             <li><a href="#">Depósito de clientes</a></li>
                         </ul>
                     </div>
@@ -166,6 +167,7 @@
 <!-- Scripts -->
 <script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
 <script src="{{ asset('js/materialize.js') }}"></script>
+<script src="{{ asset('js/jquery.tablesorter.min.js') }}"></script>
 @if (Route::currentRouteName()=='companies.index')
     <script src="{{ asset('js/companies.js') }}"></script>
 @endif
@@ -183,16 +185,40 @@
 @endif
 @if (Route::currentRouteName()=='provision_policy')
     <script src="{{ asset('js/provision.js') }}"></script>
+    <script src="{{ asset('js/policy_navbar.js') }}"></script>
     <script src="{{ asset('js/jquery.hoverIntent.min.js') }}"></script>
     <script src="{{ asset('js/providers.js') }}"></script>
 @endif
 @if (Route::currentRouteName()=='billing_policy')
     <script src="{{ asset('js/billing_policy.js') }}"></script>
+    <script src="{{ asset('js/policy_navbar.js') }}"></script>
+    <script src="{{ asset('js/jquery.hoverIntent.min.js') }}"></script>
     <script src="{{ asset('js/clients.js') }}"></script>
+@endif
+@if (Route::currentRouteName()=='provider_payment_policy')
+    <script src="{{ asset('js/provider_payment_policy.js') }}"></script>
+    <script src="{{ asset('js/policy_navbar.js') }}"></script>
+    <script src="{{ asset('js/jquery.hoverIntent.min.js') }}"></script>
+    <script src="{{ asset('js/providers.js') }}"></script>
 @endif
 
 <script type="text/javascript">
     $(document).ready(function(){
+        $('.provision-tablesorter').tablesorter({
+            headers:{   0: {sorter: false},
+                        4: {sorter: false},
+                        5: {sorter: false},
+                        6: {sorter: false}
+                    }
+        });
+        $('.billing-tablesorter').tablesorter({
+            headers:{   0: {sorter: false},
+                        4: {sorter: false},
+                        5: {sorter: false},
+                        6: {sorter: false}
+                    }
+        });
+
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

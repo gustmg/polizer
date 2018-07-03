@@ -23,29 +23,30 @@
 		        </div>
 		        <div class="row">
 					<div class="col s12 grey-text text-darken-2"><b>Cuenta de contrapartida</b></div>
-					<div class="input-field col s8">
-						<select id="counterpart_accounting_account_id" name="counterpart_accounting_account_id" class="selectNew">
-							<optgroup label="Inventarios">
-								@foreach($accounting_accounts as $key => $value)
-									@if($value->accounting_account_type_id==2)
-										<option value="{{$value->accounting_account_id}}">{{$value->accounting_account_description}}</option>
-									@endif
-								@endforeach
-							</optgroup>
-							<optgroup label="Gastos de Venta">
-								@foreach($accounting_accounts as $key2 => $value)
-									@if($value->accounting_account_type_id==5)
-										<option value="{{$value->accounting_account_id}}">{{$value->accounting_account_description}}</option>
-									@endif
-								@endforeach
-							</optgroup>
-							<optgroup label="Gastos de Administración">
-								@foreach($accounting_accounts as $key3 => $value)
-									@if($value->accounting_account_type_id==6)
-										<option value="{{$value->accounting_account_id}}">{{$value->accounting_account_description}}</option>
-									@endif
-								@endforeach
-							</optgroup>
+					<div class="col s8">
+						<select id="counterpart_accounting_account_id" name="counterpart_accounting_account_id" class="accounting-account-list browser-default selectNew">
+						    <option value="" disabled selected>Elige una cuenta contable</option>
+						    <optgroup label="Inventarios">
+						    	@foreach($accounting_accounts as $key => $accounting_account)
+						    		@if($accounting_account->accounting_account_type_id ==2)
+						    			<option value="{{$accounting_account->accounting_account_id}}" data-accounting-account-number="{{$accounting_account->accounting_account_number}}">{{$accounting_account->accounting_account_description}}</option>
+						    		@endif
+						    	@endforeach
+						    </optgroup>
+						    <optgroup label="Gastos de venta">
+						    	@foreach($accounting_accounts as $key => $accounting_account)
+						    		@if($accounting_account->accounting_account_type_id ==5)
+						    			<option value="{{$accounting_account->accounting_account_id}}" data-accounting-account-number="{{$accounting_account->accounting_account_number}}">{{$accounting_account->accounting_account_description}}</option>
+						    		@endif
+						    	@endforeach
+						    </optgroup>
+						    <optgroup label="Gastos de administración">
+						    	@foreach($accounting_accounts as $key => $accounting_account)
+						    		@if($accounting_account->accounting_account_type_id ==6)
+						    			<option value="{{$accounting_account->accounting_account_id}}" data-accounting-account-number="{{$accounting_account->accounting_account_number}}">{{$accounting_account->accounting_account_description}}</option>
+						    		@endif
+						    	@endforeach
+						    </optgroup>
 						</select>
 					</div>
 		        </div>
