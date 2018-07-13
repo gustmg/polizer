@@ -315,7 +315,7 @@ function agregaFilaTablaFacturacion(index){
 					'</ul>'+
 				'</div>'+
 				'<div class="modal-footer">'+
-					'<button class="btn modal-close" onclick="addConceptsToJson('+index+')"><b>Listo</b></button>'+
+					'<button class="btn modal-close" onclick="setConceptsToJson('+index+')"><b>Listo</b></button>'+
 				'</div>'+
 			'</div>'+
         '</td>'+

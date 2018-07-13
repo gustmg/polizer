@@ -30,6 +30,7 @@ function readFile(index) {
 		var file_extension = filename.split('.').pop().toLowerCase();
 
 		if(validateExtension(file_extension)){
+			//TO-DO: Add validation for undefined attributes of the xml file
 			var reader = new FileReader();
 			reader.onload = function (e){
 				getFileData(e);

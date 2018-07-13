@@ -19,6 +19,7 @@ var files;
 var number_of_files;
 var jsonFilesData = [];
 var total_uploaded_files = 0;
+var unreaded_files= [];
 
 function getFiles(e){
     files= e.target.files;
@@ -36,10 +37,15 @@ function readFile(index) {
 		if(validateExtension(file_extension)){
 			var reader = new FileReader();
 			reader.onload = function (e){
-				getFileData(e);
-				setTimeout(agregaFilaTablaProvision.bind(null, total_uploaded_files), 1);
-				total_uploaded_files++;
-				readFile(index+1);
+				if(getFileData(e)!=0){
+					setTimeout(agregaFilaTablaProvision.bind(null, total_uploaded_files), 1);
+					total_uploaded_files++;
+					readFile(index+1);
+				}
+				else{
+					unreaded_files.push(filename);
+					readFile(index+1);
+				}
 			}
 			reader.readAsText(file);
 		}
@@ -56,6 +62,11 @@ function readFile(index) {
 		$('.section2').delay(400).fadeIn(400);
 		$('#menu_navbar').slideDown(400);
 		$(".provision-tablesorter").trigger("update");
+		if(unreaded_files.length>0){
+			unreaded_files.toString();
+			Materialize.toast('Ocurrió un error al procesar los siguientes archivos: '+unreaded_files, 7000);
+			unreaded_files=[];
+		}
 	}
 }
 
@@ -70,11 +81,19 @@ function validateExtension(file_extension) {
 
 function getFileData(e){
 	var file_data=e.target.result;
-	passFileDataToJson(file_data);
+	if(passFileDataToJson(file_data)==0){
+		return 0;
+	}
 }
 
 function passFileDataToJson(file_data){
-	jsonFilesData.push(obtenerDatosXML($.parseXML(file_data)));	
+	var data= obtenerDatosXML($.parseXML(file_data));
+	if(data!=0){
+		jsonFilesData.push(data);	
+	}
+	else{
+		return 0;
+	}
 }
 
 function obtenerDatosXML(xml){
@@ -93,7 +112,51 @@ function obtenerDatosXML(xml){
 	var datosXML;
 
 	if(comprobante.attr('version')=='3.2'){
+		//Validacion de atributos del XML
+		if(typeof emisor.attr('nombre') == 'undefined'){
+			alert("Nombre Emisor no encontrado");
+			return 0;
+		}
+		if(typeof emisor.attr('rfc') == 'undefined'){
+			alert("Rfc Emisor no encontrado");
+			return 0;
+		}
+		if(typeof receptor.attr('nombre') == 'undefined'){
+			alert("Nombre Receptor no encontrado");
+			return 0;
+		}
+		if(typeof receptor.attr('rfc') == 'undefined'){
+			alert("Rfc Receptor no encontrado");
+			return 0;
+		}
+		if(typeof tfd.attr('UUID') == 'undefined'){
+			alert("UUID no encontrado");
+			return 0;
+		}
+		if(typeof comprobante.attr('subTotal') == 'undefined'){
+			alert("Subtotal no encontrados");
+			return 0;
+		}
+		if(typeof comprobante.attr('total') == 'undefined'){
+			alert("Total no encontrados");
+			return 0;
+		}
+		if(typeof comprobante.attr('tipoDeComprobante') == 'undefined'){
+			alert("Comprobante Tipo no encontrados");
+			return 0;
+		}
+
 		conceptos.find("cfdi\\:Concepto , Concepto").each(function(){
+			//Valida conceptos del xml
+			if(typeof $(this).attr("descripcion") == 'undefined'){
+				alert("Concepto Tipo no encontrados");
+				return 0;
+			}
+			if(typeof $(this).attr("importe") == 'undefined'){
+				alert("Importe Tipo no encontrados");
+				return 0;
+			}
+
 			descripciones.push($(this).attr("descripcion"));
 			importes.push($(this).attr("importe"));
 		});
@@ -151,7 +214,41 @@ function obtenerDatosXML(xml){
 	}
 
 	else if(comprobante.attr('Version')=='3.3'){
+		//Validacion de atributos del XML
+		if(typeof emisor.attr('Nombre') == 'undefined'){
+			return 0;
+		}
+		if(typeof emisor.attr('Rfc') == 'undefined'){
+			return 0;
+		}
+		if(typeof receptor.attr('Nombre') == 'undefined'){
+			return 0;
+		}
+		if(typeof receptor.attr('Rfc') == 'undefined'){
+			return 0;
+		}
+		if(typeof tfd.attr('UUID') == 'undefined'){
+			return 0;
+		}
+		if(typeof comprobante.attr('SubTotal') == 'undefined'){
+			return 0;
+		}
+		if(typeof comprobante.attr('Total') == 'undefined'){
+			return 0;
+		}
+		if(typeof comprobante.attr('TipoDeComprobante') == 'undefined'){
+			return 0;
+		}
+
 		conceptos.find("cfdi\\:Concepto , Concepto").each(function(){
+			//Valida conceptos del xml
+			if(typeof $(this).attr("Descripcion") == 'undefined'){
+				return 0;
+			}
+			if(typeof $(this).attr("Importe") == 'undefined'){
+				return 0;
+			}
+
 			descripciones.push($(this).attr("Descripcion"));
 			importes.push($(this).attr("Importe"));
 		});
@@ -277,7 +374,7 @@ function personalizaFecha(fecha) {
 
 //Funciones para mostrar tabla
 function agregaFilaTablaProvision(index){
-	$('tbody').append(
+	$('.provision-tablesorter tbody').append(
     '<tr data-file-index="'+index+'" data-rfc-provider="'+jsonFilesData[index].emisor.rfcEmisor+'">'+
         '<td class="center-align valign-wrapper">'+
             '<input type="checkbox" class="filled-in row-select" id="row-select-'+index+'"/>'+
@@ -312,7 +409,7 @@ function agregaFilaTablaProvision(index){
 					'</ul>'+
 				'</div>'+
 				'<div class="modal-footer">'+
-					'<button class="btn modal-close" onclick="addConceptsToJson('+index+')"><b>Listo</b></button>'+
+					'<button class="btn modal-close" onclick="setConceptsToJson('+index+')"><b>Listo</b></button>'+
 				'</div>'+
 			'</div>'+
         '</td>'+
@@ -406,12 +503,12 @@ function sendJsonFiles(){
 			$('#menu_navbar').slideUp();
 			$('.progress').css('visibility', 'visible');
 			Materialize.toast('Procesando archivos.', 2000);
-			$('tbody tr').each(function(index){
+			$('.provision-tablesorter tbody tr').each(function(index){
 				var indexJsonFile=$(this).attr("data-file-index");
 				jsonFiles.push(JSON.stringify(jsonFilesData[indexJsonFile]));
 			});
 			
-			//console.log(policyType);
+			//console.log(jsonFiles);
 			$.ajax({
 				url: 'ajaxProvision',
 				type: 'POST',

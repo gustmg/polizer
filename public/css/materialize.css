@@ -2052,10 +2052,10 @@ video.responsive-video {
   .pagination li.active a {
     color: #fff; }
   .pagination li.active {
-    background-color: #EF5350; }
+    background-color: #009688; }
   .pagination li.disabled a {
     cursor: default;
-    color: #999; }
+    color: #FFF; }
   .pagination li i {
     font-size: 2rem; }
 .pagination li.pages ul li {
