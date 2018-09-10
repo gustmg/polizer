@@ -11,17 +11,17 @@ use App\AccountingAccountType;
 use App\BankAccount;
 use App\Bank;
 use App\Company;
-use App\Provider;
+use App\Client;
 use View;
 use Session;
 use Excel;
 use App\Traits\PolicyTrait;
 
-class ProviderPaymentPolicyController extends Controller
+class ClientDepositPolicyController extends Controller
 {
     public function index()
     {
-        $providers=Provider::with('counterpart_account')->where('company_id', session()->get('company_workspace_id'))->get();
+        $clients=Client::with('counterpart_account')->where('company_id', session()->get('company_workspace_id'))->get();
         $bank_accounts=BankAccount::with('counterpart_account', 'bank')->where('company_id', session()->get('company_workspace_id'))->get();
         $companies=Company::where('user_id', Auth::user()->id)->get();
         $accounting_account_types=AccountingAccountType::all();
@@ -32,42 +32,42 @@ class ProviderPaymentPolicyController extends Controller
             ->orWhere('accounting_account_type_id', 6);
         })->where('company_id', session()->get('company_workspace_id'))->get();
         
-        return view::make('provider_payment_policy.index',['providers'=>$providers,'companies'=>$companies,'accounting_accounts'=>$accounting_accounts,'accounting_account_types'=>$accounting_account_types, 'bank_accounts'=>$bank_accounts, 'banks'=>$banks]);
+        return view::make('client_deposit_policy.index',['clients'=>$clients,'companies'=>$companies,'accounting_accounts'=>$accounting_accounts,'accounting_account_types'=>$accounting_account_types, 'bank_accounts'=>$bank_accounts, 'banks'=>$banks]);
     }
 
     public function handler(Request $request){
-        if($request->handler==="getProvider"){
-            $provider = Provider::with('counterpart_account')->where([
+        if($request->handler==="getClient"){
+            $client = Client::with('counterpart_account')->where([
                 ['company_id', '=', session()->get('company_workspace_id')],
-                ['provider_rfc', '=', $request->provider_rfc]
+                ['client_rfc', '=', $request->client_rfc]
             ])->get();
-            return $provider;
+            return $client;
         }
-        else if($request->handler==="newProvider"){
+        else if($request->handler==="newClient"){
             $validatedData = $request->validate([
-                'provider_name' => 'required|max:255',
-                'provider_rfc' => 'required|max:255',
-                'provider_accounting_account' => 'required|max:255',
+                'client_name' => 'required|max:255',
+                'client_rfc' => 'required|max:255',
+                'client_accounting_account' => 'required|max:255',
             ]);
 
-            $provider=new Provider;
-            $provider->provider_name=$request->provider_name;
-            $provider->provider_rfc=$request->provider_rfc;
-            $provider->provider_accounting_account=$request->provider_accounting_account;
-            $provider->company_id=Session::get('company_workspace_id');
-            $provider->counterpart_accounting_account_id=$request->counterpart_accounting_account_id;
+            $client=new Client;
+            $client->client_name=$request->client_name;
+            $client->client_rfc=$request->client_rfc;
+            $client->client_accounting_account=$request->client_accounting_account;
+            $client->company_id=Session::get('company_workspace_id');
+            $client->counterpart_accounting_account_id=$request->counterpart_accounting_account_id;
 
-            $provider->save();
+            $client->save();
 
-            $provider_saved = Provider::with('counterpart_account')->where([
+            $client_saved = Client::with('counterpart_account')->where([
                 ['company_id', '=', session()->get('company_workspace_id')],
-                ['provider_rfc', '=', $request->provider_rfc]
+                ['client_rfc', '=', $request->client_rfc]
             ])->get();
-            return $provider_saved;
+            return $client_saved;
         }
         else if($request->handler==="export"){
             $GLOBALS['provision_type'] = $request->policyType;
-            $GLOBALS['generate_by_provider'] = $request->generateByProvider;
+            $GLOBALS['generate_by_client'] = $request->generateByClient;
             $GLOBALS['cfdi_index_serie'] = $request->cfdiIndexSerie;
             $GLOBALS['jsonFiles'] = array();
             $GLOBALS['row_index'] = 3;
@@ -79,91 +79,37 @@ class ProviderPaymentPolicyController extends Controller
                 array_push($GLOBALS['jsonFiles'], json_decode($cfdi));
             }
 
-            if($GLOBALS['generate_by_provider']=='1'){
+            if($GLOBALS['generate_by_client']=='1'){
                 usort($GLOBALS['jsonFiles'], function($a,$b){
                     return $a->emisor->rfcEmisor < $b->emisor->rfcEmisor ? -1 : 1;
                 });    
             }
             
-            $file_name = 'PAGO A PROVEEDOR -'.date("Y-m-d-H-i-s").'-'.Session::get('company_workspace');
+            $file_name = 'DEPOSITO DE CLIENTES -'.date("Y-m-d-H-i-s").'-'.Session::get('company_workspace');
 
             Excel::create($file_name, function($excel){
                 $excel->sheet('Libro 1', function($sheet) {
-                    ProviderPaymentPolicyController::generatePolicy($sheet, $GLOBALS['jsonFiles'][0]);
+                    ClientDepositPolicyController::generatePolicy($sheet, $GLOBALS['jsonFiles'][0]);
                 });
-            })->store('xlsx', storage_path('app/public'));
-            // })->store('xlsx', public_path('storage'));
+            // })->store('xlsx', storage_path('app/public'));
+            })->store('xlsx', public_path('storage'));
 
-            $url = Storage::url($file_name.'.xlsx');
-            // $url = 'https://www.polizer.mx/polizer_app/storage/'.$file_name.'.xlsx';
+            // $url = Storage::url($file_name.'.xlsx');
+            $url = 'https://www.polizer.mx/polizer_app/storage/'.$file_name.'.xlsx';
             return $url;
         }
     }
 
     public function generatePolicy($sheet, $cfdi) {
         $sheet->row($GLOBALS['row_index'], array(
-            ProviderPaymentPolicyController::setPolicyType($cfdi->comprobante->formaPago),
+            ClientDepositPolicyController::setPolicyType($cfdi->comprobante->formaPago),
             $GLOBALS['cfdi_index_serie'],
-            'PAGO A PROVEEDOR - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+            'DEPOSITO DE CLIENTES - '.$cfdi->receptor->nombreReceptor.' -  CFDI: '.$cfdi->comprobante->folio,
             substr($cfdi->comprobante->fecha,-10,2)
         ));
         $GLOBALS['row_index']=$GLOBALS['row_index']+1;
         $GLOBALS['cfdi_index_serie'] = $GLOBALS['cfdi_index_serie']+1;
-        ProviderPaymentPolicyController::generatePolicyProviderItem($sheet, $cfdi);
-    }
-
-    public function generatePolicyProviderItem($sheet, $cfdi){
-        $sheet->row($GLOBALS['row_index'], array(
-            '',
-            $cfdi->proveedor->cuentaContable[0],
-            '0',
-            'PAGO A PROVEEDOR - '.$cfdi->concepto->descripciones[0].' - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
-            '1',
-            $cfdi->comprobante->total,
-            '',
-            '0',
-            '0'
-        ));
-
-        $GLOBALS['row_index']=$GLOBALS['row_index']+1;
-        ProviderPaymentPolicyController::generatePolicyItemRows($sheet, $cfdi);
-        ProviderPaymentPolicyController::generatePolicyPaidVatItem($sheet, $cfdi);
-    }
-
-    public function generatePolicyPaidVatItem($sheet, $cfdi) {
-        $sheet->row($GLOBALS['row_index'], array(
-            '',
-            $GLOBALS['company'][0]->paid_creditable_vat_account,
-            '0',
-            'PAGO A PROVEEDOR - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
-            '1',
-            round(($cfdi->comprobante->total/1.16)*.16, 2),
-            '',
-            '0',
-            '0'
-        ));
-            
-        $GLOBALS['row_index']=$GLOBALS['row_index']+1;
-        ProviderPaymentPolicyController::generatePolicyItemRows($sheet, $cfdi);
-        ProviderPaymentPolicyController::generatePolicyPendingVatItem($sheet, $cfdi);
-    }
-
-    public function generatePolicyPendingVatItem($sheet, $cfdi) {
-        $sheet->row($GLOBALS['row_index'], array(
-            '',
-            $GLOBALS['company'][0]->pending_creditable_vat_account,
-            '0',
-            'PAGO A PROVEEDOR - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
-            '1',
-            '',
-            round(($cfdi->comprobante->total/1.16)*.16, 2),
-            '0',
-            '0'
-        ));
-            
-        $GLOBALS['row_index']=$GLOBALS['row_index']+1;
-        ProviderPaymentPolicyController::generatePolicyItemRows($sheet, $cfdi);
-        ProviderPaymentPolicyController::generatePolicyBankAccountItem($sheet, $cfdi);
+        ClientDepositPolicyController::generatePolicyBankAccountItem($sheet, $cfdi);
     }
 
     public function generatePolicyBankAccountItem($sheet, $cfdi) {
@@ -171,7 +117,61 @@ class ProviderPaymentPolicyController extends Controller
             '',
             $cfdi->datosOrigen->cuentaContableOrigen,
             '0',
-            'PAGO A PROVEEDOR - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+            'DEPOSITO DE CLIENTES - '.$cfdi->receptor->nombreReceptor.' -  CFDI: '.$cfdi->comprobante->folio,
+            '1',
+            $cfdi->comprobante->total,
+            '',
+            '0',
+            '0'
+        ));
+            
+        $GLOBALS['row_index']=$GLOBALS['row_index']+1;
+        ClientDepositPolicyController::generatePolicyItemRows($sheet, $cfdi);
+        ClientDepositPolicyController::generatePolicyTransferredVatItem($sheet, $cfdi);
+    }
+
+    public function generatePolicyTransferredVatItem($sheet, $cfdi) {
+        $sheet->row($GLOBALS['row_index'], array(
+            '',
+            $GLOBALS['company'][0]->paid_creditable_vat_account,
+            '0',
+            'DEPOSITO DE CLIENTES - '.$cfdi->receptor->nombreReceptor.' -  CFDI: '.$cfdi->comprobante->folio,
+            '1',
+            round(($cfdi->comprobante->total/1.16)*.16, 2),
+            '',
+            '0',
+            '0'
+        ));
+            
+        $GLOBALS['row_index']=$GLOBALS['row_index']+1;
+        ClientDepositPolicyController::generatePolicyItemRows($sheet, $cfdi);
+        ClientDepositPolicyController::generatePolicyChargedTransferredVatItem($sheet, $cfdi);
+    }
+
+    public function generatePolicyChargedTransferredVatItem($sheet, $cfdi) {
+        $sheet->row($GLOBALS['row_index'], array(
+            '',
+            $GLOBALS['company'][0]->pending_creditable_vat_account,
+            '0',
+            'DEPOSITO DE CLIENTES - '.$cfdi->receptor->nombreReceptor.' -  CFDI: '.$cfdi->comprobante->folio,
+            '1',
+            '',
+            round(($cfdi->comprobante->total/1.16)*.16, 2),
+            '0',
+            '0'
+        ));
+            
+        $GLOBALS['row_index']=$GLOBALS['row_index']+1;
+        ClientDepositPolicyController::generatePolicyItemRows($sheet, $cfdi);
+        ClientDepositPolicyController::generatePolicyClientItem($sheet, $cfdi);
+    }
+
+    public function generatePolicyClientItem($sheet, $cfdi) {
+        $sheet->row($GLOBALS['row_index'], array(
+            '',
+            $cfdi->cliente->cuentaContable[0],
+            '0',
+            'DEPOSITO DE CLIENTES - '.$cfdi->receptor->nombreReceptor.' -  CFDI: '.$cfdi->comprobante->folio,
             '1',
             '',
             $cfdi->comprobante->total,
@@ -180,13 +180,13 @@ class ProviderPaymentPolicyController extends Controller
         ));
             
         $GLOBALS['row_index']=$GLOBALS['row_index']+1;
-        ProviderPaymentPolicyController::generatePolicyBankAccountRows($sheet, $cfdi);
+        ClientDepositPolicyController::generatePolicyItemRows($sheet, $cfdi);
 
         if(PolicyTrait::validateNextCfdi()){
             $GLOBALS['cfdi_key']=$GLOBALS['cfdi_key']+1;
             PolicyTrait::writePolicyFooter($sheet);
             $GLOBALS['row_index']=$GLOBALS['row_index']+1;
-            ProviderPaymentPolicyController::generatePolicy($sheet, $GLOBALS['jsonFiles'][$GLOBALS['cfdi_key']]);
+            ClientDepositPolicyController::generatePolicy($sheet, $GLOBALS['jsonFiles'][$GLOBALS['cfdi_key']]);
         }
         else{
             PolicyTrait::writePolicyFooter($sheet);
@@ -247,10 +247,7 @@ class ProviderPaymentPolicyController extends Controller
             $cfdi->comprobante->formaPago,
             $cfdi->datosDestino->numeroCheque,
             $cfdi->comprobante->total,
-            $cfdi->emisor->rfcEmisor,
-            $cfdi->emisor->nombreEmisor,
-            $cfdi->datosDestino->bancoDestino,
-            $cfdi->datosDestino->cuentaBancariaDestino
+            $cfdi->emisor->rfcEmisor
         ));
         $GLOBALS['row_index']=$GLOBALS['row_index']+1;
         

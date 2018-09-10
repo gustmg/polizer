@@ -97,7 +97,7 @@
 			    						<b>Total de Proveedores: </b>
 			    					</div>
 			    					<div class="col s12 m6 right-align">
-			    						<span>{{$value->charged_transferred_vat_account}}</span>
+			    						<span>{{$providers->where('company_id', $value->company_id)->count()}}</span>
 			    					</div>
 			    				</li>
 			    				<li class="collection-item row">
@@ -105,7 +105,7 @@
 			    						<b>Total de Clientes: </b>
 			    					</div>
 			    					<div class="col s12 m6 right-align">
-			    						<span>{{$value->fees_retention_isr_account}}</span>
+			    						<span>{{$clients->where('company_id', $value->company_id)->count()}}</span>
 			    					</div>
 			    				</li>
 			    				<li class="collection-item row">
@@ -113,7 +113,7 @@
 			    						<b>Total de Cuentas Contables: </b>
 			    					</div>
 			    					<div class="col s12 m6 right-align">
-			    						<span>{{$value->fees_retention_vat_account}}</span>
+			    						<span>{{$accounting_accounts->where('company_id', $value->company_id)->count()}}</span>
 			    					</div>
 			    				</li>
 			    				<li class="collection-item row">
@@ -121,7 +121,7 @@
 			    						<b>Total de Cuentas Bancarias: </b>
 			    					</div>
 			    					<div class="col s12 m6 right-align">
-			    						<span>{{$value->freight_retention_vat_account}}</span>
+			    						<span>{{$bank_accounts->where('company_id', $value->company_id)->count()}}</span>
 			    					</div>
 			    				</li>
 				    	    </ul>
@@ -132,27 +132,11 @@
 						<div class="card">
 						    <ul class="collection">
 								<li class="collection-item row">
-									<div class="col s12 m6 left-align">
-										<b>Fecha de Creación: </b>
-									</div>
-									<div class="col s12 m6 right-align">
-										<span>{{$value->created_at}}</span>
-									</div>
-								</li>
-								<li class="collection-item row">
-									<div class="col s12 m6 left-align">
-										<b>Ultima vez modificada: </b>
-									</div>
-									<div class="col s12 m6 right-align">
-										<span>{{$value->updated_at}}</span>
-									</div>
-								</li>
-								<li class="collection-item row">
 			    					<div class="col s12 m6 left-align">
 			    						<b>Total de CFDI's procesados: </b>
 			    					</div>
 			    					<div class="col s12 m6 right-align">
-			    						<span>0</span>
+			    						<span></span>
 			    					</div>
 			    				</li>
 						    </ul>

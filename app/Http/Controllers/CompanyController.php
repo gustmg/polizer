@@ -6,6 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
 use App\Company;
+use App\Provider;
+use App\AccountingAccount;
+use App\Client;
+use App\BankAccount;
+
 use View;
 
 class CompanyController extends Controller
@@ -19,7 +24,11 @@ class CompanyController extends Controller
     {
         //
         $companies=Company::where('user_id', Auth::user()->id)->get();
-        return view::make('companies.index')->with('companies', $companies);
+        $providers=Provider::all();
+        $clients=Client::all();
+        $accounting_accounts=AccountingAccount::all();
+        $bank_accounts=BankAccount::all();
+        return view::make('companies.index', ['companies'=>$companies, 'providers'=>$providers, 'clients'=>$clients, 'accounting_accounts'=>$accounting_accounts, 'bank_accounts'=>$bank_accounts]);
     }
 
     /**

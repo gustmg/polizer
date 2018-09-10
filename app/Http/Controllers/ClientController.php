@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
 use App\AccountingAccount;
 use App\AccountingAccountType;
-use App\Client;
 use App\Company;
+use App\Client;
 use View;
 use Session;
 

@@ -83,10 +83,10 @@ class BillingPolicyController extends Controller
                 $excel->sheet('Libro 1', function($sheet) {
                     BillingPolicyController::generatePolicy($sheet, $GLOBALS['jsonFiles'][0]);
                 });
-            //})->store('xlsx', storage_path('app/public'));
+            // })->store('xlsx', storage_path('app/public'));
             })->store('xlsx', public_path('storage'));
 
-            //$url = Storage::url($file_name.'.xlsx');
+            // $url = Storage::url($file_name.'.xlsx');
             $url = 'https://www.polizer.mx/polizer_app/storage/'.$file_name.'.xlsx';
             return $url;
         }
@@ -94,7 +94,7 @@ class BillingPolicyController extends Controller
 
     public function generatePolicy($sheet, $cfdi) {
         $sheet->row($GLOBALS['row_index'], array(
-            'Dr',
+            'Ig',
             $GLOBALS['cfdi_index_serie'],
             'FACTURACIÓN A CLIENTES - '.$cfdi->receptor->nombreReceptor.' -  CFDI: '.$cfdi->comprobante->folio,
             substr($cfdi->comprobante->fecha,-11,2)
@@ -161,7 +161,7 @@ class BillingPolicyController extends Controller
         if(PolicyTrait::validateNextCfdi()){
             $GLOBALS['cfdi_key']=$GLOBALS['cfdi_key']+1;
             if($GLOBALS['generate_by_client']=='1'){
-                if(BillingPolicyController::comparePrevRfcClient()){
+                if(PolicyTrait::comparePrevRfcClient()){
                     BillingPolicyController::generatePolicyClientItem($sheet, $GLOBALS['jsonFiles'][$GLOBALS['cfdi_key']]);
                 }
                 else{

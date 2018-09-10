@@ -99,13 +99,13 @@
 </div>
 <div class="container section2" style="width: 95%;display: none;">
 	<div class="row">
-		<table class="card col s12 bordered" style="table-layout: fixed;">
+		<table class="card col s12 bordered payment-tablesorter removable" style="table-layout: fixed;">
 		    <thead>
 		        <tr>
 		            <th style="width: 5%;"></th>
 		            <th style="width: 15%;" class="center-align">Fecha</th>
-		            <th style="width: 10%;" class="center-align">Serie</th>
-		            <th style="width: 25%;">Proveedor</th>
+		            <th style="width: 10%;" class="center-align selectable">Folio <i class="tiny material-icons no-margin">unfold_more</i></th>
+		            <th style="width: 25%;" class="selectable">Proveedor <i class="tiny material-icons no-margin">unfold_more</i></th>
 		            <th style="width: 10%;" class="center-align">Total</th>
 		            <th style="width: 35%;" class="center-align">Opciones</th>
 		        </tr>
@@ -144,19 +144,6 @@
 			</div>
 		</div>
 		<div class="bank-accounts" style="display: none;">
-			@if(count($bank_accounts)==1)
-			<select class="browser-default select-bank-account">
-				@foreach($banks as $key => $bank)
-					<optgroup label="{{$bank->bank_name}}" data-bank-id="{{$bank->bank_id}}">
-						@foreach($bank_accounts as $key2=>$bank_account)
-							@if($bank_account->bank_id == $bank->bank_id)
-								<option value="{{$bank_account->counterpart_account->accounting_account_number}}" data-bank-account-number="{{$bank_account->bank_account_number}}">{{$bank_account->bank_account_number}}</option>
-							@endif
-						@endforeach
-					</optgroup>
-				@endforeach
-			</select>
-			@else
 			<select class="browser-default select-bank-account">
 				<option value="" disabled selected>Elige una cuenta bancaria</option>
 				@foreach($banks as $key => $bank)
@@ -169,9 +156,9 @@
 					</optgroup>
 				@endforeach
 			</select>
-			@endif
 		</div>
 	</div>
 </div>
+{{app('debugbar')->disable()}}
 @include('providers.newProviderModal')
 @endsection

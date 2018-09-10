@@ -1,39 +1,43 @@
-$('.newBankAccountModal').modal();
-$('.updateBankAccountModal').modal();
-$('.deleteBankAccountModal').modal();
-
-$('.selectNewBank').on('change', function(event) {
-	$('.selectNewBank').material_select('destroy');
-	$('.selectNewBank').material_select();
-	$('.selectNewBank').val($(this).val());
-	$('.selectNewBank option[value="'+$(this).val()+'"]').attr("selected", "selected");
+$('.newBankAccountModal').modal({
+	complete: function(){
+		$('#bank_account_number').val('');
+		$('label[for="bank_account_number"]').removeClass('active');
+		$('#bank_account_number').removeClass('valid');
+		$('#bank_account_number').removeClass('invalid');
+		$('#selectNewBank').val('1');
+		$('#counterpart_accounting_account_id').val($('#counterpart_accounting_account_id optgroup option:first').val());
+	},
 });
-
-$('.selectNewAccountingAccount').on('change', function(event) {
-	$('.selectNewAccountingAccount').material_select('destroy');
-	$('.selectNewAccountingAccount').material_select();
-	$('.selectNewAccountingAccount').val($(this).val());
-	$('.selectNewAccountingAccount option[value="'+$(this).val()+'"]').attr("selected", "selected");
+$('.updateBankAccountModal').modal({
+	ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
+    	$('#update_bank_account_number').val(trigger.attr('data-bank-account-number'));
+    	$('#update_bank_account_number').attr('data-bank-account-number', trigger.attr('data-bank-account-number'));
+    	$('label[for="bank_account_number"]').addClass('active');
+    	$('.selectUpdateBank').val(trigger.attr('data-bank-account-bank-id'));
+    	$('.selectUpdateAccountingAccount').val(trigger.attr('data-bank-account-counterpart-id'));
+    	$('#updateBankAccountForm').attr('action','bank_accounts/'+trigger.attr('data-bank-account-id'));
+    	$('#update_bank_account_number').removeClass('valid');
+    	$('#update_bank_account_number').removeClass('invalid');
+    	$('#deleteBankAccountModalButton').attr('data-bank-account-id', trigger.attr('data-bank-account-id'));
+	},
 });
-
-$('.selectUpdateBank').on('change', function(event) {
-	$('.selectUpdateBank').material_select('destroy');
-	$('.selectUpdateBank').val($(this).val());
-	$(".hidden_bank").val($(this).val());
-	$('.selectUpdateBank').material_select();
-	$('.selectUpdateBank option[value="'+$(this).val()+'"]').attr("selected", "selected");
+$('.deleteBankAccountModal').modal({
+	ready: function(modal, trigger){
+		$('#deleteBankAccountForm').attr('action','bank_accounts/'+trigger.attr('data-bank-account-id'));
+	},
 });
-
-$('.selectUpdateAccountingAccount').on('change', function(event) {
-	$('.selectUpdateAccountingAccount').material_select('destroy');
-	$('.selectUpdateAccountingAccount').val($(this).val());
-	$(".hidden_counterpart_account").val($(this).val());
-	$('.selectUpdateAccountingAccount').material_select();
-	$('.selectUpdateAccountingAccount option[value="'+$(this).val()+'"]').attr("selected", "selected");
-});
-
 
 function validateForm(){
+	validateBankAccountNumber($('#newBankAccountForm #bank_account_number').val());
+	if (!$('#bank_account_number').hasClass('invalid')) {
+		$('.submit_button').attr('disabled', false);
+	} else {
+		$('.submit_button').attr('disabled', true);
+	}
+}
+
+function validateUpdateForm(){
+	validateUpdateBankAccountNumber($('#updateBankAccountForm #update_bank_account_number').val());
 	if (!$('.bank_account_number').hasClass('invalid')) {
 		$('.submit_button').attr('disabled', false);
 	} else {
@@ -46,33 +50,34 @@ function submitNewBankAccount() {
 	$('#newBankAccountForm').submit();
 }
 
-function submitUpdateBankAccount(bank_account_id) {
+function submitUpdateBankAccount() {
 	$('#update_bank_account_button').attr('disabled', true);
-	$('#updateBankAccountForm'+bank_account_id).submit();
+	$('.hidden_bank').val($('.selectUpdateBank option:selected').val());
+	$('.hidden_counterpart_account').val($('.selectUpdateAccountingAccount option:selected').val());
+	$('#updateBankAccountForm').submit();
 }
 
-function submitDeleteBankAccount(bank_account_id) {
+function submitDeleteBankAccount() {
 	$('#delete_bank_account_button').attr('disabled', true);
-	$('#deleteBankAccountForm'+bank_account_id).submit();
+	$('#deleteBankAccountForm').submit();
 }
 
-function updateBankAccountModal(id, bank_id, counterpart_account_id) {
-	$('#updateBankAccountModal').modal('open');
-	$('.selectUpdateBank').material_select('destroy');
-	$('.selectUpdateBank').val(bank_id);
-	$('.selectUpdateBank').material_select();
-	$('.selectUpdateAccountingAccount').material_select('destroy');
-	$('.selectUpdateAccountingAccount').val(counterpart_account_id);
-	$('.selectUpdateAccountingAccount').material_select();
+function validateBankAccountNumber(bank_account_number){
+	$('.bank-accounts-table tbody tr').each(function(index){
+		if($(this).find('td:first').text() == bank_account_number){
+			$('.bank_account_number').addClass('invalid');
+		}
+	});
 }
 
-function createSelects() {
-	$('.selectNewBank').material_select('destroy');
-	//$('.selectNewBank').val(0);
-	$('.selectNewBank').material_select();
-
-	$('.selectNewAccountingAccount').material_select('destroy');
-	//$('.selectNewAccountingAccount').val(0);
-	$('.selectNewAccountingAccount').material_select();
+function validateUpdateBankAccountNumber(bank_account_number) {
+	$('.bank-accounts-table tbody tr').each(function(index){
+		if($(this).find('td:first').text() == bank_account_number){
+			$('#update_bank_account_number').addClass('invalid');
+		}
+	});
+	if(bank_account_number == $('#update_bank_account_number').attr('data-bank-account-number')){
+		$('#update_bank_account_number').removeClass('invalid');
+		$('#update_bank_account_number').removeClass('valid');
+	}
 }
-

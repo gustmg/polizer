@@ -1,12 +1,6 @@
 //Objetos para cargar archivos
-var standard_provision_files = document.getElementById("standard_provision_files");
-var ieps_provision_files = document.getElementById("ieps_provision_files");
-var honorarium_provision_files = document.getElementById("honorarium_provision_files");
-var freight_provision_files = document.getElementById("freight_provision_files");
-standard_provision_files.addEventListener("change", getFiles, false);
-ieps_provision_files.addEventListener("change", getFiles, false);
-honorarium_provision_files.addEventListener("change", getFiles, false);
-freight_provision_files.addEventListener("change", getFiles, false);
+var standard_client_deposit_files = document.getElementById("standard_client_deposit_files");
+standard_client_deposit_files.addEventListener("change", getFiles, false);
 
 var policyType;
 
@@ -35,17 +29,13 @@ function readFile(index) {
 		var file_extension = filename.split('.').pop().toLowerCase();
 
 		if(validateExtension(file_extension)){
+			//TO-DO: Add validation for undefined attributes of the xml file
 			var reader = new FileReader();
 			reader.onload = function (e){
-				if(getFileData(e)!=0){
-					setTimeout(agregaFilaTablaProvision.bind(null, total_uploaded_files), 1);
-					total_uploaded_files++;
-					readFile(index+1);
-				}
-				else{
-					unreaded_files.push(filename);
-					readFile(index+1);
-				}
+				getFileData(e);
+				setTimeout(agregaFilaTablaProvision.bind(null, total_uploaded_files), 1);
+				total_uploaded_files++;
+				readFile(index+1);
 			}
 			reader.readAsText(file);
 		}
@@ -61,7 +51,7 @@ function readFile(index) {
 		$('.progress').css('visibility', 'hidden');
 		$('.section2').delay(400).fadeIn(400);
 		$('#menu_navbar').slideDown(400);
-		$(".provision-tablesorter").trigger("update");
+		$(".payment-tablesorter").trigger("update");
 		if(unreaded_files.length>0){
 			unreaded_files.toString();
 			Materialize.toast('Ocurrió un error al procesar los siguientes archivos: '+unreaded_files, 7000);
@@ -107,66 +97,69 @@ function obtenerDatosXML(xml){
 	var descripciones = [];
 	var importes    = [];
 	var contrapartidas = [];
-	var cuenta_proveedor = [];
+	var cuenta_cliente = [];
+	var cuenta_bancaria_origen='0';
+	var cuenta_contable_origen='0';
+	var cuenta_bancaria_destino='0';
+	var cuenta_contable_destino='0';
+	var numero_cheque='0';
+	var banco_origen= '0';
+	var banco_destino= '0';
 	var impuesto_iva;
 	var datosXML;
 
 	if(comprobante.attr('version')=='3.2'){
 		//Validacion de atributos del XML
 		if(typeof emisor.attr('nombre') == 'undefined'){
-			// alert("Nombre Emisor no encontrado");
+			alert("Nombre Emisor no encontrado");
 			return 0;
 		}
 		if(typeof emisor.attr('rfc') == 'undefined'){
-			// alert("Rfc Emisor no encontrado");
+			alert("Rfc Emisor no encontrado");
 			return 0;
 		}
 		if(typeof receptor.attr('nombre') == 'undefined'){
-			// alert("Nombre Receptor no encontrado");
+			alert("Nombre Receptor no encontrado");
 			return 0;
 		}
 		if(typeof receptor.attr('rfc') == 'undefined'){
-			// alert("Rfc Receptor no encontrado");
+			alert("Rfc Receptor no encontrado");
 			return 0;
 		}
 		if(typeof tfd.attr('UUID') == 'undefined'){
-			// alert("UUID no encontrado");
+			alert("UUID no encontrado");
 			return 0;
 		}
 		if(typeof comprobante.attr('subTotal') == 'undefined'){
-			// alert("Subtotal no encontrados");
+			alert("Subtotal no encontrados");
 			return 0;
 		}
 		if(typeof comprobante.attr('total') == 'undefined'){
-			// alert("Total no encontrados");
+			alert("Total no encontrados");
 			return 0;
 		}
 		if(typeof comprobante.attr('tipoDeComprobante') == 'undefined'){
-			// alert("Comprobante Tipo no encontrados");
+			alert("Comprobante Tipo no encontrados");
 			return 0;
 		}
 
 		conceptos.find("cfdi\\:Concepto , Concepto").each(function(){
 			//Valida conceptos del xml
 			if(typeof $(this).attr("descripcion") == 'undefined'){
-				// alert("Concepto Tipo no encontrados");
+				alert("Concepto Tipo no encontrados");
 				return 0;
 			}
 			if(typeof $(this).attr("importe") == 'undefined'){
-				// alert("Importe Tipo no encontrados");
+				alert("Importe Tipo no encontrados");
 				return 0;
 			}
 
 			descripciones.push($(this).attr("descripcion"));
 			importes.push($(this).attr("importe"));
 		});
-
 		impuestos.find("cfdi\\:Traslado , Traslado").each(function(){
 			if($(this).attr("impuesto")=="IVA"){
 				impuesto_iva=$(this).attr("importe");
-			}
-			else if(typeof $(this).attr("impuesto") == 'undefined'){
-				return 0;
 			}
 		});
 		datosXML={
@@ -176,7 +169,7 @@ function obtenerDatosXML(xml){
 				"subtotal"         : comprobante.attr('subTotal'),
 				"total"            : comprobante.attr('total'),
 				"tipoDeComprobante": comprobante.attr('tipoDeComprobante'),
-				"metodoDePago"     : comprobante.attr('metodoDePago'),
+				"formaPago"     : comprobante.attr('metodoDePago'),
 				"serie"            : comprobante.attr('serie')
 			},
 
@@ -208,8 +201,21 @@ function obtenerDatosXML(xml){
 				"totalImpuestosTrasladados" : impuestos.attr('totalImpuestosTrasladados')
 			},
 
-			"proveedor" : {
-				"cuentaContable" : cuenta_proveedor
+			"cliente" : {
+				"cuentaContable" : cuenta_cliente
+			},
+
+			"datosOrigen" : {
+				"cuentaBancariaOrigen" : cuenta_bancaria_origen,
+				"cuentaContableOrigen" : cuenta_contable_origen,
+				"bancoOrigen" : banco_origen
+			},
+
+			"datosDestino" : {
+				"cuentaBancariaDestino" : cuenta_bancaria_destino,
+				"cuentaContableDestino" : cuenta_contable_destino,
+				"numeroCheque" : numero_cheque,
+				"bancoDestino" : banco_destino
 			}
 		}
 		datosXML.comprobante.folio=validaDatoDefinido(datosXML.comprobante.folio);
@@ -256,7 +262,6 @@ function obtenerDatosXML(xml){
 			descripciones.push($(this).attr("Descripcion"));
 			importes.push($(this).attr("Importe"));
 		});
-
 		impuestos.each(function(index){
 			if (index==impuestos.length-1){
 				impuesto_iva = $(this).attr('TotalImpuestosTrasladados');
@@ -270,7 +275,7 @@ function obtenerDatosXML(xml){
 				"subtotal"         : comprobante.attr('SubTotal'),
 				"total"            : comprobante.attr('Total'),
 				"tipoDeComprobante": comprobante.attr('TipoDeComprobante'),
-				"metodoDePago"     : comprobante.attr('FormaPago'),
+				"formaPago"     : comprobante.attr('FormaPago'),
 				"serie"            : comprobante.attr('Serie')
 			},
 
@@ -302,8 +307,21 @@ function obtenerDatosXML(xml){
 				"totalImpuestosTrasladados" : impuestos.attr('TotalImpuestosTrasladados')
 			},
 
-			"proveedor" : {
-				"cuentaContable" : cuenta_proveedor
+			"cliente" : {
+				"cuentaContable" : cuenta_cliente
+			},
+
+			"datosOrigen" : {
+				"cuentaBancariaOrigen" : cuenta_bancaria_origen,
+				"cuentaContableOrigen" : cuenta_contable_origen,
+				"bancoOrigen" : banco_origen
+			},
+
+			"datosDestino" : {
+				"cuentaBancariaDestino" : cuenta_bancaria_destino,
+				"cuentaContableDestino" : cuenta_contable_destino,
+				"numeroCheque" : numero_cheque,
+				"bancoDestino" : banco_destino
 			}
 		}
 		datosXML.comprobante.folio=validaDatoDefinido(datosXML.comprobante.folio);
@@ -377,79 +395,75 @@ function personalizaFecha(fecha) {
 	return fecha_personalizada;
 }
 
-$('#modalShowData').modal({
-	ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
-	    $('#modalShowData .modal-content').append(
-	    	'<h5>Datos de CFDI</h5>'+
-	    	'<span class="provider-name-modal valign-wrapper" data-provider-name="'+trigger.attr('data-provider-name')+'" data-provider-rfc="'+trigger.attr('data-provider-rfc')+'"><b>Proveedor: </b>'+trigger.attr('data-provider-name')+
-	    	'</span><b>RFC: </b>'+trigger.attr('data-provider-rfc')+
-	    	'<br><b>Serie: </b>'+trigger.attr('data-serie'));
-	    if(trigger.hasClass('red-text')){
-	    	$('.provider-name-modal').append('&nbsp;&nbsp;<a href="#newProviderModal" class="modal-trigger newProviderFromPolicy" onclick="closeDataModal();">'+
-				'<i class="material-icons black-text">person_add</i>'+
-			'</a>');
-	    }
-	},
-	complete: function() {
-		$('#modalShowData .modal-content').html('');
-	}
-});
-
-function closeDataModal(){
-	$('#modalShowData').modal('close');
-}
-
 //Funciones para mostrar tabla
 function agregaFilaTablaProvision(index){
-	$('.provision-tablesorter tbody').append(
-    '<tr data-file-index="'+index+'" data-rfc-provider="'+jsonFilesData[index].emisor.rfcEmisor+'">'+
-        '<td class="center-align valign-wrapper">'+
-            '<input type="checkbox" class="filled-in row-select" id="row-select-'+index+'"/>'+
-            '<label for="row-select-'+index+'"></label>'+
+	$('tbody').append(
+	'<tr data-file-index="'+index+'" data-rfc-provider="'+jsonFilesData[index].emisor.rfcEmisor+'">'+
+		'<td class="center-align">'+
+			'<input type="checkbox" class="filled-in row-select" id="row-select-'+index+'"/>'+
+			'<label for="row-select-'+index+'" style="height: 16px;"></label>'+
+		'</td>'+
+		'<td class="center-align" style="width: 10%;">'+
+			'<input id="fecha-'+index+'" class="date" type="date">'+
+		'</td>'+
+		'<td class="center-align" style="width: 10%;">'+
+			jsonFilesData[index].comprobante.folio+
+		'</td>'+
+		'<td style="width: 25%;" class="hover-'+index+'">'+
+        	'<span class="truncate client-name" style="width: 90%;">'+jsonFilesData[index].receptor.nombreReceptor+'</span>'+
+            '<div class="card-panel card-panel-'+index+'" style="position: absolute;display: none;">'+
+                '<span>'+jsonFilesData[index].receptor.nombreReceptor+'</span><br>'+
+                '<span>'+jsonFilesData[index].receptor.rfcReceptor+'</span><br>'+
+                '<span>Serie: '+jsonFilesData[index].comprobante.serie+'</span><br>'+
+            '</div>'+
         '</td>'+
-        '<td style="width: 7%;" class="center-align">'+personalizaFecha(jsonFilesData[index].comprobante.fecha)+'</td>'+
-        '<td style="width: 10%;" class="center-align">'+jsonFilesData[index].comprobante.folio+'</td>'+
-        '<td style="width: 25%;" class="hover-'+index+'">'+
-        	'<span class="truncate provider-name selectable modal-trigger" href="#modalShowData" style="width: 90%;" data-provider-name="'+jsonFilesData[index].emisor.nombreEmisor+'" data-provider-rfc="'+jsonFilesData[index].emisor.rfcEmisor+'" data-serie="'+jsonFilesData[index].comprobante.serie+'">'+jsonFilesData[index].emisor.nombreEmisor+'</span>'+
-        '</td>'+
-        '<td style="width: 30%;">'+
-        	'<span class="truncate" style="width: 90%;">'+jsonFilesData[index].concepto.descripciones[0]+'</span>'+
-        '</td>'+
-        '<td style="width: 10%;" class="center-align">$'+personalizaTotal(jsonFilesData[index].comprobante.total)+'</td>'+
-        '<td style="width: 10%;" class="center-align">'+
-			'<a href="#modalShowConcepts'+index+'" class="modal-trigger">'+
-				'<i class="material-icons black-text">list</i>'+
-			'</a>'+
-	        '<div id="modalShowConcepts'+index+'" class="modal modal-fixed-footer">'+
-				'<div class="modal-content">'+
-					'<ul id="conceptList'+index+'" class="collection concept-list" data-row-index="'+index+'">'+
-					'</ul>'+
-				'</div>'+
-				'<div class="modal-footer">'+
-					'<button class="btn modal-close" onclick="setConceptsToJson('+index+')"><b>Listo</b></button>'+
-				'</div>'+
+		'<td class="center-align" style="width: 10%;">'+
+			'<div class="input-field">'+
+				'<input id="total-'+index+'" class="total-input" data-total="'+personalizaTotal(jsonFilesData[index].comprobante.total)+'" type="number" min="0.00" step="0.01" value="'+personalizaTotal(jsonFilesData[index].comprobante.total)+'">'+
+				'<label class="active" for="total-'+index+'"></label>'+
+        	'</div>'+
+		'</td>'+
+		'<td style="width: 30%;">'+
+			'<div>'+
+				'<label>Forma de Pago</label>'+
+    			'<select class="select-payform browser-default" data-file-index="'+index+'">'+
+					'<option selected value="01">01 - Efectivo</option>'+
+					'<option value="02">02 - Cheque</option>'+
+					'<option value="03">03 - Transferencia</option>'+
+				'</select>'+
 			'</div>'+
-        '</td>'+
+			'<div class="origin-'+index+'" data-file-index="'+index+'">'+
+			'</div>'+
+		'</td>'+
 	'</tr>');
 	$('#modalShowConcepts'+index).modal({dismissible: false,});
-	loadConcepts(index);
-	verifyProvider(index);
+	loadBankAccounts(index);
+	verifyClient(index);
+	setPayform(index);
+
+	$('.total-input').on('blur',function(event) {
+		if($(this).val() == ''){
+			$(this).val($(this).attr('data-total'));
+		}
+	});
 }
 
-function loadConcepts (file_index){
-	var list= $('.accounts').html();
-	$.each(jsonFilesData[file_index].concepto.descripciones, function(key, description) {
-		$('#conceptList'+file_index).append(
-		'<li class="collection-item" data-counterpart-account-number="0">'+
-			'<div class="row no-margin">'+
-				'<div class="col s6 left-align">'+
-					'<span ><b class="truncate">'+description+'</b> '+jsonFilesData[file_index].concepto.importes[key]+'</span>'+
-				'</div>'+
-				'<div class="col s6 accounting-accounts-column-'+file_index+'">'+list+
-				'</div>'+
-			'</div>'+
-		'</li>');
-	});
+function setPayform (index){
+	if(	jsonFilesData[index].comprobante.formaPago == '01' ||
+		jsonFilesData[index].comprobante.formaPago == '02' ||
+		jsonFilesData[index].comprobante.formaPago == '03'){
+		$('.select-payform[data-file-index="'+index+'"]').val(jsonFilesData[index].comprobante.formaPago);
+	}
+}
+
+function loadBankAccounts (file_index){
+	var list= $('.bank-accounts').html();
+	var bank_accounts_lenght = $('.bank-accounts option').length;
+	if(bank_accounts_lenght > 2){
+		$('.origin-'+file_index).append('<label>Cuenta bancaria de origen</label>');
+		$('.origin-'+file_index).append(list);
+	}
+	// $('.destiny-'+file_index).append(list);
 }
 
 function setConceptsToJson(json_index) {
@@ -458,82 +472,93 @@ function setConceptsToJson(json_index) {
 		counterpart_list.push($(this).find(':selected').attr('data-accounting-account-number'));
 	});
 	$.extend(jsonFilesData[json_index].concepto.contrapartidas, counterpart_list);
-
 	//console.log(jsonFilesData[json_index]);
-	//CAMBIO PARA QUITAR MARCA
-	var amount_undefined_concepts=0
-	$('.provision-tablesorter #conceptList'+json_index+' .accounting-account-list').each(function(index){
-		if($(this).val()==null){
-			amount_undefined_concepts++;
-		}
-	});
-	if(amount_undefined_concepts==0){
-		if($('.provision-tablesorter tbody tr:nth-child('+(json_index+1)+') td:last').children('i').length == 1){
-			$('.provision-tablesorter tbody tr:nth-child('+(json_index+1)+') td:last i.red-text').hide();
-		}
-	}
 }
 
-function verifyProvider(row_index) {
+function verifyClient(row_index) {
 	var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 
 	$.ajax({
-		url: 'ajaxProvision',
+		url: 'ajaxBilling',
 		type: 'POST',
-		data: {_token: CSRF_TOKEN, handler: 'getProvider', provider_rfc : jsonFilesData[row_index].emisor.rfcEmisor},
+		data: {_token: CSRF_TOKEN, handler: 'getClient', client_rfc : jsonFilesData[row_index].receptor.rfcReceptor},
 	})
 	.done(function(data) {
 		if(data.length===0){
 			$('tr[data-file-index="'+row_index+'"] td:nth-child(4) span.truncate').addClass('red-text');
 		}
 		else{
-			$('tr[data-file-index="'+row_index+'"] td:nth-child(7) .newProviderFromPolicy').remove();
+			$('tr[data-file-index="'+row_index+'"] td:nth-child(7) .newClientFromProvision').remove();
 			$('#modalShowConcepts'+row_index+' .accounting-account-list').each(function(){
 				$(this).val(data[0].counterpart_accounting_account_id); //Set default counterpart on concept list
 			});
 			setConceptsToJson(row_index); //Pass counterpart accounts to json
-			var provider_accounting_account=[data[0].provider_accounting_account];
-			setProviderAccountToJson(row_index, provider_accounting_account);
+			var client_accounting_account=[data[0].client_accounting_account];
+			setClientAccountToJson(row_index, client_accounting_account);
 			//console.log(jsonFilesData[row_index]);
 		}
-		verifyConcepts(row_index);
 	})
 	.fail(function() {
 		//console.log("Error al buscar proveedor");
 	})
 }
 
-function setProviderAccountToJson(row_index, provider_accounting_account) {
-	$.extend(jsonFilesData[row_index].proveedor.cuentaContable, provider_accounting_account);
+function setClientAccountToJson(row_index, client_accounting_account) {
+	$.extend(jsonFilesData[row_index].cliente.cuentaContable, client_accounting_account);
 }
 
 function sendJsonFiles(){
 	setGenerateByToggle();
 	var jsonFiles=[];
 	if(verifyUnregisteredProviders()!=0){
-		Materialize.toast('No se pudo procesar la petición. El proveedor de algún comprobante no está registrado.', 4000);
+		Materialize.toast('No se pudo procesar la petición. El cliente de algún comprobante no está registrado.', 4000);
 	}
 	else{
-		if(verifyUnregisteredProviders()!=0){
-			Materialize.toast('No se pudo procesar la petición. Hay conceptos sin contrapartida.', 4000);
-		}
-		if(verifyAccountingAccountLists()!=0){
-			Materialize.toast('No se pudo procesar la petición. Hay XMLs sin contrapartida.', 4000);	
+		if(verifyUndefinedDates()!=0){
+			Materialize.toast('No se pudo procesar la petición. Uno o varios XML no tienen fecha definida.', 4000);
 		}
 		else{
-			$('#menu_navbar').slideUp();
+			// $('#menu_navbar').slideUp();
 			$('.progress').css('visibility', 'visible');
 			Materialize.toast('Procesando archivos.', 2000);
-			$('.provision-tablesorter tbody tr').each(function(index){
+			var bank_accounts_lenght = $('.bank-accounts option').length;
+			$('tbody tr').each(function(index){
 				var indexJsonFile=$(this).attr("data-file-index");
+				jsonFilesData[indexJsonFile].comprobante.fecha=$('#fecha-'+indexJsonFile).val();
+
+				if(bank_accounts_lenght==2){
+					jsonFilesData[indexJsonFile].datosOrigen.cuentaBancariaOrigen=$('.select-bank-account optgroup option').attr('data-bank-account-number');
+					jsonFilesData[indexJsonFile].datosOrigen.cuentaContableOrigen=$('.select-bank-account optgroup option').val();
+					jsonFilesData[indexJsonFile].datosOrigen.bancoOrigen=$('.select-bank-account optgroup option').parent().attr('data-bank-id');
+				}
+				else{
+					jsonFilesData[indexJsonFile].datosOrigen.cuentaBancariaOrigen=$('.origin-'+indexJsonFile+' select option:selected').attr('data-bank-account-number');
+					jsonFilesData[indexJsonFile].datosOrigen.cuentaContableOrigen=$('.origin-'+indexJsonFile+' select option:selected').val();
+					jsonFilesData[indexJsonFile].datosOrigen.bancoOrigen=$('.origin-'+indexJsonFile+' select option:selected').parent().attr('data-bank-id');
+				}
+
+				jsonFilesData[indexJsonFile].comprobante.formaPago=$('.select-payform[data-file-index="'+indexJsonFile+'"] option:selected').val();
+				jsonFilesData[indexJsonFile].comprobante.total=$('#total-'+indexJsonFile).val();
+				// console.log(jsonFilesData[indexJsonFile].datosOrigen.cuentaBancariaOrigen);
+				// console.log(jsonFilesData[indexJsonFile].datosOrigen.cuentaContableOrigen);
+				// console.log(jsonFilesData[indexJsonFile].datosOrigen.bancoOrigen);
+
+				if($('.select-payform[data-file-index="'+indexJsonFile+'"] option:selected').val()=='02'){
+					jsonFilesData[indexJsonFile].datosDestino.numeroCheque=$('#check-number-'+indexJsonFile).val();
+					// console.log(jsonFilesData[indexJsonFile].datosDestino.numeroCheque);
+				}else if($('.select-payform[data-file-index="'+indexJsonFile+'"] option:selected').val()=='03'){
+					jsonFilesData[indexJsonFile].datosDestino.bancoDestino=$('.destiny-'+indexJsonFile+' select option:selected').val();
+					jsonFilesData[indexJsonFile].datosDestino.cuentaBancariaDestino=$('#bank-account-destiny-'+indexJsonFile).val();
+					// console.log(jsonFilesData[indexJsonFile].datosDestino.cuentaBancariaDestino);
+					//console.log(jsonFilesData[indexJsonFile].datosDestino.bancoDestino);
+				}
 				jsonFiles.push(JSON.stringify(jsonFilesData[indexJsonFile]));
 			});
-			
-			//console.log(jsonFiles);
+
 			$.ajax({
-				url: 'ajaxProvision',
+				url: 'ajaxClientDeposit',
 				type: 'POST',
-				data: {handler: 'export' , policyType: policyType, jsonFiles: jsonFiles, generateByProvider: generate_by_toggle, cfdiIndexSerie: $('#cfdi_index_serie').val()},
+				data: {handler: 'export' , policyType: policyType, jsonFiles: jsonFiles, generateByClient: generate_by_toggle, cfdiIndexSerie: $('#cfdi_index_serie').val()},
 			})
 			.done(function(data) {
 				$('#menu_navbar').slideDown();
@@ -555,7 +580,7 @@ function sendJsonFiles(){
 
 function verifyUnregisteredProviders() {
 	var amount_unregistered_providers=0;
-	$('.provider-name').each(function(index){
+	$('.client-name').each(function(index){
 		if($(this).hasClass('red-text')){
 			amount_unregistered_providers++;
 		}
@@ -563,27 +588,12 @@ function verifyUnregisteredProviders() {
 	return amount_unregistered_providers;
 }
 
-function verifyAccountingAccountLists(){
-	var amount_unregistered_counterparts=0;
-	$('.provision-tablesorter .accounting-account-list').each(function(index){
-		if($(this).val()== null){
-			amount_unregistered_counterparts++;
+function verifyUndefinedDates() {
+	var amount_undefined_dates=0;
+	$(".date").each(function(index){
+		if($(this).val() == ''){
+			amount_undefined_dates++;
 		}
 	});
-	return amount_unregistered_counterparts;
-}
-
-function verifyConcepts(row_index){
-	var amount_undefined_concepts=0;
-	$('.provision-tablesorter #conceptList'+row_index+' .accounting-account-list').each(function(index){
-		if($(this).val()==null){
-			amount_undefined_concepts++;
-		}
-	});
-	if(amount_undefined_concepts!=0){
-		if($('.provision-tablesorter tbody tr:nth-child('+(row_index+1)+') td:last').children('i').length == 0){
-			$('.provision-tablesorter tbody tr:nth-child('+(row_index+1)+') td:last').append('<i class="material-icons red-text tooltipped" data-position="bottom" data-tooltip="Contrapartida no elegida">warning</i>');
-			$('.tooltipped').tooltip();
-		}
-	}
+	return amount_undefined_dates;
 }

@@ -90,7 +90,6 @@ class BankAccountController extends Controller
         $bank_account->company_id=Session::get('company_workspace_id');
 
         $bank_account->save();
-
         return Redirect::to('bank_accounts');
     }
 

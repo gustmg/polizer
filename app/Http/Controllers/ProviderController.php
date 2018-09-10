@@ -22,7 +22,7 @@ class ProviderController extends Controller
      */
     public function index()
     {
-        $providers=Provider::with('counterpart_account')->where('company_id', session()->get('company_workspace_id'))->paginate(10);
+        $providers=Provider::with('counterpart_account')->where('company_id', session()->get('company_workspace_id'))->get();
         $companies=Company::where('user_id', Auth::user()->id)->get();
         $accounting_account_types=AccountingAccountType::all();
         $accounting_accounts=AccountingAccount::where(function($query){
@@ -95,7 +95,7 @@ class ProviderController extends Controller
 
         $provider->save();
 
-        return Redirect::to('providers');
+        return Redirect::back();
     }
 
     /**
@@ -108,6 +108,6 @@ class ProviderController extends Controller
     {
         $provider=Provider::find($id);
         $provider->delete();
-        return Redirect::to('providers');
+        return Redirect::back();
     }
 }

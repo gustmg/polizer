@@ -17,7 +17,7 @@
 			          <label for="provider_rfc" data-error="Verifique este campo" data-success="Campo validado">RFC del proveedor *</label>
 			        </div>
 			        <div class="input-field col s12 m12">
-			          <input id="provider_accounting_account" name="provider_accounting_account" type="text" class="provider_accounting_account validate" onblur="validateForm();" required>
+			          <input id="provider_accounting_account" name="provider_accounting_account" type="text" class="provider_accounting_account validate" onblur="validateForm();" pattern="^[^A-Za-z]+$" required>
 			          <label for="provider_accounting_account">Cuenta contable del proveedor *</label>
 			        </div>
 		        </div>

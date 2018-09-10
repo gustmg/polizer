@@ -35,3 +35,5 @@ Route::get('billing_policy', 'BillingPolicyController@index')->middleware('auth'
 Route::post('ajaxBilling', 'BillingPolicyController@handler');
 Route::get('provider_payment_policy', 'ProviderPaymentPolicyController@index')->middleware('auth')->name('provider_payment_policy');
 Route::post('ajaxProviderPayment', 'ProviderPaymentPolicyController@handler');
+Route::get('client_deposit_policy', 'ClientDepositPolicyController@index')->middleware('auth')->name('client_deposit_policy');
+Route::post('ajaxClientDeposit', 'ClientDepositPolicyController@handler');

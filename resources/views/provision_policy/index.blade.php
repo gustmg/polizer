@@ -152,7 +152,7 @@
 </div>
 <div class="container section2" style="width: 95%;display: none;">
 	<div class="row">
-		<table class="card highlight col s12 provision-tablesorter" style="table-layout: fixed;">
+		<table class="card highlight col s12 provision-tablesorter removable" style="table-layout: fixed;">
 		    <thead>
 		        <tr>
 		            <th style="width: 5%;"></th>
@@ -166,6 +166,13 @@
 		    </thead>
 		    <tbody></tbody>
 		</table>
+		<div id="modalShowData" class="modal">
+			<div class="modal-content">
+			</div>
+			<div class="modal-footer">
+				<button class="btn modal-close"><b>Aceptar</b></button>
+			</div>
+		</div>
 		<div id="modalRemoveRows" class="modal">
 			<div class="modal-content">
 				<h5>Eliminar CFDI's' seleccionados?</h5>

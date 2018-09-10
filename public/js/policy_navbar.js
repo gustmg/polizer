@@ -65,11 +65,11 @@ send_json_files.addEventListener("click", sendJsonFiles, false);
 $('#modalRemoveRows').modal();
 function removeRows(){
 	$('#modalRemoveRows').modal('close');
-	$('.provision-tablesorter tbody tr').each(function(index){
+	$('.removable tbody tr').each(function(index){
 		if($(this).find('.row-select').is(':checked')){
 			$(this).fadeOut(200,function(){
 				$(this).remove();
-				if($('.provision-tablesorter tbody tr').length===0){
+				if($('.removable tbody tr').length===0){
 					location.reload();
 				}
 			});

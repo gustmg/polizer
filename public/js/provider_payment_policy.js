@@ -15,6 +15,7 @@ var files;
 var number_of_files;
 var jsonFilesData = [];
 var total_uploaded_files = 0;
+var unreaded_files= [];
 
 function getFiles(e){
     files= e.target.files;
@@ -52,6 +53,12 @@ function readFile(index) {
 		$('.progress').css('visibility', 'hidden');
 		$('.section2').delay(400).fadeIn(400);
 		$('#menu_navbar').slideDown(400);
+		$(".payment-tablesorter").trigger("update");
+		if(unreaded_files.length>0){
+			unreaded_files.toString();
+			Materialize.toast('Ocurrió un error al procesar los siguientes archivos: '+unreaded_files, 7000);
+			unreaded_files=[];
+		}
 	}
 }
 
@@ -66,11 +73,19 @@ function validateExtension(file_extension) {
 
 function getFileData(e){
 	var file_data=e.target.result;
-	passFileDataToJson(file_data);
+	if(passFileDataToJson(file_data)==0){
+		return 0;
+	}
 }
 
 function passFileDataToJson(file_data){
-	jsonFilesData.push(obtenerDatosXML($.parseXML(file_data)));	
+	var data= obtenerDatosXML($.parseXML(file_data));
+	if(data!=0){
+		jsonFilesData.push(data);	
+	}
+	else{
+		return 0;
+	}
 }
 
 function obtenerDatosXML(xml){
@@ -96,7 +111,51 @@ function obtenerDatosXML(xml){
 	var datosXML;
 
 	if(comprobante.attr('version')=='3.2'){
+		//Validacion de atributos del XML
+		if(typeof emisor.attr('nombre') == 'undefined'){
+			alert("Nombre Emisor no encontrado");
+			return 0;
+		}
+		if(typeof emisor.attr('rfc') == 'undefined'){
+			alert("Rfc Emisor no encontrado");
+			return 0;
+		}
+		if(typeof receptor.attr('nombre') == 'undefined'){
+			alert("Nombre Receptor no encontrado");
+			return 0;
+		}
+		if(typeof receptor.attr('rfc') == 'undefined'){
+			alert("Rfc Receptor no encontrado");
+			return 0;
+		}
+		if(typeof tfd.attr('UUID') == 'undefined'){
+			alert("UUID no encontrado");
+			return 0;
+		}
+		if(typeof comprobante.attr('subTotal') == 'undefined'){
+			alert("Subtotal no encontrados");
+			return 0;
+		}
+		if(typeof comprobante.attr('total') == 'undefined'){
+			alert("Total no encontrados");
+			return 0;
+		}
+		if(typeof comprobante.attr('tipoDeComprobante') == 'undefined'){
+			alert("Comprobante Tipo no encontrados");
+			return 0;
+		}
+
 		conceptos.find("cfdi\\:Concepto , Concepto").each(function(){
+			//Valida conceptos del xml
+			if(typeof $(this).attr("descripcion") == 'undefined'){
+				alert("Concepto Tipo no encontrados");
+				return 0;
+			}
+			if(typeof $(this).attr("importe") == 'undefined'){
+				alert("Importe Tipo no encontrados");
+				return 0;
+			}
+
 			descripciones.push($(this).attr("descripcion"));
 			importes.push($(this).attr("importe"));
 		});
@@ -167,7 +226,41 @@ function obtenerDatosXML(xml){
 	}
 
 	else if(comprobante.attr('Version')=='3.3'){
+		//Validacion de atributos del XML
+		if(typeof emisor.attr('Nombre') == 'undefined'){
+			return 0;
+		}
+		if(typeof emisor.attr('Rfc') == 'undefined'){
+			return 0;
+		}
+		if(typeof receptor.attr('Nombre') == 'undefined'){
+			return 0;
+		}
+		if(typeof receptor.attr('Rfc') == 'undefined'){
+			return 0;
+		}
+		if(typeof tfd.attr('UUID') == 'undefined'){
+			return 0;
+		}
+		if(typeof comprobante.attr('SubTotal') == 'undefined'){
+			return 0;
+		}
+		if(typeof comprobante.attr('Total') == 'undefined'){
+			return 0;
+		}
+		if(typeof comprobante.attr('TipoDeComprobante') == 'undefined'){
+			return 0;
+		}
+
 		conceptos.find("cfdi\\:Concepto , Concepto").each(function(){
+			//Valida conceptos del xml
+			if(typeof $(this).attr("Descripcion") == 'undefined'){
+				return 0;
+			}
+			if(typeof $(this).attr("Importe") == 'undefined'){
+				return 0;
+			}
+
 			descripciones.push($(this).attr("Descripcion"));
 			importes.push($(this).attr("Importe"));
 		});
@@ -313,26 +406,28 @@ function agregaFilaTablaProvision(index){
 			'<label for="row-select-'+index+'" style="height: 16px;"></label>'+
 		'</td>'+
 		'<td class="center-align" style="width: 10%;">'+
-			'<input id="fecha-'+index+'" type="date">'+
+			'<input id="fecha-'+index+'" class="date" type="date">'+
 		'</td>'+
 		'<td class="center-align" style="width: 10%;">'+
-			jsonFilesData[index].comprobante.serie+
+			jsonFilesData[index].comprobante.folio+
 		'</td>'+
 		'<td style="width: 25%;" class="hover-'+index+'">'+
         	'<span class="truncate provider-name" style="width: 90%;">'+jsonFilesData[index].emisor.nombreEmisor+'</span>'+
             '<div class="card-panel card-panel-'+index+'" style="position: absolute;display: none;">'+
                 '<span>'+jsonFilesData[index].emisor.nombreEmisor+'</span><br>'+
                 '<span>'+jsonFilesData[index].emisor.rfcEmisor+'</span><br>'+
-                '<span>FOLIO: '+jsonFilesData[index].comprobante.folio+'</span><br>'+
                 '<span>Serie: '+jsonFilesData[index].comprobante.serie+'</span><br>'+
             '</div>'+
         '</td>'+
-		'<td class="center-align" style="width: 10%;">$'+
-			personalizaTotal(jsonFilesData[index].comprobante.total)+
+		'<td class="center-align" style="width: 10%;">'+
+			'<div class="input-field">'+
+				'<input id="total-'+index+'" class="total-input" data-total="'+personalizaTotal(jsonFilesData[index].comprobante.total)+'" type="number" min="0.00" step="0.01" value="'+personalizaTotal(jsonFilesData[index].comprobante.total)+'">'+
+				'<label class="active" for="total-'+index+'"></label>'+
+        	'</div>'+
 		'</td>'+
 		'<td style="width: 30%;">'+
 			'<div>'+
-				'<h6 class="center-align"><b>Forma de Pago</b></h6>'+
+				'<label>Forma de Pago</label>'+
     			'<select class="select-payform browser-default" data-file-index="'+index+'" onchange="changeDestiny(this);">'+
 					'<option selected value="01">01 - Efectivo</option>'+
 					'<option value="02">02 - Cheque</option>'+
@@ -340,10 +435,8 @@ function agregaFilaTablaProvision(index){
 				'</select>'+
 			'</div>'+
 			'<div class="origin-'+index+'" data-file-index="'+index+'">'+
-    			'<h6 class="center-align"><b>Origen</b></h6>'+
 			'</div>'+
-			'<div class="destiny-'+index+'" data-file-index="'+index+'">'+
-    			'<h6 class="center-align"><b>Destino</b></h6>'+
+			'<div class="destiny-'+index+' destiny" data-file-index="'+index+'">'+
 			'</div>'+
 		'</td>'+
 	'</tr>');
@@ -352,6 +445,12 @@ function agregaFilaTablaProvision(index){
 	loadBankAccounts(index);
 	verifyProvider(index);
 	setPayform(index);
+
+	$('.total-input').on('blur',function(event) {
+		if($(this).val() == ''){
+			$(this).val($(this).attr('data-total'));
+		}
+	});
 }
 
 function setPayform (index){
@@ -369,7 +468,6 @@ function changeDestiny(select) {
 		$('.destiny-'+index_row).hide();
 	}else if($(select).val()==2){
 		$('.destiny-'+index_row).html('');
-		$('.destiny-'+index_row).append('<h6 class="center-align"><b>Destino</b></h6>');
 		$('.destiny-'+index_row).append('<div class="input-field">'+
 				'<input id="check-number-'+index_row+'" type="text" class="validate" pattern="[0-9]+" data-length="5" maxlength="5">'+
 				'<label for="check-number-'+index_row+'">Número de cheque</label>'+
@@ -379,7 +477,16 @@ function changeDestiny(select) {
 	}else if($(select).val()==3){
 		var list= $('.bank-accounts').html();
 		$('.destiny-'+index_row).html('');
-		$('.destiny-'+index_row).append('<h6 class="center-align"><b>Destino</b></h6>');
+		$('.destiny-'+index_row).append('<label>Banco destino</label>'+
+			'<select class="browser-default destiny-bank-'+index_row+'">'+
+			'<option value="02">Banamex</option>'+
+			'<option value="12">BBVA Bancomer</option>'+
+			'<option value="21">HSBC</option>'+
+			'<option value="14">Santander</option>'+
+			'<option value="44">Scotiabank</option>'+
+			'<option value="72">Banorte</option>'+
+			'<option value="36">INBURSA</option>'+
+		'</select>');
 		$('.destiny-'+index_row).append('<div class="input-field">'+
 				'<input id="bank-account-destiny-'+index_row+'" type="text" class="validate" pattern="[0-9]+" data-length="18" maxlength="18">'+
 				'<label for="bank-account-destiny-'+index_row+'">Cuenta bancaria destino</label>'+
@@ -405,7 +512,11 @@ function makeHoverIntent (index){
 
 function loadBankAccounts (file_index){
 	var list= $('.bank-accounts').html();
-	$('.origin-'+file_index).append(list);
+	var bank_accounts_lenght = $('.bank-accounts option').length;
+	if(bank_accounts_lenght > 2){
+		$('.origin-'+file_index).append('<label>Cuenta bancaria de origen</label>');
+		$('.origin-'+file_index).append(list);
+	}
 	// $('.destiny-'+file_index).append(list);
 }
 
@@ -457,30 +568,43 @@ function sendJsonFiles(){
 		Materialize.toast('No se pudo procesar la petición. El proveedor de algún comprobante no está registrado.', 4000);
 	}
 	else{
-		if(verifyUnregisteredProviders()!=0){
-			Materialize.toast('No se pudo procesar la petición. Hay conceptos sin contrapartida.', 4000);
+		if(verifyUndefinedDates()!=0){
+			Materialize.toast('No se pudo procesar la petición. Uno o varios XML no tienen fecha definida.', 4000);
 		}
 		else{
 			// $('#menu_navbar').slideUp();
 			$('.progress').css('visibility', 'visible');
 			Materialize.toast('Procesando archivos.', 2000);
+			var bank_accounts_lenght = $('.bank-accounts option').length;
 			$('tbody tr').each(function(index){
 				var indexJsonFile=$(this).attr("data-file-index");
 				jsonFilesData[indexJsonFile].comprobante.fecha=$('#fecha-'+indexJsonFile).val();
-				jsonFilesData[indexJsonFile].datosOrigen.cuentaBancariaOrigen=$('.origin-'+indexJsonFile+' select option:selected').attr('data-bank-account-number');
-				jsonFilesData[indexJsonFile].datosOrigen.cuentaContableOrigen=$('.origin-'+indexJsonFile+' select option:selected').val();
-				jsonFilesData[indexJsonFile].datosOrigen.bancoOrigen=$('.origin-'+indexJsonFile+' select option:selected').parent().attr('data-bank-id');
+
+				if(bank_accounts_lenght==2){
+					jsonFilesData[indexJsonFile].datosOrigen.cuentaBancariaOrigen=$('.select-bank-account optgroup option').attr('data-bank-account-number');
+					jsonFilesData[indexJsonFile].datosOrigen.cuentaContableOrigen=$('.select-bank-account optgroup option').val();
+					jsonFilesData[indexJsonFile].datosOrigen.bancoOrigen=$('.select-bank-account optgroup option').parent().attr('data-bank-id');
+				}
+				else{
+					jsonFilesData[indexJsonFile].datosOrigen.cuentaBancariaOrigen=$('.origin-'+indexJsonFile+' select option:selected').attr('data-bank-account-number');
+					jsonFilesData[indexJsonFile].datosOrigen.cuentaContableOrigen=$('.origin-'+indexJsonFile+' select option:selected').val();
+					jsonFilesData[indexJsonFile].datosOrigen.bancoOrigen=$('.origin-'+indexJsonFile+' select option:selected').parent().attr('data-bank-id');
+				}
+
 				jsonFilesData[indexJsonFile].comprobante.formaPago=$('.select-payform[data-file-index="'+indexJsonFile+'"] option:selected').val();
+				jsonFilesData[indexJsonFile].comprobante.total=$('#total-'+indexJsonFile).val();
 				// console.log(jsonFilesData[indexJsonFile].datosOrigen.cuentaBancariaOrigen);
 				// console.log(jsonFilesData[indexJsonFile].datosOrigen.cuentaContableOrigen);
-				//console.log(jsonFilesData[indexJsonFile].datosOrigen.bancoOrigen);
+				// console.log(jsonFilesData[indexJsonFile].datosOrigen.bancoOrigen);
 
 				if($('.select-payform[data-file-index="'+indexJsonFile+'"] option:selected').val()=='02'){
 					jsonFilesData[indexJsonFile].datosDestino.numeroCheque=$('#check-number-'+indexJsonFile).val();
 					// console.log(jsonFilesData[indexJsonFile].datosDestino.numeroCheque);
 				}else if($('.select-payform[data-file-index="'+indexJsonFile+'"] option:selected').val()=='03'){
+					jsonFilesData[indexJsonFile].datosDestino.bancoDestino=$('.destiny-'+indexJsonFile+' select option:selected').val();
 					jsonFilesData[indexJsonFile].datosDestino.cuentaBancariaDestino=$('#bank-account-destiny-'+indexJsonFile).val();
 					// console.log(jsonFilesData[indexJsonFile].datosDestino.cuentaBancariaDestino);
+					//console.log(jsonFilesData[indexJsonFile].datosDestino.bancoDestino);
 				}
 				jsonFiles.push(JSON.stringify(jsonFilesData[indexJsonFile]));
 			});
@@ -516,4 +640,14 @@ function verifyUnregisteredProviders() {
 		}
 	});
 	return amount_unregistered_providers;
+}
+
+function verifyUndefinedDates() {
+	var amount_undefined_dates=0;
+	$(".date").each(function(index){
+		if($(this).val() == ''){
+			amount_undefined_dates++;
+		}
+	});
+	return amount_undefined_dates;
 }

@@ -44,21 +44,22 @@
 							<b>Cargos</b>
 						</div>
 						<div class="col s11 offset-s1 no-padding">
-							<h6>Clientes</h6>
+							<h6>Bancos</h6>
 							<h6>IVA Trasladado</h6>
 						</div>
 						<div class="col s12 m12 no-padding">
 							<b>Abonos</b>
 						</div>
 						<div class="col s11 offset-s1 no-padding">
-							<h6>Ventas / Ingresos</h6><br>
+							<h6>IVA Trasladado Cobrado</h6>
+							<h6>Clientes</h6><br><br><br>
 						</div>
 					</div>
 				</div>
 				<div class="card-action right-align">
 					<label id="policy-type-1" class="btn">
 						<b>Cargar CFDI's</b>
-						<input type="file" style="display: none;" name="standard_billing_files" id="standard_billing_files" accept=".xml" onclick="setPolicyType(1);" multiple>
+						<input type="file" style="display: none;" name="standard_client_deposit_files" id="standard_client_deposit_files" accept=".xml" onclick="setPolicyType(1);" multiple>
 					</label>
 				</div>
 			</div>
@@ -67,16 +68,15 @@
 </div>
 <div class="container section2" style="width: 95%;display: none;">
 	<div class="row">
-		<table class="card highlight col s12 billing-tablesorter removable" style="table-layout: fixed;">
+		<table class="card col s12 bordered payment-tablesorter removable" style="table-layout: fixed;">
 		    <thead>
 		        <tr>
 		            <th style="width: 5%;"></th>
-		            <th style="width: 7%;" class="center-align selectable">Fecha <i class="tiny material-icons no-margin">unfold_more</i></th>
+		            <th style="width: 15%;" class="center-align">Fecha</th>
 		            <th style="width: 10%;" class="center-align selectable">Folio <i class="tiny material-icons no-margin">unfold_more</i></th>
 		            <th style="width: 25%;" class="selectable">Cliente <i class="tiny material-icons no-margin">unfold_more</i></th>
-		            <th style="width: 30%;">Descripcion</th>
 		            <th style="width: 10%;" class="center-align">Total</th>
-		            <th style="width: 10%;" class="center-align">Opciones</th>
+		            <th style="width: 35%;" class="center-align">Opciones</th>
 		        </tr>
 		    </thead>
 		    <tbody></tbody>
@@ -112,19 +112,21 @@
 				<button id="saveChanges" class="btn modal-close"><b>Listo</b></button>
 			</div>
 		</div>
-		<div class="accounts" style="display: none;">
-			<select class="accounting-account-list browser-default secondary-content">
-			    <option value="" disabled selected>Elige una cuenta contable</option>
-			    <optgroup label="Ventas / Ingresos">
-			    	@foreach($accounting_accounts as $key => $accounting_account)
-		    			<option value="{{$accounting_account->accounting_account_id}}" data-accounting-account-number="{{$accounting_account->accounting_account_number}}">{{$accounting_account->accounting_account_description}}</option>
-			    	@endforeach
-			    </optgroup>
+		<div class="bank-accounts" style="display: none;">
+			<select class="browser-default select-bank-account">
+				<option value="" disabled selected>Elige una cuenta bancaria</option>
+				@foreach($banks as $key => $bank)
+					<optgroup label="{{$bank->bank_name}}" data-bank-id="{{$bank->bank_id}}">
+						@foreach($bank_accounts as $key2=>$bank_account)
+							@if($bank_account->bank_id == $bank->bank_id)
+								<option value="{{$bank_account->counterpart_account->accounting_account_number}}" data-bank-account-number="{{$bank_account->bank_account_number}}">{{$bank_account->bank_account_number}}</option>
+							@endif
+						@endforeach
+					</optgroup>
+				@endforeach
 			</select>
 		</div>
 	</div>
 </div>
-{{app('debugbar')->disable()}}
 @include('clients.newClientModal')
-@include('accounting_accounts.newAccountingAccountModal')
 @endsection

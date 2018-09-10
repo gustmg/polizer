@@ -82,7 +82,7 @@
                             <li><a href="{{ route ('provision_policy') }}">Provisión</a></li>
                             <li><a href="{{ route ('billing_policy') }}">Facturación</a></li>
                             <li><a href="{{ route ('provider_payment_policy') }}">Pago a proveedores</a></li>
-                            <li><a href="#">Depósito de clientes</a></li>
+                            <li><a href="{{ route ('client_deposit_policy') }}">Depósito de clientes</a></li>
                         </ul>
                     </div>
                 </li>
@@ -188,22 +188,45 @@
     <script src="{{ asset('js/policy_navbar.js') }}"></script>
     <script src="{{ asset('js/jquery.hoverIntent.min.js') }}"></script>
     <script src="{{ asset('js/providers.js') }}"></script>
+    <script src="{{ asset('js/accounting_accounts.js') }}"></script>
 @endif
 @if (Route::currentRouteName()=='billing_policy')
     <script src="{{ asset('js/billing_policy.js') }}"></script>
     <script src="{{ asset('js/policy_navbar.js') }}"></script>
     <script src="{{ asset('js/jquery.hoverIntent.min.js') }}"></script>
     <script src="{{ asset('js/clients.js') }}"></script>
+    <script src="{{ asset('js/accounting_accounts.js') }}"></script>
 @endif
 @if (Route::currentRouteName()=='provider_payment_policy')
     <script src="{{ asset('js/provider_payment_policy.js') }}"></script>
     <script src="{{ asset('js/policy_navbar.js') }}"></script>
     <script src="{{ asset('js/jquery.hoverIntent.min.js') }}"></script>
     <script src="{{ asset('js/providers.js') }}"></script>
+    <script src="{{ asset('js/accounting_accounts.js') }}"></script>
+@endif
+@if (Route::currentRouteName()=='client_deposit_policy')
+    <script src="{{ asset('js/client_deposit_policy.js') }}"></script>
+    <script src="{{ asset('js/policy_navbar.js') }}"></script>
+    <script src="{{ asset('js/jquery.hoverIntent.min.js') }}"></script>
+    <script src="{{ asset('js/clients.js') }}"></script>
+    <script src="{{ asset('js/accounting_accounts.js') }}"></script>
 @endif
 
 <script type="text/javascript">
     $(document).ready(function(){
+        $('.accounting-accounts-tablesorter').tablesorter({
+            headers:{   2: {sorter: false}}
+        });
+        $('.providers-tablesorter').tablesorter({
+            headers:{   2: {sorter: false},
+                        3: {sorter: false}
+                    }
+        });
+        $('.clients-tablesorter').tablesorter({
+            headers:{   2: {sorter: false},
+                        3: {sorter: false}
+                    }
+        });
         $('.provision-tablesorter').tablesorter({
             headers:{   0: {sorter: false},
                         4: {sorter: false},
@@ -216,6 +239,13 @@
                         4: {sorter: false},
                         5: {sorter: false},
                         6: {sorter: false}
+                    }
+        });
+        $('.payment-tablesorter').tablesorter({
+            headers:{   0: {sorter: false},
+                        1: {sorter: false},
+                        4: {sorter: false},
+                        5: {sorter: false}
                     }
         });
 
