@@ -13,6 +13,11 @@ var files;
 var number_of_files;
 var jsonFilesData = [];
 var total_uploaded_files = 0;
+var unreaded_files= [];
+
+//Tablesorter
+var table = document.getElementById('billing-tablesorter');
+var sort = new Tablesort(table);
 
 function getFiles(e){
     files= e.target.files;
@@ -30,10 +35,15 @@ function readFile(index) {
 		if(validateExtension(file_extension)){
 			var reader = new FileReader();
 			reader.onload = function (e){
-				getFileData(e);
-				setTimeout(agregaFilaTablaFacturacion.bind(null, total_uploaded_files), 1);
-				total_uploaded_files++;
-				readFile(index+1);
+				if(getFileData(e)!=0){
+					setTimeout(agregaFilaTablaFacturacion.bind(null, total_uploaded_files), 1);
+					total_uploaded_files++;
+					readFile(index+1);
+				}
+				else{
+					unreaded_files.push(filename);
+					readFile(index+1);
+				}
 			}
 			reader.readAsText(file);
 		}
@@ -49,7 +59,12 @@ function readFile(index) {
 		$('.progress').css('visibility', 'hidden');
 		$('.section2').delay(400).fadeIn(400);
 		$('#menu_navbar').slideDown(400);
-		$(".billing-tablesorter").trigger("update");
+		sort.refresh();
+		if(unreaded_files.length>0){
+			unreaded_files.toString();
+			Materialize.toast('Archivos XML no válidos o corruptos: '+unreaded_files, 7000);
+			unreaded_files=[];
+		}
 	}
 }
 
@@ -64,11 +79,19 @@ function validateExtension(file_extension) {
 
 function getFileData(e){
 	var file_data=e.target.result;
-	passFileDataToJson(file_data);
+	if(passFileDataToJson(file_data)==0){
+		return 0;
+	}
 }
 
 function passFileDataToJson(file_data){
-	jsonFilesData.push(obtenerDatosXML($.parseXML(file_data)));	
+	var data= obtenerDatosXML($.parseXML(file_data));
+	if(data!=0){
+		jsonFilesData.push(data);	
+	}
+	else{
+		return 0;
+	}
 }
 
 function obtenerDatosXML(xml){
@@ -88,13 +111,60 @@ function obtenerDatosXML(xml){
 	var datosXML;
 
 	if(comprobante.attr('version')=='3.2'){
+		//Validacion de atributos del XML
+		if(typeof emisor.attr('nombre') == 'undefined'){
+			// alert("Nombre Emisor no encontrado");
+			return 0;
+		}
+		if(typeof emisor.attr('rfc') == 'undefined'){
+			// alert("Rfc Emisor no encontrado");
+			return 0;
+		}
+		if(typeof receptor.attr('nombre') == 'undefined'){
+			// alert("Nombre Receptor no encontrado");
+			return 0;
+		}
+		if(typeof receptor.attr('rfc') == 'undefined'){
+			// alert("Rfc Receptor no encontrado");
+			return 0;
+		}
+		if(typeof tfd.attr('UUID') == 'undefined'){
+			// alert("UUID no encontrado");
+			return 0;
+		}
+		if(typeof comprobante.attr('subTotal') == 'undefined'){
+			// alert("Subtotal no encontrados");
+			return 0;
+		}
+		if(typeof comprobante.attr('total') == 'undefined'){
+			// alert("Total no encontrados");
+			return 0;
+		}
+		if(typeof comprobante.attr('tipoDeComprobante') == 'undefined'){
+			// alert("Comprobante Tipo no encontrados");
+			return 0;
+		}
+
 		conceptos.find("cfdi\\:Concepto , Concepto").each(function(){
+			//Valida conceptos del xml
+			if(typeof $(this).attr("descripcion") == 'undefined'){
+				// alert("Concepto Tipo no encontrados");
+				return 0;
+			}
+			if(typeof $(this).attr("importe") == 'undefined'){
+				// alert("Importe Tipo no encontrados");
+				return 0;
+			}
+
 			descripciones.push($(this).attr("descripcion"));
 			importes.push($(this).attr("importe"));
 		});
 		impuestos.find("cfdi\\:Traslado , Traslado").each(function(){
 			if($(this).attr("impuesto")=="IVA"){
 				impuesto_iva=$(this).attr("importe");
+			}
+			else if(typeof $(this).attr("impuesto") == 'undefined'){
+				return 0;
 			}
 		});
 		datosXML={
@@ -150,10 +220,45 @@ function obtenerDatosXML(xml){
 	}
 
 	else if(comprobante.attr('Version')=='3.3'){
+		//Validacion de atributos del XML
+		if(typeof emisor.attr('Nombre') == 'undefined'){
+			return 0;
+		}
+		if(typeof emisor.attr('Rfc') == 'undefined'){
+			return 0;
+		}
+		if(typeof receptor.attr('Nombre') == 'undefined'){
+			return 0;
+		}
+		if(typeof receptor.attr('Rfc') == 'undefined'){
+			return 0;
+		}
+		if(typeof tfd.attr('UUID') == 'undefined'){
+			return 0;
+		}
+		if(typeof comprobante.attr('SubTotal') == 'undefined'){
+			return 0;
+		}
+		if(typeof comprobante.attr('Total') == 'undefined'){
+			return 0;
+		}
+		if(typeof comprobante.attr('TipoDeComprobante') == 'undefined'){
+			return 0;
+		}
+
 		conceptos.find("cfdi\\:Concepto , Concepto").each(function(){
+			//Valida conceptos del xml
+			if(typeof $(this).attr("Descripcion") == 'undefined'){
+				return 0;
+			}
+			if(typeof $(this).attr("Importe") == 'undefined'){
+				return 0;
+			}
+
 			descripciones.push($(this).attr("Descripcion"));
 			importes.push($(this).attr("Importe"));
 		});
+
 		impuestos.each(function(index){
 			if (index==impuestos.length-1){
 				impuesto_iva = $(this).attr('TotalImpuestosTrasladados');
@@ -278,40 +383,60 @@ function personalizaFecha(fecha) {
 	return fecha_personalizada;
 }
 
+function formatDate(fecha) {
+	var mes=fecha.substr(5,2);
+	var dia=fecha.substr(8,2);
+	var year=fecha.substr(0,4);
+	var fecha_personalizada= dia+'-'+mes+'-'+year;
+	return fecha_personalizada;
+}
+
+$('#modalShowData').modal({
+	ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
+	    $('#modalShowData .modal-content').append(
+	    	'<h5>Datos de CFDI</h5>'+
+	    	'<span class="client-name-modal valign-wrapper" data-client-name="'+trigger.attr('data-client-name')+'" data-client-rfc="'+trigger.attr('data-client-rfc')+'"><b>Cliente: </b>'+trigger.attr('data-client-name')+
+	    	'</span><b>RFC: </b>'+trigger.attr('data-client-rfc')+
+	    	'<br><b>Serie: </b>'+trigger.attr('data-serie'));
+	    if(trigger.hasClass('red-text')){
+	    	$('.client-name-modal').append('&nbsp;&nbsp;<a href="#newClientModal" class="modal-trigger newClientFromPolicy" onclick="closeDataModal();">'+
+				'<i class="material-icons black-text">person_add</i>'+
+			'</a>');
+	    }
+	},
+	complete: function() {
+		$('#modalShowData .modal-content').html('');
+	}
+});
+
+function closeDataModal(){
+	$('#modalShowData').modal('close');
+}
+
 //Funciones para mostrar tabla
 function agregaFilaTablaFacturacion(index){
-	$('tbody').append(
+	$('#billing-tablesorter tbody').append(
     '<tr data-file-index="'+index+'" data-rfc-client="'+jsonFilesData[index].receptor.rfcReceptor+'">'+
         '<td class="center-align valign-wrapper">'+
             '<input type="checkbox" class="filled-in row-select" id="row-select-'+index+'"/>'+
             '<label for="row-select-'+index+'"></label>'+
         '</td>'+
-        '<td style="width: 7%;" class="center-align">'+personalizaFecha(jsonFilesData[index].comprobante.fecha)+'</td>'+
+        '<td style="width: 7%;" class="center-align" data-sort="'+formatDate(jsonFilesData[index].comprobante.fecha)+'">'+personalizaFecha(jsonFilesData[index].comprobante.fecha)+'</td>'+
         '<td style="width: 10%;" class="center-align">'+jsonFilesData[index].comprobante.folio+'</td>'+
         '<td style="width: 25%;" class="hover-'+index+'">'+
-        	'<span class="truncate client-name" style="width: 90%;">'+jsonFilesData[index].receptor.nombreReceptor+'</span>'+
-            '<div class="card-panel card-panel-'+index+'" style="position: absolute;display: none;">'+
-                '<span>'+jsonFilesData[index].receptor.nombreReceptor+'</span><br>'+
-                '<span>'+jsonFilesData[index].receptor.rfcReceptor+'</span><br>'+
-                '<span>FOLIO: '+jsonFilesData[index].comprobante.folio+'</span><br>'+
-                '<span>Serie: '+jsonFilesData[index].comprobante.serie+'</span><br>'+
-            '</div>'+
+            '<span class="truncate client-name selectable modal-trigger" href="#modalShowData" style="width: 90%;" data-client-name="'+jsonFilesData[index].receptor.nombreReceptor+'" data-client-rfc="'+jsonFilesData[index].receptor.rfcReceptor+'" data-serie="'+jsonFilesData[index].comprobante.serie+'">'+jsonFilesData[index].receptor.nombreReceptor+'</span>'+
         '</td>'+
         '<td style="width: 30%;">'+
         	'<span class="truncate" style="width: 90%;">'+jsonFilesData[index].concepto.descripciones[0]+'</span>'+
         '</td>'+
         '<td style="width: 10%;" class="center-align">$'+personalizaTotal(jsonFilesData[index].comprobante.total)+'</td>'+
         '<td style="width: 10%;" class="center-align">'+
-			'<a href="#newClientModal" class="modal-trigger newClientFromProvision">'+
-				'<i class="material-icons black-text">person_add</i>'+
-			'</a>'+
-			'&nbsp;'+
 			'<a href="#modalShowConcepts'+index+'" class="modal-trigger">'+
 				'<i class="material-icons black-text">list</i>'+
 			'</a>'+
 	        '<div id="modalShowConcepts'+index+'" class="modal modal-fixed-footer">'+
 				'<div class="modal-content">'+
-					'<ul id="conceptList'+index+'" class="collection">'+
+					'<ul id="conceptList'+index+'" class="collection concept-list" data-row-index="'+index+'">'+
 					'</ul>'+
 				'</div>'+
 				'<div class="modal-footer">'+
@@ -321,21 +446,8 @@ function agregaFilaTablaFacturacion(index){
         '</td>'+
 	'</tr>');
 	$('#modalShowConcepts'+index).modal({dismissible: false,});
-	makeHoverIntent(index);
 	loadConcepts(index);
 	verifyClient(index);
-}
-
-//Makes hover card on each provider column
-function makeHoverIntent (index){
-	$( ".hover-"+index).hoverIntent(
-	  function() {
-	    $('.card-panel-'+index).slideUp('fast');
-	    $( this ).find('div').slideDown('fast');
-	  }, function() {
-	    $( this ).find('div').slideUp('fast');
-	  }
-	);
 }
 
 function loadConcepts (file_index){
@@ -361,6 +473,17 @@ function setConceptsToJson(json_index) {
 	});
 	$.extend(jsonFilesData[json_index].concepto.contrapartidas, counterpart_list);
 	//console.log(jsonFilesData[json_index]);
+	var amount_undefined_concepts=0
+	$('#billing-tablesorter #conceptList'+json_index+' .accounting-account-list').each(function(index){
+		if($(this).val()==null){
+			amount_undefined_concepts++;
+		}
+	});
+	if(amount_undefined_concepts==0){
+		if($('#billing-tablesorter tbody tr:nth-child('+(json_index+1)+') td:last').children('i').length == 1){
+			$('#billing-tablesorter tbody tr:nth-child('+(json_index+1)+') td:last i.red-text').hide();
+		}
+	}
 }
 
 function verifyClient(row_index) {
@@ -376,7 +499,7 @@ function verifyClient(row_index) {
 			$('tr[data-file-index="'+row_index+'"] td:nth-child(4) span.truncate').addClass('red-text');
 		}
 		else{
-			$('tr[data-file-index="'+row_index+'"] td:nth-child(7) .newClientFromProvision').remove();
+			$('tr[data-file-index="'+row_index+'"] td:nth-child(7) .newClientFromPolicy').remove();
 			$('#modalShowConcepts'+row_index+' .accounting-account-list').each(function(){
 				$(this).val(data[0].counterpart_accounting_account_id); //Set default counterpart on concept list
 			});
@@ -404,6 +527,9 @@ function sendJsonFiles(){
 	else{
 		if(verifyUnregisteredClients()!=0){
 			Materialize.toast('No se pudo procesar la petición. Hay conceptos sin contrapartida.', 4000);
+		}
+		if(verifyAccountingAccountLists()!=0){
+			Materialize.toast('No se pudo procesar la petición. Hay XMLs sin contrapartida.', 4000);	
 		}
 		else{
 			$('#menu_navbar').slideUp();
@@ -446,4 +572,14 @@ function verifyUnregisteredClients() {
 		}
 	});
 	return amount_unregistered_clients;
+}
+
+function verifyAccountingAccountLists(){
+	var amount_unregistered_counterparts=0;
+	$('#billing-tablesorter .accounting-account-list').each(function(index){
+		if($(this).val()== null){
+			amount_unregistered_counterparts++;
+		}
+	});
+	return amount_unregistered_counterparts;
 }

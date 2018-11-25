@@ -1,10 +1,15 @@
+if(document.getElementById("clients-tablesorter") !== null)
+{
+	new Tablesort(document.getElementById('clients-tablesorter'));
+}
+
 $('.newClientModal').modal({
 	ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
-	    if(trigger.hasClass('newClientFromProvision')){
-	    	var index_file_id = trigger.parent().parent().attr('data-file-index');
-	    	$('#client_name').val(jsonFilesData[index_file_id].receptor.nombreReceptor);
+	    if(trigger.hasClass('newClientFromPolicy')){
+	    	$('.submit_button').attr('disabled', true);
+	    	$('#client_name').val(trigger.parent().attr('data-client-name'));
 	    	$('label[for="client_name"]').addClass('active');
-	    	$('#client_rfc').val(jsonFilesData[index_file_id].receptor.rfcReceptor);
+	    	$('#client_rfc').val(trigger.parent().attr('data-client-rfc'));
 	    	$('label[for="client_rfc"]').addClass('active');
 	    }
 	},
@@ -19,17 +24,20 @@ $('.newClientModal').modal({
 		$('#client_name').removeClass('invalid');
 		$('#client_rfc').removeClass('invalid');
 		$('#client_accounting_account').removeClass('invalid');
+		$('#client_name').removeClass('valid');
+		$('#client_rfc').removeClass('valid');
+		$('#client_accounting_account').removeClass('valid');
 	}
 });
 
 $('.updateClientModal').modal({
 	ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
     	$('#update_client_name').val(trigger.attr('data-client-name'));
-    	$('label[for="client_name"]').addClass('active');
+    	$('label[for="update_client_name"]').addClass('active');
     	$('#update_client_rfc').val(trigger.attr('data-client-rfc'));
-    	$('label[for="client_rfc"]').addClass('active');
+    	$('label[for="update_client_rfc"]').addClass('active');
     	$('#update_client_accounting_account').val(trigger.attr('data-client-accounting-account'));
-    	$('label[for="client_accounting_account"]').addClass('active');
+    	$('label[for="update_client_accounting_account"]').addClass('active');
     	$('.selectUpdate').val(trigger.attr('data-client-counterpart-id'));
     	$('#update_client_name').removeClass('invalid');
     	$('#update_client_rfc').removeClass('invalid');
@@ -49,11 +57,15 @@ $('.deleteClientModal').modal({
 	},
 });
 
-function validateForm(){
+function validateNewClientForm(){
 	validateClientRfc($('#newClientForm #client_rfc').val());
-	if (!$('#client_name').hasClass('invalid') 
+	if (!$('#client_name').hasClass('invalid')
+		&& $('#client_name').val() != ''
 		&& !$('#client_rfc').hasClass('invalid')
-		&& !$('#client_accounting_account').hasClass('invalid')) {
+		&& $('#client_rfc').val() != ''
+		&& !$('#client_accounting_account').hasClass('invalid')
+		&& $('#client_accounting_account').val() != ''
+		&& $('.selectNew option:selected').val() != '') {
 		$('.submit_button').attr('disabled', false);
 	} else {
 		$('.submit_button').attr('disabled', true);
@@ -107,7 +119,7 @@ function ajaxNewClient() {
 		$("tr").each(function(index){
 			if($(this).attr('data-rfc-client')===data[0].client_rfc){
 				$(this).find('.client-name').removeClass('red-text');
-				$(this).find('.newClientFromProvision').remove();
+				$(this).find('.newClientFromPolicy').remove();
 				var row_index=$(this).attr('data-file-index');
 				$('#modalShowConcepts'+row_index+' .accounting-account-list').each(function(){
 					$(this).val(data[0].counterpart_accounting_account_id);

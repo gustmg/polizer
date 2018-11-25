@@ -11,15 +11,15 @@
 					<div class="col s12 grey-text text-darken-2"><b>Información general</b></div>
 					<div class="input-field col s12 m6">
 				      <input id="update_client_name" name="client_name" type="text" class="validate client_name black-text" onblur="validateUpdateForm();" required>
-				      <label for="client_name" data-error="Verifique este campo" data-success="Campo validado">Nombre del cliente *</label>
+				      <label for="update_client_name" data-error="Verifique este campo" data-success="Campo validado">Nombre del cliente *</label>
 				    </div>
 			        <div class="input-field col s12 m6">
 			          <input id="update_client_rfc" name="client_rfc" type="text" class="client_rfc validate" onblur="validateUpdateForm();" required>
-			          <label for="client_rfc" data-error="Verifique este campo" data-success="Campo validado">RFC del cliente *</label>
+			          <label for="update_client_rfc" data-error="Verifique este campo" data-success="Campo validado">RFC del cliente *</label>
 			        </div>
 			        <div class="input-field col s12 m12">
 			          <input id="update_client_accounting_account" name="client_accounting_account" type="text" class="client_accounting_account validate" onblur="validateUpdateForm();" pattern="^[^A-Za-z]+$" required>
-			          <label for="client_accounting_account" data-error="Verifique este campo" data-success="Campo validado">Cuenta contable del cliente *</label>
+			          <label for="update_client_accounting_account" data-error="Verifique este campo" data-success="Campo validado">Cuenta contable del cliente *</label>
 			        </div>
 		        </div>
 		        <div class="row">

@@ -15,6 +15,10 @@ var jsonFilesData = [];
 var total_uploaded_files = 0;
 var unreaded_files= [];
 
+//Tablesorter
+var table = document.getElementById('deposit-tablesorter');
+var sort = new Tablesort(table);
+
 function getFiles(e){
     files= e.target.files;
     number_of_files = files.length;
@@ -29,13 +33,17 @@ function readFile(index) {
 		var file_extension = filename.split('.').pop().toLowerCase();
 
 		if(validateExtension(file_extension)){
-			//TO-DO: Add validation for undefined attributes of the xml file
 			var reader = new FileReader();
 			reader.onload = function (e){
-				getFileData(e);
-				setTimeout(agregaFilaTablaProvision.bind(null, total_uploaded_files), 1);
-				total_uploaded_files++;
-				readFile(index+1);
+				if(getFileData(e)!=0){
+					setTimeout(agregaFilaTablaDeposito.bind(null, total_uploaded_files), 1);
+					total_uploaded_files++;
+					readFile(index+1);
+				}
+				else{
+					unreaded_files.push(filename);
+					readFile(index+1);
+				}
 			}
 			reader.readAsText(file);
 		}
@@ -51,7 +59,7 @@ function readFile(index) {
 		$('.progress').css('visibility', 'hidden');
 		$('.section2').delay(400).fadeIn(400);
 		$('#menu_navbar').slideDown(400);
-		$(".payment-tablesorter").trigger("update");
+		sort.refresh();
 		if(unreaded_files.length>0){
 			unreaded_files.toString();
 			Materialize.toast('Ocurrió un error al procesar los siguientes archivos: '+unreaded_files, 7000);
@@ -395,27 +403,44 @@ function personalizaFecha(fecha) {
 	return fecha_personalizada;
 }
 
+$('#modalShowData').modal({
+	ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
+	    $('#modalShowData .modal-content').append(
+	    	'<h5>Datos de CFDI</h5>'+
+	    	'<span class="client-name-modal valign-wrapper" data-client-name="'+trigger.attr('data-client-name')+'" data-client-rfc="'+trigger.attr('data-client-rfc')+'"><b>Cliente: </b>'+trigger.attr('data-client-name')+
+	    	'</span><b>RFC: </b>'+trigger.attr('data-client-rfc')+
+	    	'<br><b>Serie: </b>'+trigger.attr('data-serie'));
+	    if(trigger.hasClass('red-text')){
+	    	$('.client-name-modal').append('&nbsp;&nbsp;<a href="#newClientModal" class="modal-trigger newClientFromPolicy" onclick="closeDataModal();">'+
+				'<i class="material-icons black-text">person_add</i>'+
+			'</a>');
+	    }
+	},
+	complete: function() {
+		$('#modalShowData .modal-content').html('');
+	}
+});
+
+function closeDataModal(){
+	$('#modalShowData').modal('close');
+}
+
 //Funciones para mostrar tabla
-function agregaFilaTablaProvision(index){
+function agregaFilaTablaDeposito(index){
 	$('tbody').append(
-	'<tr data-file-index="'+index+'" data-rfc-provider="'+jsonFilesData[index].emisor.rfcEmisor+'">'+
+	'<tr data-file-index="'+index+'" data-rfc-client="'+jsonFilesData[index].receptor.rfcReceptor+'">'+
 		'<td class="center-align">'+
 			'<input type="checkbox" class="filled-in row-select" id="row-select-'+index+'"/>'+
 			'<label for="row-select-'+index+'" style="height: 16px;"></label>'+
 		'</td>'+
 		'<td class="center-align" style="width: 10%;">'+
-			'<input id="fecha-'+index+'" class="date" type="date">'+
+			'<input id="fecha-'+index+'" class="date" type="date" onchange="setDateValue(this);">'+
 		'</td>'+
 		'<td class="center-align" style="width: 10%;">'+
 			jsonFilesData[index].comprobante.folio+
 		'</td>'+
 		'<td style="width: 25%;" class="hover-'+index+'">'+
-        	'<span class="truncate client-name" style="width: 90%;">'+jsonFilesData[index].receptor.nombreReceptor+'</span>'+
-            '<div class="card-panel card-panel-'+index+'" style="position: absolute;display: none;">'+
-                '<span>'+jsonFilesData[index].receptor.nombreReceptor+'</span><br>'+
-                '<span>'+jsonFilesData[index].receptor.rfcReceptor+'</span><br>'+
-                '<span>Serie: '+jsonFilesData[index].comprobante.serie+'</span><br>'+
-            '</div>'+
+            '<span class="truncate client-name selectable modal-trigger" href="#modalShowData" style="width: 90%;" data-client-name="'+jsonFilesData[index].receptor.nombreReceptor+'" data-client-rfc="'+jsonFilesData[index].receptor.rfcReceptor+'" data-serie="'+jsonFilesData[index].comprobante.serie+'">'+jsonFilesData[index].receptor.nombreReceptor+'</span>'+
         '</td>'+
 		'<td class="center-align" style="width: 10%;">'+
 			'<div class="input-field">'+
@@ -432,7 +457,7 @@ function agregaFilaTablaProvision(index){
 					'<option value="03">03 - Transferencia</option>'+
 				'</select>'+
 			'</div>'+
-			'<div class="origin-'+index+'" data-file-index="'+index+'">'+
+			'<div class="origin origin-'+index+'" data-file-index="'+index+'">'+
 			'</div>'+
 		'</td>'+
 	'</tr>');
@@ -446,6 +471,14 @@ function agregaFilaTablaProvision(index){
 			$(this).val($(this).attr('data-total'));
 		}
 	});
+}
+
+function setDateValue(input){
+	var fecha=input.value;
+	var mes=fecha.substr(5,2);
+	var dia=fecha.substr(8,2);
+	var year=fecha.substr(0,4);
+	input.parentElement.setAttribute("data-sort", dia+'-'+mes+'-'+year);
 }
 
 function setPayform (index){
@@ -473,6 +506,17 @@ function setConceptsToJson(json_index) {
 	});
 	$.extend(jsonFilesData[json_index].concepto.contrapartidas, counterpart_list);
 	//console.log(jsonFilesData[json_index]);
+	var amount_undefined_concepts=0
+	$('#deposit-tablesorter #conceptList'+json_index+' .accounting-account-list').each(function(index){
+		if($(this).val()==null){
+			amount_undefined_concepts++;
+		}
+	});
+	if(amount_undefined_concepts==0){
+		if($('#deposit-tablesorter tbody tr:nth-child('+(json_index+1)+') td:last').children('i').length == 1){
+			$('#deposit-tablesorter tbody tr:nth-child('+(json_index+1)+') td:last i.red-text').hide();
+		}
+	}
 }
 
 function verifyClient(row_index) {
@@ -488,7 +532,7 @@ function verifyClient(row_index) {
 			$('tr[data-file-index="'+row_index+'"] td:nth-child(4) span.truncate').addClass('red-text');
 		}
 		else{
-			$('tr[data-file-index="'+row_index+'"] td:nth-child(7) .newClientFromProvision').remove();
+			$('tr[data-file-index="'+row_index+'"] td:nth-child(7) .newClientFromPolicy').remove();
 			$('#modalShowConcepts'+row_index+' .accounting-account-list').each(function(){
 				$(this).val(data[0].counterpart_accounting_account_id); //Set default counterpart on concept list
 			});
@@ -510,12 +554,15 @@ function setClientAccountToJson(row_index, client_accounting_account) {
 function sendJsonFiles(){
 	setGenerateByToggle();
 	var jsonFiles=[];
-	if(verifyUnregisteredProviders()!=0){
+	if(verifyUnregisteredClients()!=0){
 		Materialize.toast('No se pudo procesar la petición. El cliente de algún comprobante no está registrado.', 4000);
 	}
 	else{
 		if(verifyUndefinedDates()!=0){
 			Materialize.toast('No se pudo procesar la petición. Uno o varios XML no tienen fecha definida.', 4000);
+		}
+		else if(verifyUndefindedOriginAccounts() != 0){
+			Materialize.toast('No se pudo procesar la petición. Hay cuentas de origen no seleccionadas.', 4000);
 		}
 		else{
 			// $('#menu_navbar').slideUp();
@@ -578,14 +625,14 @@ function sendJsonFiles(){
 	}
 }
 
-function verifyUnregisteredProviders() {
-	var amount_unregistered_providers=0;
+function verifyUnregisteredClients() {
+	var amount_unregistered_clients=0;
 	$('.client-name').each(function(index){
 		if($(this).hasClass('red-text')){
-			amount_unregistered_providers++;
+			amount_unregistered_clients++;
 		}
 	});
-	return amount_unregistered_providers;
+	return amount_unregistered_clients;
 }
 
 function verifyUndefinedDates() {
@@ -596,4 +643,14 @@ function verifyUndefinedDates() {
 		}
 	});
 	return amount_undefined_dates;
+}
+
+function verifyUndefindedOriginAccounts() {
+	var amount_undefined_origin_accounts=0;
+	$(".origin select option:selected").each(function(index){
+		if($(this).val() == ''){
+			amount_undefined_origin_accounts++;
+		}
+	});
+	return amount_undefined_origin_accounts;
 }

@@ -57,10 +57,16 @@
 					</div>
 				</div>
 				<div class="card-action right-align">
-					<label id="policy-type-1" class="btn">
-						<b>Cargar CFDI's</b>
-						<input type="file" style="display: none;" name="standard_client_deposit_files" id="standard_client_deposit_files" accept=".xml" onclick="setPolicyType(1);" multiple>
-					</label>
+					@if($bank_accounts->count() == 0)
+						<span class="tooltipped" data-position="bottom" data-tooltip="No hay cuentas bancarias registradas" style="padding-bottom: 8px;padding-top: 8px;">
+							<a class="btn disabled">Cargar CFDI's</a>
+						</span>
+					@else
+						<label id="policy-type-1" class="btn">
+							<b>Cargar CFDI's</b>
+							<input type="file" style="display: none;" name="standard_client_deposit_files" id="standard_client_deposit_files" accept=".xml" onclick="setPolicyType(1);" multiple>
+						</label>
+					@endif
 				</div>
 			</div>
 		</div>
@@ -68,19 +74,26 @@
 </div>
 <div class="container section2" style="width: 95%;display: none;">
 	<div class="row">
-		<table class="card col s12 bordered payment-tablesorter removable" style="table-layout: fixed;">
+		<table id="deposit-tablesorter" class="card highlight col s12 bordered removable" style="table-layout: fixed;">
 		    <thead>
 		        <tr>
-		            <th style="width: 5%;"></th>
-		            <th style="width: 15%;" class="center-align">Fecha</th>
-		            <th style="width: 10%;" class="center-align selectable">Folio <i class="tiny material-icons no-margin">unfold_more</i></th>
+		            <th style="width: 5%;" data-sort-method='none'></th>
+		            <th style="width: 15%;" class="center-align selectable" data-sort-method='date'>Fecha <i class="tiny material-icons no-margin">unfold_more</i></th>
+		            <th style="width: 10%;" class="center-align selectable" data-sort-method='number'>Folio <i class="tiny material-icons no-margin">unfold_more</i></th>
 		            <th style="width: 25%;" class="selectable">Cliente <i class="tiny material-icons no-margin">unfold_more</i></th>
-		            <th style="width: 10%;" class="center-align">Total</th>
-		            <th style="width: 35%;" class="center-align">Opciones</th>
+		            <th style="width: 10%;" class="center-align" data-sort-method='none'>Total</th>
+		            <th style="width: 35%;" class="center-align" data-sort-method='none'>Opciones</th>
 		        </tr>
 		    </thead>
 		    <tbody></tbody>
 		</table>
+		<div id="modalShowData" class="modal">
+			<div class="modal-content">
+			</div>
+			<div class="modal-footer">
+				<button class="btn modal-close"><b>Aceptar</b></button>
+			</div>
+		</div>
 		<div id="modalRemoveRows" class="modal">
 			<div class="modal-content">
 				<h5>Eliminar CFDI's' seleccionados?</h5>

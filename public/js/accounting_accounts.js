@@ -1,3 +1,8 @@
+if(document.getElementById("accounting-accounts-tablesorter") !== null)
+{
+	new Tablesort(document.getElementById('accounting-accounts-tablesorter'));
+}
+
 $('.newAccountingAccountModal').modal({
 	complete: function(modal,trigger){
 		$('#accounting_account_number').val('');

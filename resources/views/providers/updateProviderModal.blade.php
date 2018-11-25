@@ -11,15 +11,15 @@
 					<div class="col s12 grey-text text-darken-2"><b>Información general</b></div>
 					<div class="input-field col s12 m6">
 				      <input id="update_provider_name" name="provider_name" type="text" class="validate provider_name black-text" onblur="validateUpdateForm();" required>
-				      <label for="provider_name" data-error="Verifique este campo" data-success="Campo validado">Nombre del proveedor *</label>
+				      <label for="update_provider_name" data-error="Verifique este campo" data-success="Campo validado">Nombre del proveedor *</label>
 				    </div>
 			        <div class="input-field col s12 m12">
 			          <input id="update_provider_rfc" name="provider_rfc" type="text" class="provider_rfc validate" onblur="validateUpdateForm();" required>
-			          <label for="provider_rfc" data-error="Verifique este campo" data-success="Campo validado">RFC del proveedor *</label>
+			          <label for="update_provider_rfc" data-error="Verifique este campo" data-success="Campo validado">RFC del proveedor *</label>
 			        </div>
 			        <div class="input-field col s12 m12">
 			          <input id="update_provider_accounting_account" name="provider_accounting_account" type="text" class="provider_accounting_account validate" onblur="validateUpdateForm();" pattern="^[^A-Za-z]+$" required>
-			          <label for="provider_accounting_account" data-error="Verifique este campo" data-success="Campo validado">Cuenta contable del proveedor *</label>
+			          <label for="update_provider_accounting_account" data-error="Verifique este campo" data-success="Campo validado">Cuenta contable del proveedor *</label>
 			        </div>
 		        </div>
 		        <div class="row">

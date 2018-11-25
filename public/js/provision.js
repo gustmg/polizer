@@ -21,6 +21,10 @@ var jsonFilesData = [];
 var total_uploaded_files = 0;
 var unreaded_files= [];
 
+//Tablesorter
+var table = document.getElementById('provision-tablesorter');
+var sort = new Tablesort(table);
+
 function getFiles(e){
     files= e.target.files;
     number_of_files = files.length;
@@ -61,10 +65,10 @@ function readFile(index) {
 		$('.progress').css('visibility', 'hidden');
 		$('.section2').delay(400).fadeIn(400);
 		$('#menu_navbar').slideDown(400);
-		$(".provision-tablesorter").trigger("update");
+		sort.refresh();
 		if(unreaded_files.length>0){
 			unreaded_files.toString();
-			Materialize.toast('Ocurrió un error al procesar los siguientes archivos: '+unreaded_files, 7000);
+			Materialize.toast('Archivos XML no válidos o corruptos: '+unreaded_files, 7000);
 			unreaded_files=[];
 		}
 	}
@@ -377,6 +381,14 @@ function personalizaFecha(fecha) {
 	return fecha_personalizada;
 }
 
+function formatDate(fecha) {
+	var mes=fecha.substr(5,2);
+	var dia=fecha.substr(8,2);
+	var year=fecha.substr(0,4);
+	var fecha_personalizada= dia+'-'+mes+'-'+year;
+	return fecha_personalizada;
+}
+
 $('#modalShowData').modal({
 	ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
 	    $('#modalShowData .modal-content').append(
@@ -401,13 +413,13 @@ function closeDataModal(){
 
 //Funciones para mostrar tabla
 function agregaFilaTablaProvision(index){
-	$('.provision-tablesorter tbody').append(
+	$('#provision-tablesorter tbody').append(
     '<tr data-file-index="'+index+'" data-rfc-provider="'+jsonFilesData[index].emisor.rfcEmisor+'">'+
         '<td class="center-align valign-wrapper">'+
             '<input type="checkbox" class="filled-in row-select" id="row-select-'+index+'"/>'+
             '<label for="row-select-'+index+'"></label>'+
         '</td>'+
-        '<td style="width: 7%;" class="center-align">'+personalizaFecha(jsonFilesData[index].comprobante.fecha)+'</td>'+
+        '<td style="width: 7%;" class="center-align" data-sort="'+formatDate(jsonFilesData[index].comprobante.fecha)+'">'+personalizaFecha(jsonFilesData[index].comprobante.fecha)+'</td>'+
         '<td style="width: 10%;" class="center-align">'+jsonFilesData[index].comprobante.folio+'</td>'+
         '<td style="width: 25%;" class="hover-'+index+'">'+
         	'<span class="truncate provider-name selectable modal-trigger" href="#modalShowData" style="width: 90%;" data-provider-name="'+jsonFilesData[index].emisor.nombreEmisor+'" data-provider-rfc="'+jsonFilesData[index].emisor.rfcEmisor+'" data-serie="'+jsonFilesData[index].comprobante.serie+'">'+jsonFilesData[index].emisor.nombreEmisor+'</span>'+
@@ -462,14 +474,14 @@ function setConceptsToJson(json_index) {
 	//console.log(jsonFilesData[json_index]);
 	//CAMBIO PARA QUITAR MARCA
 	var amount_undefined_concepts=0
-	$('.provision-tablesorter #conceptList'+json_index+' .accounting-account-list').each(function(index){
+	$('#provision-tablesorter #conceptList'+json_index+' .accounting-account-list').each(function(index){
 		if($(this).val()==null){
 			amount_undefined_concepts++;
 		}
 	});
 	if(amount_undefined_concepts==0){
-		if($('.provision-tablesorter tbody tr:nth-child('+(json_index+1)+') td:last').children('i').length == 1){
-			$('.provision-tablesorter tbody tr:nth-child('+(json_index+1)+') td:last i.red-text').hide();
+		if($('#provision-tablesorter tbody tr:nth-child('+(json_index+1)+') td:last').children('i').length == 1){
+			$('#provision-tablesorter tbody tr:nth-child('+(json_index+1)+') td:last i.red-text').hide();
 		}
 	}
 }
@@ -496,7 +508,6 @@ function verifyProvider(row_index) {
 			setProviderAccountToJson(row_index, provider_accounting_account);
 			//console.log(jsonFilesData[row_index]);
 		}
-		verifyConcepts(row_index);
 	})
 	.fail(function() {
 		//console.log("Error al buscar proveedor");
@@ -524,7 +535,7 @@ function sendJsonFiles(){
 			$('#menu_navbar').slideUp();
 			$('.progress').css('visibility', 'visible');
 			Materialize.toast('Procesando archivos.', 2000);
-			$('.provision-tablesorter tbody tr').each(function(index){
+			$('#provision-tablesorter tbody tr').each(function(index){
 				var indexJsonFile=$(this).attr("data-file-index");
 				jsonFiles.push(JSON.stringify(jsonFilesData[indexJsonFile]));
 			});
@@ -565,25 +576,10 @@ function verifyUnregisteredProviders() {
 
 function verifyAccountingAccountLists(){
 	var amount_unregistered_counterparts=0;
-	$('.provision-tablesorter .accounting-account-list').each(function(index){
+	$('#provision-tablesorter .accounting-account-list').each(function(index){
 		if($(this).val()== null){
 			amount_unregistered_counterparts++;
 		}
 	});
 	return amount_unregistered_counterparts;
-}
-
-function verifyConcepts(row_index){
-	var amount_undefined_concepts=0;
-	$('.provision-tablesorter #conceptList'+row_index+' .accounting-account-list').each(function(index){
-		if($(this).val()==null){
-			amount_undefined_concepts++;
-		}
-	});
-	if(amount_undefined_concepts!=0){
-		if($('.provision-tablesorter tbody tr:nth-child('+(row_index+1)+') td:last').children('i').length == 0){
-			$('.provision-tablesorter tbody tr:nth-child('+(row_index+1)+') td:last').append('<i class="material-icons red-text tooltipped" data-position="bottom" data-tooltip="Contrapartida no elegida">warning</i>');
-			$('.tooltipped').tooltip();
-		}
-	}
 }

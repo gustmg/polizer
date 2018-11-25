@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('content')
 <div class="container">
 <div class="row" style="margin-bottom: 0;">
@@ -16,12 +15,12 @@
     	<h5 class="center"><b>No hay cuentas bancarias registradas. :^(</b></h5>
 	@else
 		<div class="col s12">
-			<table class="card highlight bank-accounts-table" style="table-layout:fixed;">
+			<table id="bank-accounts-tablesorter" class="card highlight" style="table-layout:fixed;">
 				<thead class="grey darken-4 white-text">
 					<tr>
-						<th style="width: 40%;" class="center">Cuenta bancaria</th>
-						<th style="width: 40%;" class="center">Cuenta Contable</th>
-						<th style="width: 20%;" class="center">Banco</th>
+						<th style="width: 40%;" class="center selectable">Cuenta bancaria <i class="tiny material-icons no-margin">unfold_more</i></th>
+						<th style="width: 40%;" class="center selectable">Cuenta Contable <i class="tiny material-icons no-margin">unfold_more</i></th>
+						<th style="width: 20%;" class="center selectable">Banco <i class="tiny material-icons no-margin">unfold_more</i></th>
 					</tr>
 				</thead>
 				<tbody>

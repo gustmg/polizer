@@ -86,11 +86,11 @@ class ProvisionPolicyController extends Controller
                 $excel->sheet('Libro 1', function($sheet) {
                     ProvisionPolicyController::generatePolicy($sheet, $GLOBALS['jsonFiles'][0]);
                 });
-            })->store('xlsx', storage_path('app/public'));
-            //})->store('xlsx', public_path('storage'));
+            // })->store('xlsx', storage_path('app/public'));
+            })->store('xlsx', public_path('storage'));
 
-            $url = Storage::url($file_name.'.xlsx');
-            //$url = 'https://www.polizer.mx/polizer_app/storage/'.$file_name.'.xlsx';
+            // $url = Storage::url($file_name.'.xlsx');
+            $url = 'https://www.polizer.com.mx/polizer_app/storage/'.$file_name.'.xlsx';
             
             return $url;
         }

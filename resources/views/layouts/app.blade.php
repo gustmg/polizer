@@ -15,6 +15,8 @@
     <link href="{{ asset('css/materialize.css') }}" rel="stylesheet">
     <link href="{{ asset('css/extra.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet"> 
+    
     <style type="text/css">
         @auth
         /*header,nav, main, footer {
@@ -167,7 +169,9 @@
 <!-- Scripts -->
 <script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
 <script src="{{ asset('js/materialize.js') }}"></script>
-<script src="{{ asset('js/jquery.tablesorter.min.js') }}"></script>
+<script src="{{ asset('js/tablesort.js') }}"></script>
+<script src="{{ asset('js/tablesort.date.js') }}"></script>
+<script src="{{ asset('js/tablesort.number.js') }}"></script>
 @if (Route::currentRouteName()=='companies.index')
     <script src="{{ asset('js/companies.js') }}"></script>
 @endif
@@ -214,41 +218,6 @@
 
 <script type="text/javascript">
     $(document).ready(function(){
-        $('.accounting-accounts-tablesorter').tablesorter({
-            headers:{   2: {sorter: false}}
-        });
-        $('.providers-tablesorter').tablesorter({
-            headers:{   2: {sorter: false},
-                        3: {sorter: false}
-                    }
-        });
-        $('.clients-tablesorter').tablesorter({
-            headers:{   2: {sorter: false},
-                        3: {sorter: false}
-                    }
-        });
-        $('.provision-tablesorter').tablesorter({
-            headers:{   0: {sorter: false},
-                        4: {sorter: false},
-                        5: {sorter: false},
-                        6: {sorter: false}
-                    }
-        });
-        $('.billing-tablesorter').tablesorter({
-            headers:{   0: {sorter: false},
-                        4: {sorter: false},
-                        5: {sorter: false},
-                        6: {sorter: false}
-                    }
-        });
-        $('.payment-tablesorter').tablesorter({
-            headers:{   0: {sorter: false},
-                        1: {sorter: false},
-                        4: {sorter: false},
-                        5: {sorter: false}
-                    }
-        });
-
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -299,4 +268,5 @@
         $('.company-workspace-menu').slideDown();
     }
 </script>
+{{app('debugbar')->disable()}}
 </html>

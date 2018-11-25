@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('content')
 <div class="container">
 <div class="row" style="margin-bottom: 0;">
@@ -16,13 +15,13 @@
     	<h5 class="center"><b>No hay clientes registrados. :^(</b></h5>
 	@else
 		<div class="col s12">
-			<table class="card highlight clients-tablesorter" style="table-layout:fixed;">
+			<table id="clients-tablesorter" class="card highlight" style="table-layout:fixed;">
 				<thead class="grey darken-4 white-text">
 					<tr>
 						<th style="width: 20%;" class="center selectable">Cuenta Contable <i class="tiny material-icons no-margin">unfold_more</i></th>
 						<th style="width: 40%;" class="center selectable">Cliente <i class="tiny material-icons no-margin">unfold_more</i></th>
-						<th style="width: 20%;" class="center">RFC</th>
-						<th style="width: 20%;" class="center">Contrapartida</th>
+						<th style="width: 20%;" class="center" data-sort-method='none'>RFC</th>
+						<th style="width: 20%;" class="center" data-sort-method='none'>Contrapartida</th>
 					</tr>
 				</thead>
 				<tbody>

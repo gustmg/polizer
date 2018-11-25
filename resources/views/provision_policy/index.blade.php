@@ -152,16 +152,16 @@
 </div>
 <div class="container section2" style="width: 95%;display: none;">
 	<div class="row">
-		<table class="card highlight col s12 provision-tablesorter removable" style="table-layout: fixed;">
+		<table id="provision-tablesorter" class="card highlight col s12 removable" style="table-layout: fixed;">
 		    <thead>
 		        <tr>
-		            <th style="width: 5%;"></th>
-		            <th style="width: 7%;" class="center-align selectable">Fecha <i class="tiny material-icons no-margin">unfold_more</i></th>
-		            <th style="width: 10%;" class="center-align selectable">Folio <i class="tiny material-icons no-margin">unfold_more</i></th>
+		            <th style="width: 5%;" data-sort-method='none'></th>
+		            <th style="width: 7%;" class="center-align selectable" data-sort-method='date'>Fecha <i class="tiny material-icons no-margin">unfold_more</i></th>
+		            <th style="width: 10%;" class="center-align selectable" data-sort-method='number'>Folio <i class="tiny material-icons no-margin">unfold_more</i></th>
 		            <th style="width: 25%;" class="selectable">Proveedor <i class="tiny material-icons no-margin">unfold_more</i></th>
-		            <th style="width: 30%;">Descripcion</th>
-		            <th style="width: 10%;" class="center-align">Total</th>
-		            <th style="width: 10%;" class="center-align">Opciones</th>
+		            <th style="width: 30%;" data-sort-method='none'>Descripcion</th>
+		            <th style="width: 10%;" class="center-align" data-sort-method='none'>Total</th>
+		            <th style="width: 10%;" class="center-align" data-sort-method='none'>Opciones</th>
 		        </tr>
 		    </thead>
 		    <tbody></tbody>

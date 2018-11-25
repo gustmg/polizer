@@ -1,3 +1,8 @@
+if(document.getElementById("bank-accounts-tablesorter") !== null)
+{
+	new Tablesort(document.getElementById('bank-accounts-tablesorter'));
+}
+
 $('.newBankAccountModal').modal({
 	complete: function(){
 		$('#bank_account_number').val('');

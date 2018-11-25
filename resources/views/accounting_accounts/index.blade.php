@@ -16,12 +16,12 @@
     	<h5 class="center"><b>No hay cuentas contables registradas. :^(</b></h5>
 	@else
 		<div class="col s12">
-			<table class="card highlight accounting-accounts-tablesorter" style="table-layout:fixed;">
+			<table id="accounting-accounts-tablesorter" class="card highlight" style="table-layout:fixed;">
 				<thead class="grey darken-4 white-text">
 					<tr>
 						<th style="width: 20%;" class="center selectable">Cuenta Contable <i class="tiny material-icons no-margin">unfold_more</i></th>
 						<th style="width: 40%;" class="center selectable">Descripción <i class="tiny material-icons no-margin">unfold_more</i></th>
-						<th style="width: 40%;" class="center">Tipo de Cuenta</th>
+						<th style="width: 40%;" class="center" data-sort-method='none'>Tipo de Cuenta</th>
 					</tr>
 				</thead>
 				<tbody>

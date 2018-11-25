@@ -87,7 +87,7 @@ class BillingPolicyController extends Controller
             })->store('xlsx', public_path('storage'));
 
             // $url = Storage::url($file_name.'.xlsx');
-            $url = 'https://www.polizer.mx/polizer_app/storage/'.$file_name.'.xlsx';
+            $url = 'https://www.polizer.com.mx/polizer_app/storage/'.$file_name.'.xlsx';
             return $url;
         }
     }

@@ -1,10 +1,17 @@
+if(document.getElementById("providers-tablesorter") !== null)
+{
+	new Tablesort(document.getElementById('providers-tablesorter'));
+}
+
 $('.newProviderModal').modal({
 	ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
 	    if(trigger.hasClass('newProviderFromPolicy')){
+	    	$('.submit_button').attr('disabled', true);
 	    	$('#provider_name').val(trigger.parent().attr('data-provider-name'));
 	    	$('label[for="provider_name"]').addClass('active');
 	    	$('#provider_rfc').val(trigger.parent().attr('data-provider-rfc'));
 	    	$('label[for="provider_rfc"]').addClass('active');
+	    	$('#provider_accounting_account').removeClass('valid');
 	    }
 	},
 	complete: function(){
@@ -18,17 +25,20 @@ $('.newProviderModal').modal({
 		$('#provider_name').removeClass('invalid');
 		$('#provider_rfc').removeClass('invalid');
 		$('#provider_accounting_account').removeClass('invalid');
+		$('#provider_name').removeClass('valid');
+		$('#provider_rfc').removeClass('valid');
+		$('#provider_accounting_account').removeClass('valid');
 	}
 });
 
 $('.updateProviderModal').modal({
 	ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
     	$('#update_provider_name').val(trigger.attr('data-provider-name'));
-    	$('label[for="provider_name"]').addClass('active');
+    	$('label[for="update_provider_name"]').addClass('active');
     	$('#update_provider_rfc').val(trigger.attr('data-provider-rfc'));
-    	$('label[for="provider_rfc"]').addClass('active');
+    	$('label[for="update_provider_rfc"]').addClass('active');
     	$('#update_provider_accounting_account').val(trigger.attr('data-provider-accounting-account'));
-    	$('label[for="provider_accounting_account"]').addClass('active');
+    	$('label[for="update_provider_accounting_account"]').addClass('active');
     	$('.selectUpdate').val(trigger.attr('data-provider-counterpart-id'));
     	$('#update_provider_name').removeClass('invalid');
     	$('#update_provider_rfc').removeClass('invalid');
@@ -48,11 +58,15 @@ $('.deleteProviderModal').modal({
 	},
 });
 
-function validateForm(){
+function validateNewProviderForm(){
 	validateProviderRfc($('#newProviderForm #provider_rfc').val());
 	if (!$('#provider_name').hasClass('invalid') 
-		&& !$('#provider_rfc').hasClass('invalid')
-		&& !$('#provider_accounting_account').hasClass('invalid')) {
+		&& $('#provider_name').val() != ''
+		&&!$('#provider_rfc').hasClass('invalid')
+		&& $('#provider_rfc').val() != ''
+		&& !$('#provider_accounting_account').hasClass('invalid')
+		&& $('#provider_accounting_account').val() != ''
+		&& $('.selectNew option:selected').val() != '') {
 		$('.submit_button').attr('disabled', false);
 	} else {
 		$('.submit_button').attr('disabled', true);
@@ -116,7 +130,6 @@ function ajaxNewProvider() {
 				var provider_accounting_account=[data[0].provider_accounting_account];
 				$.extend(jsonFilesData[row_index].proveedor.cuentaContable, provider_accounting_account);
 				//console.log(jsonFilesData[row_index]);
-				verifyConcepts(row_index);
 			}
 		});
 		console.log("success");

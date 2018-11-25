@@ -85,45 +85,97 @@ class ProviderPaymentPolicyController extends Controller
                 });    
             }
             
-            $file_name = 'PAGO A PROVEEDOR -'.date("Y-m-d-H-i-s").'-'.Session::get('company_workspace');
+            if($GLOBALS['provision_type'] == 1){
+                $file_name = 'PAGO A PROVEEDOR -'.date("Y-m-d-H-i-s").'-'.Session::get('company_workspace');
+            }
+            else if($GLOBALS['provision_type'] == 2){
+                $file_name = 'PAGO DE HONORARIOS -'.date("Y-m-d-H-i-s").'-'.Session::get('company_workspace');   
+            }
 
             Excel::create($file_name, function($excel){
                 $excel->sheet('Libro 1', function($sheet) {
                     ProviderPaymentPolicyController::generatePolicy($sheet, $GLOBALS['jsonFiles'][0]);
                 });
-            })->store('xlsx', storage_path('app/public'));
-            // })->store('xlsx', public_path('storage'));
+            // })->store('xlsx', storage_path('app/public'));
+            })->store('xlsx', public_path('storage'));
 
-            $url = Storage::url($file_name.'.xlsx');
-            // $url = 'https://www.polizer.mx/polizer_app/storage/'.$file_name.'.xlsx';
+            // $url = Storage::url($file_name.'.xlsx');
+            $url = 'https://www.polizer.com.mx/polizer_app/storage/'.$file_name.'.xlsx';
             return $url;
         }
     }
 
     public function generatePolicy($sheet, $cfdi) {
-        $sheet->row($GLOBALS['row_index'], array(
-            ProviderPaymentPolicyController::setPolicyType($cfdi->comprobante->formaPago),
-            $GLOBALS['cfdi_index_serie'],
-            'PAGO A PROVEEDOR - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
-            substr($cfdi->comprobante->fecha,-10,2)
-        ));
+        if($cfdi->comprobante->formaPago=="02"){
+            if($GLOBALS['provision_type'] == 1){
+                $sheet->row($GLOBALS['row_index'], array(
+                    ProviderPaymentPolicyController::setPolicyType($cfdi->comprobante->formaPago),
+                    $cfdi->datosDestino->numeroCheque,
+                    'PAGO A PROVEEDOR - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                    substr($cfdi->comprobante->fecha,-2,2)
+                ));
+            }
+            else if($GLOBALS['provision_type'] == 2){
+                $sheet->row($GLOBALS['row_index'], array(
+                    ProviderPaymentPolicyController::setPolicyType($cfdi->comprobante->formaPago),
+                    $cfdi->datosDestino->numeroCheque,
+                    'PAGO DE HONORARIOS - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                    substr($cfdi->comprobante->fecha,-2,2)
+                ));
+            }
+            $GLOBALS['cfdi_index_serie'] = $GLOBALS['cfdi_index_serie']-1;
+        }
+        else{
+            if($GLOBALS['provision_type'] == 1){
+                $sheet->row($GLOBALS['row_index'], array(
+                    ProviderPaymentPolicyController::setPolicyType($cfdi->comprobante->formaPago),
+                    $GLOBALS['cfdi_index_serie'],
+                    'PAGO A PROVEEDOR - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                    substr($cfdi->comprobante->fecha,-2,2)
+                ));
+            }
+            else if($GLOBALS['provision_type'] == 2){
+                $sheet->row($GLOBALS['row_index'], array(
+                    ProviderPaymentPolicyController::setPolicyType($cfdi->comprobante->formaPago),
+                    $GLOBALS['cfdi_index_serie'],
+                    'PAGO DE HONORARIOS - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                    substr($cfdi->comprobante->fecha,-2,2)
+                ));
+            }
+        }
+        
         $GLOBALS['row_index']=$GLOBALS['row_index']+1;
         $GLOBALS['cfdi_index_serie'] = $GLOBALS['cfdi_index_serie']+1;
         ProviderPaymentPolicyController::generatePolicyProviderItem($sheet, $cfdi);
     }
 
     public function generatePolicyProviderItem($sheet, $cfdi){
-        $sheet->row($GLOBALS['row_index'], array(
-            '',
-            $cfdi->proveedor->cuentaContable[0],
-            '0',
-            'PAGO A PROVEEDOR - '.$cfdi->concepto->descripciones[0].' - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
-            '1',
-            $cfdi->comprobante->total,
-            '',
-            '0',
-            '0'
-        ));
+        if($GLOBALS['provision_type'] == 1){
+            $sheet->row($GLOBALS['row_index'], array(
+                '',
+                $cfdi->proveedor->cuentaContable[0],
+                '0',
+                'PAGO A PROVEEDOR - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                '1',
+                $cfdi->comprobante->total,
+                '',
+                '0',
+                '0'
+            ));
+        }
+        else if($GLOBALS['provision_type'] == 2){
+            $sheet->row($GLOBALS['row_index'], array(
+                '',
+                $cfdi->proveedor->cuentaContable[0],
+                '0',
+                'PAGO DE HONORARIOS - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                '1',
+                $cfdi->comprobante->subtotal*1.16,
+                '',
+                '0',
+                '0'
+            ));
+        }       
 
         $GLOBALS['row_index']=$GLOBALS['row_index']+1;
         ProviderPaymentPolicyController::generatePolicyItemRows($sheet, $cfdi);
@@ -131,17 +183,32 @@ class ProviderPaymentPolicyController extends Controller
     }
 
     public function generatePolicyPaidVatItem($sheet, $cfdi) {
-        $sheet->row($GLOBALS['row_index'], array(
-            '',
-            $GLOBALS['company'][0]->paid_creditable_vat_account,
-            '0',
-            'PAGO A PROVEEDOR - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
-            '1',
-            round(($cfdi->comprobante->total/1.16)*.16, 2),
-            '',
-            '0',
-            '0'
-        ));
+        if($GLOBALS['provision_type'] == 1){
+            $sheet->row($GLOBALS['row_index'], array(
+                '',
+                $GLOBALS['company'][0]->paid_creditable_vat_account,
+                '0',
+                'PAGO A PROVEEDOR - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                '1',
+                round(($cfdi->comprobante->total/1.16)*.16, 2),
+                '',
+                '0',
+                '0'
+            ));
+        }
+        else if($GLOBALS['provision_type'] == 2){
+            $sheet->row($GLOBALS['row_index'], array(
+                '',
+                $GLOBALS['company'][0]->paid_creditable_vat_account,
+                '0',
+                'PAGO DE HONORARIOS - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                '1',
+                round(($cfdi->comprobante->subtotal)*.16, 2),
+                '',
+                '0',
+                '0'
+            ));
+        }   
             
         $GLOBALS['row_index']=$GLOBALS['row_index']+1;
         ProviderPaymentPolicyController::generatePolicyItemRows($sheet, $cfdi);
@@ -149,35 +216,105 @@ class ProviderPaymentPolicyController extends Controller
     }
 
     public function generatePolicyPendingVatItem($sheet, $cfdi) {
+        if($GLOBALS['provision_type'] == 1){
+            $sheet->row($GLOBALS['row_index'], array(
+                '',
+                $GLOBALS['company'][0]->pending_creditable_vat_account,
+                '0',
+                'PAGO A PROVEEDOR - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                '1',
+                '',
+                round(($cfdi->comprobante->total/1.16)*.16, 2),
+                '0',
+                '0'
+            ));
+
+            $GLOBALS['row_index']=$GLOBALS['row_index']+1;
+            ProviderPaymentPolicyController::generatePolicyItemRows($sheet, $cfdi);
+            ProviderPaymentPolicyController::generatePolicyBankAccountItem($sheet, $cfdi);
+        }
+        else if($GLOBALS['provision_type'] == 2){
+            $sheet->row($GLOBALS['row_index'], array(
+                '',
+                $GLOBALS['company'][0]->pending_creditable_vat_account,
+                '0',
+                'PAGO DE HONORARIOS - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                '1',
+                '',
+                round(($cfdi->comprobante->subtotal)*.16, 2),
+                '0',
+                '0'
+            ));
+
+            $GLOBALS['row_index']=$GLOBALS['row_index']+1;
+            ProviderPaymentPolicyController::generatePolicyItemRows($sheet, $cfdi);
+            ProviderPaymentPolicyController::generatePolicyFeesRetentionItem($sheet, $cfdi);
+        }
+    }
+
+    public function generatePolicyFeesRetentionItem($sheet, $cfdi){
         $sheet->row($GLOBALS['row_index'], array(
             '',
-            $GLOBALS['company'][0]->pending_creditable_vat_account,
+            $GLOBALS['company'][0]->fees_retention_isr_account,
             '0',
-            'PAGO A PROVEEDOR - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+            'PAGO DE HONORARIOS - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
             '1',
             '',
-            round(($cfdi->comprobante->total/1.16)*.16, 2),
+            round($cfdi->comprobante->subtotal*.10,2),
             '0',
             '0'
         ));
-            
+
+        $GLOBALS['row_index']=$GLOBALS['row_index']+1;
+        ProviderPaymentPolicyController::generatePolicyItemRows($sheet, $cfdi);
+        ProviderPaymentPolicyController::generatePolicyVatRetentionItem($sheet, $cfdi);
+    }
+
+    public function generatePolicyVatRetentionItem($sheet, $cfdi){
+        $sheet->row($GLOBALS['row_index'], array(
+            '',
+            $GLOBALS['company'][0]->fees_retention_vat_account,
+            '0',
+            'PAGO DE HONORARIOS - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+            '1',
+            '',
+            round($cfdi->comprobante->subtotal*.106667,2),
+            '0',
+            '0'
+        ));
+
         $GLOBALS['row_index']=$GLOBALS['row_index']+1;
         ProviderPaymentPolicyController::generatePolicyItemRows($sheet, $cfdi);
         ProviderPaymentPolicyController::generatePolicyBankAccountItem($sheet, $cfdi);
     }
 
     public function generatePolicyBankAccountItem($sheet, $cfdi) {
-        $sheet->row($GLOBALS['row_index'], array(
-            '',
-            $cfdi->datosOrigen->cuentaContableOrigen,
-            '0',
-            'PAGO A PROVEEDOR - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
-            '1',
-            '',
-            $cfdi->comprobante->total,
-            '0',
-            '0'
-        ));
+        if($GLOBALS['provision_type'] == 1){
+            $sheet->row($GLOBALS['row_index'], array(
+                '',
+                $cfdi->datosOrigen->cuentaContableOrigen,
+                '0',
+                'PAGO A PROVEEDOR - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                '1',
+                '',
+                $cfdi->comprobante->total,
+                '0',
+                '0'
+            ));
+        }
+        elseif($GLOBALS['provision_type'] == 2){
+            $sheet->row($GLOBALS['row_index'], array(
+                '',
+                $cfdi->datosOrigen->cuentaContableOrigen,
+                '0',
+                'PAGO DE HONORARIOS - '.$cfdi->emisor->nombreEmisor.' -  CFDI: '.$cfdi->comprobante->folio,
+                '1',
+                '',
+                $cfdi->comprobante->total,
+                '0',
+                '0'
+            ));
+        }
             
         $GLOBALS['row_index']=$GLOBALS['row_index']+1;
         ProviderPaymentPolicyController::generatePolicyBankAccountRows($sheet, $cfdi);
@@ -237,6 +374,12 @@ class ProviderPaymentPolicyController extends Controller
             'INICIO_INFOPAGO'
         ));
         $GLOBALS['row_index']=$GLOBALS['row_index']+1;
+
+        $sheet->setColumnFormat(array(
+            'D' => '@',
+            'E' => '#0',
+            'L' => '#0'
+        ));
 
         $sheet->row($GLOBALS['row_index'], array(
             '',

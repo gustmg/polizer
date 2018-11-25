@@ -27,9 +27,7 @@ class ClientDepositPolicyController extends Controller
         $accounting_account_types=AccountingAccountType::all();
         $banks=Bank::all();
         $accounting_accounts=AccountingAccount::where(function($query){
-            $query->where('accounting_account_type_id', 2)
-            ->orWhere('accounting_account_type_id', 5)
-            ->orWhere('accounting_account_type_id', 6);
+            $query->where('accounting_account_type_id', 3);
         })->where('company_id', session()->get('company_workspace_id'))->get();
         
         return view::make('client_deposit_policy.index',['clients'=>$clients,'companies'=>$companies,'accounting_accounts'=>$accounting_accounts,'accounting_account_types'=>$accounting_account_types, 'bank_accounts'=>$bank_accounts, 'banks'=>$banks]);
@@ -95,17 +93,17 @@ class ClientDepositPolicyController extends Controller
             })->store('xlsx', public_path('storage'));
 
             // $url = Storage::url($file_name.'.xlsx');
-            $url = 'https://www.polizer.mx/polizer_app/storage/'.$file_name.'.xlsx';
+            $url = 'https://www.polizer.com.mx/polizer_app/storage/'.$file_name.'.xlsx';
             return $url;
         }
     }
 
     public function generatePolicy($sheet, $cfdi) {
         $sheet->row($GLOBALS['row_index'], array(
-            ClientDepositPolicyController::setPolicyType($cfdi->comprobante->formaPago),
+            'Ig',
             $GLOBALS['cfdi_index_serie'],
             'DEPOSITO DE CLIENTES - '.$cfdi->receptor->nombreReceptor.' -  CFDI: '.$cfdi->comprobante->folio,
-            substr($cfdi->comprobante->fecha,-10,2)
+            substr($cfdi->comprobante->fecha,-2,2)
         ));
         $GLOBALS['row_index']=$GLOBALS['row_index']+1;
         $GLOBALS['cfdi_index_serie'] = $GLOBALS['cfdi_index_serie']+1;
@@ -133,7 +131,7 @@ class ClientDepositPolicyController extends Controller
     public function generatePolicyTransferredVatItem($sheet, $cfdi) {
         $sheet->row($GLOBALS['row_index'], array(
             '',
-            $GLOBALS['company'][0]->paid_creditable_vat_account,
+            $GLOBALS['company'][0]->transferred_vat_account,
             '0',
             'DEPOSITO DE CLIENTES - '.$cfdi->receptor->nombreReceptor.' -  CFDI: '.$cfdi->comprobante->folio,
             '1',
@@ -151,7 +149,7 @@ class ClientDepositPolicyController extends Controller
     public function generatePolicyChargedTransferredVatItem($sheet, $cfdi) {
         $sheet->row($GLOBALS['row_index'], array(
             '',
-            $GLOBALS['company'][0]->pending_creditable_vat_account,
+            $GLOBALS['company'][0]->charged_transferred_vat_account,
             '0',
             'DEPOSITO DE CLIENTES - '.$cfdi->receptor->nombreReceptor.' -  CFDI: '.$cfdi->comprobante->folio,
             '1',
@@ -257,17 +255,5 @@ class ClientDepositPolicyController extends Controller
             'FIN_INFOPAGO'
         ));
         $GLOBALS['row_index']=$GLOBALS['row_index']+1;
-    }
-
-    public function setPolicyType($payment_form){
-        if($payment_form=='02'){
-            return "Ch";
-        }
-        else if($payment_form=='03'){
-            return "Tr";
-        }
-        else{
-            return "Ef";
-        }
     }
 }

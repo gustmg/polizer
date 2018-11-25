@@ -19,13 +19,13 @@ class CreateClientsTable extends Migration
             $table->string('client_rfc');
             $table->string('client_accounting_account');
             $table->integer('company_id')->unsigned();
-            $table->integer('counterpart_accounting_account_id')->nullable()->unsigned();
+            $table->integer('counterpart_accounting_account_id')->unsigned();
             $table->timestamps();
         });
 
         Schema::table('clients', function (Blueprint $table) {
             $table->foreign('company_id')->references('company_id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('counterpart_accounting_account_id')->references('accounting_account_id')->on('accounting_accounts')->onDelete('set null')->onUpdate('cascade');
+            $table->foreign('counterpart_accounting_account_id')->references('accounting_account_id')->on('accounting_accounts')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

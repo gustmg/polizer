@@ -9,22 +9,22 @@
 				<div class="row" style="margin-bottom: 10px;">
 					<div class="col s12 grey-text text-darken-2"><b>Información general</b></div>
 					<div class="input-field col s12 m6">
-			          <input id="provider_name" name="provider_name" type="text" class="validate provider_name" onblur="validateForm();" required>
+			          <input id="provider_name" name="provider_name" type="text" class="validate provider_name" onblur="validateNewProviderForm();" required>
 			          <label for="provider_name" data-error="Verifique este campo" data-success="Campo validado">Nombre del proveedor *</label>
 			        </div>
 			        <div class="input-field col s12 m6">
-			          <input id="provider_rfc" name="provider_rfc" type="text" class="validate provider_rfc" onblur="validateForm();" required>
+			          <input id="provider_rfc" name="provider_rfc" type="text" class="validate provider_rfc" onblur="validateNewProviderForm();" required>
 			          <label for="provider_rfc" data-error="Verifique este campo" data-success="Campo validado">RFC del proveedor *</label>
 			        </div>
 			        <div class="input-field col s12 m12">
-			          <input id="provider_accounting_account" name="provider_accounting_account" type="text" class="provider_accounting_account validate" onblur="validateForm();" pattern="^[^A-Za-z]+$" required>
+			          <input id="provider_accounting_account" name="provider_accounting_account" type="text" class="provider_accounting_account validate" onblur="validateNewProviderForm();" pattern="^[^A-Za-z]+$" required>
 			          <label for="provider_accounting_account">Cuenta contable del proveedor *</label>
 			        </div>
 		        </div>
 		        <div class="row">
 					<div class="col s12 grey-text text-darken-2"><b>Cuenta de contrapartida</b></div>
 					<div class="col s8">
-						<select id="counterpart_accounting_account_id" name="counterpart_accounting_account_id" class="accounting-account-list browser-default selectNew">
+						<select id="counterpart_accounting_account_id" name="counterpart_accounting_account_id" class="accounting-account-list browser-default selectNew" onchange="validateNewProviderForm();">
 						    <option value="" disabled selected>Elige una cuenta contable</option>
 						    <optgroup label="Inventarios">
 						    	@foreach($accounting_accounts as $key => $accounting_account)
