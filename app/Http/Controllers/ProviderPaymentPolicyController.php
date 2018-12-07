@@ -368,6 +368,24 @@ class ProviderPaymentPolicyController extends Controller
         $mesFecha=substr($cfdi->comprobante->fecha,-5,2);
         $añoFecha=substr($cfdi->comprobante->fecha,-10,4);
 
+        $provider = Provider::with('bank')->where([
+            ['company_id', '=', session()->get('company_workspace_id')],
+            ['provider_rfc', '=', $cfdi->emisor->rfcEmisor]
+        ])->first(); 
+
+        if(is_null($provider->bank_id)){
+            $bancoDestino=0;
+        }
+        else{
+            $bancoDestino=$provider->bank->bank_sat_key;
+        }
+        if(is_null($provider->provider_bank_account_number)){
+            $cuentaDestino=0;
+        }
+        else{
+            $cuentaDestino=$provider->provider_bank_account_number;
+        }
+
         $sheet->row($GLOBALS['row_index'], array(
             '',
             '',
@@ -378,7 +396,8 @@ class ProviderPaymentPolicyController extends Controller
         $sheet->setColumnFormat(array(
             'D' => '@',
             'E' => '#0',
-            'L' => '#0'
+            'L' => '#0',
+            'K' => '@'
         ));
 
         $sheet->row($GLOBALS['row_index'], array(
@@ -392,8 +411,8 @@ class ProviderPaymentPolicyController extends Controller
             $cfdi->comprobante->total,
             $cfdi->emisor->rfcEmisor,
             $cfdi->emisor->nombreEmisor,
-            $cfdi->datosDestino->bancoDestino,
-            $cfdi->datosDestino->cuentaBancariaDestino
+            $bancoDestino,
+            $cuentaDestino
         ));
         $GLOBALS['row_index']=$GLOBALS['row_index']+1;
         

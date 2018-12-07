@@ -504,24 +504,26 @@ function changeDestiny(select) {
 		$('#check-number-'+index_row).characterCounter();
 		$('.destiny-'+index_row).show();
 	}else if($(select).val()==3){
-		var list= $('.bank-accounts').html();
+		// var list= $('.bank-accounts').html();
+		// $('.destiny-'+index_row).html('');
+		// $('.destiny-'+index_row).append('<label>Banco destino</label>'+
+		// 	'<select class="browser-default destiny-bank-'+index_row+'">'+
+		// 	'<option value="02">Banamex</option>'+
+		// 	'<option value="12">BBVA Bancomer</option>'+
+		// 	'<option value="21">HSBC</option>'+
+		// 	'<option value="14">Santander</option>'+
+		// 	'<option value="44">Scotiabank</option>'+
+		// 	'<option value="72">Banorte</option>'+
+		// 	'<option value="36">INBURSA</option>'+
+		// '</select>');
+		// $('.destiny-'+index_row).append('<div class="input-field">'+
+		// 		'<input id="bank-account-destiny-'+index_row+'" type="text" class="validate transfer-account" pattern="[0-9]+" data-length="18" maxlength="18">'+
+		// 		'<label for="bank-account-destiny-'+index_row+'">Cuenta bancaria destino</label>'+
+  //       	'</div>');
+		// $('#bank-account-destiny-'+index_row).characterCounter();
+		// $('.destiny-'+index_row).show();
 		$('.destiny-'+index_row).html('');
-		$('.destiny-'+index_row).append('<label>Banco destino</label>'+
-			'<select class="browser-default destiny-bank-'+index_row+'">'+
-			'<option value="02">Banamex</option>'+
-			'<option value="12">BBVA Bancomer</option>'+
-			'<option value="21">HSBC</option>'+
-			'<option value="14">Santander</option>'+
-			'<option value="44">Scotiabank</option>'+
-			'<option value="72">Banorte</option>'+
-			'<option value="36">INBURSA</option>'+
-		'</select>');
-		$('.destiny-'+index_row).append('<div class="input-field">'+
-				'<input id="bank-account-destiny-'+index_row+'" type="text" class="validate transfer-account" pattern="[0-9]+" data-length="18" maxlength="18">'+
-				'<label for="bank-account-destiny-'+index_row+'">Cuenta bancaria destino</label>'+
-        	'</div>');
-		$('#bank-account-destiny-'+index_row).characterCounter();
-		$('.destiny-'+index_row).show();
+		$('.destiny-'+index_row).hide();
 	}else{
 		$('.destiny-'+index_row).hide();
 	}
@@ -594,9 +596,9 @@ function sendJsonFiles(){
 		else if(verifyUndefindedChecks() != 0){
 			Materialize.toast('No se pudo procesar la petición. Hay números de cheque no definidos.', 4000);	
 		}
-		else if(verifyUndefindedTransferAccounts() != 0){
-			Materialize.toast('No se pudo procesar la petición. Hay cuentas destino no definidas.', 4000);	
-		}
+		// else if(verifyUndefindedTransferAccounts() != 0){
+		// 	Materialize.toast('No se pudo procesar la petición. Hay cuentas destino no definidas.', 4000);	
+		// }
 		else{
 			// $('#menu_navbar').slideUp();
 			$('.progress').css('visibility', 'visible');
@@ -625,13 +627,13 @@ function sendJsonFiles(){
 
 				if($('.select-payform[data-file-index="'+indexJsonFile+'"] option:selected').val()=='02'){
 					jsonFilesData[indexJsonFile].datosDestino.numeroCheque=$('#check-number-'+indexJsonFile).val();
-					jsonFilesData[indexJsonFile].datosDestino.bancoDestino=0;
-					jsonFilesData[indexJsonFile].datosDestino.cuentaBancariaDestino=0;
+					// jsonFilesData[indexJsonFile].datosDestino.bancoDestino=0;
+					// jsonFilesData[indexJsonFile].datosDestino.cuentaBancariaDestino=0;
 					// console.log(jsonFilesData[indexJsonFile].datosDestino.numeroCheque);
 				}else if($('.select-payform[data-file-index="'+indexJsonFile+'"] option:selected').val()=='03'){
 					jsonFilesData[indexJsonFile].datosDestino.numeroCheque=0;
-					jsonFilesData[indexJsonFile].datosDestino.bancoDestino=$('.destiny-'+indexJsonFile+' select option:selected').val();
-					jsonFilesData[indexJsonFile].datosDestino.cuentaBancariaDestino=$('#bank-account-destiny-'+indexJsonFile).val();
+					// jsonFilesData[indexJsonFile].datosDestino.bancoDestino=$('.destiny-'+indexJsonFile+' select option:selected').val();
+					// jsonFilesData[indexJsonFile].datosDestino.cuentaBancariaDestino=$('#bank-account-destiny-'+indexJsonFile).val();
 					// console.log(jsonFilesData[indexJsonFile].datosDestino.cuentaBancariaDestino);
 					//console.log(jsonFilesData[indexJsonFile].datosDestino.bancoDestino);
 				}

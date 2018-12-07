@@ -26,7 +26,7 @@
 				</thead>
 				<tbody>
 					@foreach($clients as $key => $value)
-					<tr style="cursor: pointer;" class="modal-trigger" href="#updateClientModal" data-client-id="{{$value->client_id}}" data-client-accounting-account="{{$value->client_accounting_account}}" data-client-name="{{$value->client_name}}" data-client-rfc="{{$value->client_rfc}}"  data-client-counterpart-id="{{$value->counterpart_accounting_account_id}}">
+					<tr style="cursor: pointer;" class="modal-trigger" href="#updateClientModal" data-client-id="{{$value->client_id}}" data-client-accounting-account="{{$value->client_accounting_account}}" data-client-name="{{$value->client_name}}" data-client-rfc="{{$value->client_rfc}}"  data-client-counterpart-id="{{$value->counterpart_accounting_account_id}}" data-client-bank-account="{{$value->client_bank_account_number}}" data-client-bank="{{$value->bank_id}}">
 						<td class="center">{{$value->client_accounting_account}}</td>
 						<td class="truncate">{{$value->client_name}}</td>
 						<td class="center">{{$value->client_rfc}}</td>

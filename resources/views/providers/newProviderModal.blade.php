@@ -50,6 +50,21 @@
 						</select>
 					</div>
 		        </div>
+		        <div class="row">
+		        	<div class="col s12 grey-text text-darken-2"><b>Banco</b></div>
+					<div class="col s8">
+						<select id="selectNewBank" name="bank_id" class="selectNewBank browser-default">
+							@foreach($banks as $key => $value2)
+								<option value="{{$value2->bank_id}}">{{$value2->bank_sat_key}} - {{$value2->bank_name}}</option>
+							@endforeach
+						</select><br>
+					</div>
+		        	<div class="col s12 grey-text text-darken-2"><b>Cuenta bancaria</b></div>
+		        	<div class="input-field col s6 m6">
+						<input id="provider_bank_account_number" name="provider_bank_account_number" type="text" class="provider_bank_account_number" onblur="validateNewProviderForm();">
+						<label for="provider_bank_account_number" data-error="Verifique este campo" data-success="Campo validado">Cuenta bancaria del proveedor *</label>
+			        </div>
+		        </div>
 			</form>
 		</div>
 	</div>

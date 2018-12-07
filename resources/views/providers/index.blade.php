@@ -26,7 +26,7 @@
 				</thead>
 				<tbody>
 					@foreach($providers as $key => $value)
-					<tr style="cursor: pointer;" class="modal-trigger" href="#updateProviderModal" data-provider-id="{{$value->provider_id}}" data-provider-accounting-account="{{$value->provider_accounting_account}}" data-provider-name="{{$value->provider_name}}" data-provider-rfc="{{$value->provider_rfc}}" data-provider-counterpart-id="{{$value->counterpart_accounting_account_id}}">
+					<tr style="cursor: pointer;" class="modal-trigger" href="#updateProviderModal" data-provider-id="{{$value->provider_id}}" data-provider-accounting-account="{{$value->provider_accounting_account}}" data-provider-name="{{$value->provider_name}}" data-provider-rfc="{{$value->provider_rfc}}" data-provider-counterpart-id="{{$value->counterpart_accounting_account_id}}" data-provider-bank-account="{{$value->provider_bank_account_number}}" data-provider-bank="{{$value->bank_id}}">
 						<td class="center">{{$value->provider_accounting_account}}</td>
 						<td class="truncate">{{$value->provider_name}}</td>
 						<td class="center">{{$value->provider_rfc}}</td>

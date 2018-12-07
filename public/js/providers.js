@@ -49,6 +49,11 @@ $('.updateProviderModal').modal({
     	$('#update_provider_accounting_account').removeClass('valid');
     	$('#updateProviderForm').attr('action','providers/'+trigger.attr('data-provider-id'));
     	$('#deleteProviderModalButton').attr('data-provider-id', trigger.attr('data-provider-id'));
+    	$('#update_provider_bank_account_number').removeClass('invalid');
+    	$('#update_provider_bank_account_number').removeClass('valid');
+    	$('label[for="update_provider_bank_account_number"]').addClass('active');
+    	$('#update_provider_bank_account_number').val(trigger.attr('data-provider-bank-account'));
+    	$('.selectUpdateBank').val(trigger.attr('data-provider-bank'));
 	},
 });
 

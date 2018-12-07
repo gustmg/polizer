@@ -9,6 +9,7 @@ use App\AccountingAccount;
 use App\AccountingAccountType;
 use App\Company;
 use App\Provider;
+use App\Bank;
 use View;
 use Session;
 use Route;
@@ -22,7 +23,8 @@ class ProviderController extends Controller
      */
     public function index()
     {
-        $providers=Provider::with('counterpart_account')->where('company_id', session()->get('company_workspace_id'))->get();
+        $providers=Provider::with('counterpart_account')->with('bank')->where('company_id', session()->get('company_workspace_id'))->get();
+        $banks=Bank::all();
         $companies=Company::where('user_id', Auth::user()->id)->get();
         $accounting_account_types=AccountingAccountType::all();
         $accounting_accounts=AccountingAccount::where(function($query){
@@ -31,7 +33,7 @@ class ProviderController extends Controller
             ->orWhere('accounting_account_type_id', 6);
         })->where('company_id', session()->get('company_workspace_id'))->get();
 
-        return view::make('providers.index',['providers'=>$providers,'companies'=>$companies,'accounting_accounts'=>$accounting_accounts,'accounting_account_types'=>$accounting_account_types]);
+        return view::make('providers.index',['providers'=>$providers,'companies'=>$companies,'accounting_accounts'=>$accounting_accounts,'accounting_account_types'=>$accounting_account_types, 'banks'=>$banks]);
     }
 
     /**
@@ -55,6 +57,8 @@ class ProviderController extends Controller
             $provider->provider_accounting_account=$request->provider_accounting_account;
             $provider->company_id=Session::get('company_workspace_id');
             $provider->counterpart_accounting_account_id=$request->counterpart_accounting_account_id;
+            $provider->bank_id=$request->bank_id;
+            $provider->provider_bank_account_number=$request->provider_bank_account_number;
             $provider->save();
             return Redirect::to('providers');
         }
@@ -92,7 +96,8 @@ class ProviderController extends Controller
         $provider->provider_accounting_account=$request->provider_accounting_account;
         $provider->company_id=Session::get('company_workspace_id');
         $provider->counterpart_accounting_account_id=$request->counterpart_accounting_account_id;
-
+        $provider->bank_id=$request->bank_id;
+        $provider->provider_bank_account_number=$request->provider_bank_account_number;
         $provider->save();
 
         return Redirect::back();

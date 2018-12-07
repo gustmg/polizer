@@ -38,6 +38,21 @@
 						<input type="hidden" class="hidden_counterpart_account" name="counterpart_accounting_account_id">
 					</div>
 		        </div>
+		        <div class="row">
+		        	<div class="col s12 grey-text text-darken-2"><b>Banco</b></div>
+					<div class="col s8">
+						<select id="selectUpdateBank" name="bank_id" class="selectUpdateBank browser-default">
+							@foreach($banks as $key => $value2)
+								<option value="{{$value2->bank_id}}">{{$value2->bank_sat_key}} - {{$value2->bank_name}}</option>
+							@endforeach
+						</select><br>
+					</div>
+		        	<div class="col s12 grey-text text-darken-2"><b>Cuenta bancaria</b></div>
+		        	<div class="input-field col s6 m6">
+						<input id="update_client_bank_account_number" name="client_bank_account_number" type="text" class="client_bank_account_number" onblur="validateUpdateForm();">
+						<label for="update_client_bank_account_number" data-error="Verifique este campo" data-success="Campo validado">Cuenta bancaria del proveedor *</label>
+			        </div>
+		        </div>
 			</form>
 		</div>
 	</div>

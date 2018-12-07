@@ -9,6 +9,7 @@ use App\AccountingAccount;
 use App\AccountingAccountType;
 use App\Company;
 use App\Client;
+use App\Bank;
 use View;
 use Session;
 
@@ -21,14 +22,15 @@ class ClientController extends Controller
      */
     public function index()
     {
-        $clients=Client::with('counterpart_account')->where('company_id', session()->get('company_workspace_id'))->get();
+        $clients=Client::with('counterpart_account')->with('bank')->where('company_id', session()->get('company_workspace_id'))->get();
+        $banks=Bank::all();
         $companies=Company::where('user_id', Auth::user()->id)->get();
         $accounting_account_types=AccountingAccountType::all();
         $accounting_accounts=AccountingAccount::where(function($query){
             $query->where('accounting_account_type_id', 3);
         })->where('company_id', session()->get('company_workspace_id'))->get();
 
-        return view::make('clients.index',['clients'=>$clients,'companies'=>$companies,'accounting_accounts'=>$accounting_accounts,'accounting_account_types'=>$accounting_account_types]);
+        return view::make('clients.index',['clients'=>$clients,'companies'=>$companies,'accounting_accounts'=>$accounting_accounts,'accounting_account_types'=>$accounting_account_types, 'banks'=>$banks]);
     }
 
     /**
@@ -51,7 +53,8 @@ class ClientController extends Controller
         $client->client_accounting_account=$request->client_accounting_account;
         $client->company_id=Session::get('company_workspace_id');
         $client->counterpart_accounting_account_id=$request->counterpart_accounting_account_id;
-
+        $client->bank_id=$request->bank_id;
+        $client->client_bank_account_number=$request->client_bank_account_number;
         $client->save();
 
         return Redirect::to('clients');
@@ -89,7 +92,8 @@ class ClientController extends Controller
         $client->client_accounting_account=$request->client_accounting_account;
         $client->company_id=Session::get('company_workspace_id');
         $client->counterpart_accounting_account_id=$request->counterpart_accounting_account_id;
-
+        $client->bank_id=$request->bank_id;
+        $client->client_bank_account_number=$request->client_bank_account_number;
         $client->save();
 
         return Redirect::to('clients');

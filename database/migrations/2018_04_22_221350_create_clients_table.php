@@ -20,6 +20,8 @@ class CreateClientsTable extends Migration
             $table->string('client_accounting_account');
             $table->integer('company_id')->unsigned();
             $table->integer('counterpart_accounting_account_id')->unsigned();
+            $table->string('client_bank_account_number');
+            $table->integer('bank_id')->unsigned();
             $table->timestamps();
         });
 

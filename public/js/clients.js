@@ -48,6 +48,11 @@ $('.updateClientModal').modal({
     	$('#update_client_accounting_account').removeClass('valid');
     	$('#updateClientForm').attr('action','clients/'+trigger.attr('data-client-id'));
     	$('#deleteClientModalButton').attr('data-client-id', trigger.attr('data-client-id'));
+    	$('#update_client_bank_account_number').removeClass('invalid');
+    	$('#update_client_bank_account_number').removeClass('valid');
+    	$('label[for="update_client_bank_account_number"]').addClass('active');
+    	$('#update_client_bank_account_number').val(trigger.attr('data-client-bank-account'));
+    	$('.selectUpdateBank').val(trigger.attr('data-client-bank'));
 	},
 });
 
