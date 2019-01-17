@@ -434,7 +434,7 @@ function agregaFilaTablaDeposito(index){
 			'<label for="row-select-'+index+'" style="height: 16px;"></label>'+
 		'</td>'+
 		'<td class="center-align" style="width: 10%;">'+
-			'<input id="fecha-'+index+'" class="date" type="date" onchange="setDateValue(this);">'+
+			'<input id="fecha-'+index+'" class="date" type="date" max="2019-12-31" onchange="setDateValue(this);">'+
 		'</td>'+
 		'<td class="center-align" style="width: 10%;">'+
 			jsonFilesData[index].comprobante.folio+
@@ -474,11 +474,17 @@ function agregaFilaTablaDeposito(index){
 }
 
 function setDateValue(input){
-	var fecha=input.value;
-	var mes=fecha.substr(5,2);
-	var dia=fecha.substr(8,2);
-	var year=fecha.substr(0,4);
-	input.parentElement.setAttribute("data-sort", dia+'-'+mes+'-'+year);
+	if(input.value.length > 10){
+		input.classList.add('invalid');
+	}
+	else{
+		input.classList.remove('invalid');
+		var fecha=input.value;
+		var mes=fecha.substr(5,2);
+		var dia=fecha.substr(8,2);
+		var year=fecha.substr(0,4);
+		input.parentElement.setAttribute("data-sort", dia+'-'+mes+'-'+year);
+	}
 }
 
 function setPayform (index){

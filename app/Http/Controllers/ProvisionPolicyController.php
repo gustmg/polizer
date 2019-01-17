@@ -10,6 +10,7 @@ use App\AccountingAccount;
 use App\AccountingAccountType;
 use App\Company;
 use App\Provider;
+use App\Bank;
 use View;
 use Session;
 use Excel;
@@ -26,8 +27,9 @@ class ProvisionPolicyController extends Controller
     	    ->orWhere('accounting_account_type_id', 5)
     	    ->orWhere('accounting_account_type_id', 6);
     	})->where('company_id', session()->get('company_workspace_id'))->get();
-    	
-    	return view::make('provision_policy.index',['providers'=>$providers,'companies'=>$companies,'accounting_accounts'=>$accounting_accounts,'accounting_account_types'=>$accounting_account_types]);
+        $banks=Bank::all();
+
+    	return view::make('provision_policy.index',['providers'=>$providers,'companies'=>$companies,'accounting_accounts'=>$accounting_accounts,'accounting_account_types'=>$accounting_account_types, 'banks'=>$banks]);
     }
 
     public function handler(Request $request){
@@ -86,11 +88,11 @@ class ProvisionPolicyController extends Controller
                 $excel->sheet('Libro 1', function($sheet) {
                     ProvisionPolicyController::generatePolicy($sheet, $GLOBALS['jsonFiles'][0]);
                 });
-            // })->store('xlsx', storage_path('app/public'));
-            })->store('xlsx', public_path('storage'));
+            })->store('xlsx', storage_path('app/public'));
+            // })->store('xlsx', public_path('storage'));
 
-            // $url = Storage::url($file_name.'.xlsx');
-            $url = 'https://www.polizer.com.mx/polizer_app/storage/'.$file_name.'.xlsx';
+            $url = Storage::url($file_name.'.xlsx');
+            // $url = 'https://www.polizer.com.mx/polizer_app/storage/'.$file_name.'.xlsx';
             
             return $url;
         }

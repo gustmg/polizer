@@ -10,6 +10,7 @@ use App\AccountingAccount;
 use App\AccountingAccountType;
 use App\Company;
 use App\Client;
+use App\Bank;
 use View;
 use Session;
 use Excel;
@@ -24,8 +25,9 @@ class BillingPolicyController extends Controller
         $accounting_accounts=AccountingAccount::where(function($query){
             $query->where('accounting_account_type_id', 3);
         })->where('company_id', session()->get('company_workspace_id'))->get();
-        
-        return view::make('billing_policy.index',['clients'=>$clients,'companies'=>$companies,'accounting_accounts'=>$accounting_accounts,'accounting_account_types'=>$accounting_account_types]);
+        $banks=Bank::all();
+
+        return view::make('billing_policy.index',['clients'=>$clients,'companies'=>$companies,'accounting_accounts'=>$accounting_accounts,'accounting_account_types'=>$accounting_account_types, 'banks'=>$banks]);
     }
 
     public function handler(Request $request){
@@ -83,11 +85,11 @@ class BillingPolicyController extends Controller
                 $excel->sheet('Libro 1', function($sheet) {
                     BillingPolicyController::generatePolicy($sheet, $GLOBALS['jsonFiles'][0]);
                 });
-            // })->store('xlsx', storage_path('app/public'));
-            })->store('xlsx', public_path('storage'));
+            })->store('xlsx', storage_path('app/public'));
+            // })->store('xlsx', public_path('storage'));
 
-            // $url = Storage::url($file_name.'.xlsx');
-            $url = 'https://www.polizer.com.mx/polizer_app/storage/'.$file_name.'.xlsx';
+            $url = Storage::url($file_name.'.xlsx');
+            // $url = 'https://www.polizer.com.mx/polizer_app/storage/'.$file_name.'.xlsx';
             return $url;
         }
     }
