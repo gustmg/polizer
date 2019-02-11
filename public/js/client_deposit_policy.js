@@ -643,8 +643,9 @@ function verifyUnregisteredClients() {
 
 function verifyUndefinedDates() {
 	var amount_undefined_dates=0;
+
 	$(".date").each(function(index){
-		if($(this).val() == ''){
+		if($(this).val() == '' || $(this).val().length > 10){
 			amount_undefined_dates++;
 		}
 	});

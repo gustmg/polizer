@@ -76,4 +76,8 @@ trait PolicyTrait
             return false;
         }
     }
+
+    public static function getAmountProcessedXML(){
+        
+    }
 }
