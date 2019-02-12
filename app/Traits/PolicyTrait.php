@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Traits;
+use App\UserProcessedXml;
 
 trait PolicyTrait
 {
@@ -77,7 +78,12 @@ trait PolicyTrait
         }
     }
 
-    public static function getAmountProcessedXML(){
-        
+    public static function saveUserProcessedXML($user_id, $company_id, $xml_amount){
+        $user_processed_xml = new UserProcessedXml;
+        $user_processed_xml->user_id = $user_id;
+        $user_processed_xml->company_id = $company_id;
+        $user_processed_xml->processed_at = now();
+        $user_processed_xml->xml_amount = $xml_amount;
+        $user_processed_xml->save();
     }
 }
