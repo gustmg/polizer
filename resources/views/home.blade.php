@@ -23,9 +23,14 @@
         <div class="col s12 m4">
             <b>Uso de la aplicación</b>
             <div class="card center">
-            <div class="card-content"><i class="material-icons medium">insert_drive_file</i>
-            <h5>0</h5>
-            <h5>XML's procesados</h5>
+            <div class="card-content">
+                @if($company_processed_xml)
+                    <i class="material-icons medium">insert_drive_file</i>
+                    <h5>{{$company_processed_xml}}</h5>
+                    <h5>XML's procesados</h5>
+                @else
+                    Elige una empresa como entorno de trabajo.
+                @endif
             </div>
             </div>
         </div>

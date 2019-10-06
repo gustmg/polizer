@@ -85,11 +85,11 @@ class BillingPolicyController extends Controller
                 $excel->sheet('Libro 1', function($sheet) {
                     BillingPolicyController::generatePolicy($sheet, $GLOBALS['jsonFiles'][0]);
                 });
-            // })->store('xlsx', storage_path('app/public'));
-            })->store('xlsx', public_path('storage'));
+            })->store('xlsx', storage_path('app/public'));
+            // })->store('xlsx', public_path('storage'));
             PolicyTrait::saveUserProcessedXML(Auth::user()->id, session()->get('company_workspace_id'), $GLOBALS['cfdi_key']+1);
-            // $url = Storage::url($file_name.'.xlsx');
-            $url = 'https://www.polizer.com.mx/polizer_app/storage/'.$file_name.'.xlsx';
+            $url = Storage::url($file_name.'.xlsx');
+            // $url = 'https://www.polizer.com.mx/polizer_app/storage/'.$file_name.'.xlsx';
             return $url;
         }
     }

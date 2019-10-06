@@ -1,0 +1,20 @@
+components/
+    topAppBarComponent.vue
+    drawerComponent.vue
+    
+    homePageComponent.vue
+    helpPageComponent.vue
+    troubleshootingPageComponent.vue
+        
+    companiesPageComponent.vue
+    providerPageComponent.vue
+    clientsPageComponent.vue
+    accountingAccountsPageComponent.vue
+    bankAccountsPageComponent.vue
+
+    provisionPolicyPageComponent.vue
+    billingPolicyPageComponent.vue
+    providerPaymentPolicyPageComponent.vue
+    clientDepositPolicyPageComponent.vue
+
+

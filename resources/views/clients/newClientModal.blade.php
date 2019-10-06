@@ -39,7 +39,8 @@
 		        <div class="row">
 		        	<div class="col s12 grey-text text-darken-2"><b>Banco</b></div>
 					<div class="col s8">
-						<select id="selectNewBank" name="bank_id" class="selectNewBank browser-default">
+						<select id="selectNewBank" name="bank_id" class="selectNewBank browser-default" onchange="validateNewClientForm();">
+							<option value="" disabled selected>Elige un banco</option>
 							@foreach($banks as $key => $value2)
 								<option value="{{$value2->bank_id}}">{{$value2->bank_sat_key}} -  {{$value2->bank_name}}</option>
 							@endforeach

@@ -11,6 +11,10 @@ $('.newClientModal').modal({
 	    	$('label[for="client_name"]').addClass('active');
 	    	$('#client_rfc').val(trigger.parent().attr('data-client-rfc'));
 	    	$('label[for="client_rfc"]').addClass('active');
+	    	$('.selectNew').val('');
+	    	$('.selectNewBank').val('');
+	    	$('#client_bank_account_number').val('');
+			$('label[for="client_bank_account_number"]').removeClass('active');
 	    }
 	},
 	complete: function(){
@@ -27,6 +31,8 @@ $('.newClientModal').modal({
 		$('#client_name').removeClass('valid');
 		$('#client_rfc').removeClass('valid');
 		$('#client_accounting_account').removeClass('valid');
+		$('#client_bank_account_number').val('');
+		$('label[for="client_bank_account_number"]').removeClass('active');
 	}
 });
 
@@ -70,9 +76,45 @@ function validateNewClientForm(){
 		&& $('#client_rfc').val() != ''
 		&& !$('#client_accounting_account').hasClass('invalid')
 		&& $('#client_accounting_account').val() != ''
-		&& $('.selectNew option:selected').val() != '') {
+		&& $('.selectNew option:selected').val() != ''
+		&& $('.selectNewBank option:selected').val() == ''
+		&& $('#client_bank_account_number').val() =='') {
 		$('.submit_button').attr('disabled', false);
-	} else {
+	}
+	else if(!$('#client_name').hasClass('invalid')
+		&& $('#client_name').val() != ''
+		&& !$('#client_rfc').hasClass('invalid')
+		&& $('#client_rfc').val() != ''
+		&& !$('#client_accounting_account').hasClass('invalid')
+		&& $('#client_accounting_account').val() != ''
+		&& $('.selectNew option:selected').val() != ''
+		&& $('.selectNewBank option:selected').val() != ''
+		&& $('#client_bank_account_number').val() !=''){
+		$('.submit_button').attr('disabled', false);
+	}
+	else if(!$('#client_name').hasClass('invalid')
+		&& $('#client_name').val() != ''
+		&& !$('#client_rfc').hasClass('invalid')
+		&& $('#client_rfc').val() != ''
+		&& !$('#client_accounting_account').hasClass('invalid')
+		&& $('#client_accounting_account').val() != ''
+		&& $('.selectNew option:selected').val() != ''
+		&& $('.selectNewBank option:selected').val() == ''
+		&& $('#client_bank_account_number').val() !=''){
+		$('.submit_button').attr('disabled', true);
+	}
+	else if(!$('#client_name').hasClass('invalid')
+		&& $('#client_name').val() != ''
+		&& !$('#client_rfc').hasClass('invalid')
+		&& $('#client_rfc').val() != ''
+		&& !$('#client_accounting_account').hasClass('invalid')
+		&& $('#client_accounting_account').val() != ''
+		&& $('.selectNew option:selected').val() != ''
+		&& $('.selectNewBank option:selected').val() != ''
+		&& $('#client_bank_account_number').val() ==''){
+		$('.submit_button').attr('disabled', true);
+	}
+	else {
 		$('.submit_button').attr('disabled', true);
 	}
 }

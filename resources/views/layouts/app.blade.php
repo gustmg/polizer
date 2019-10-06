@@ -164,6 +164,18 @@
         <main>
             @yield('content')
         </main>
+
+        <div id="invalidUserModal" class="modal invalidUserModal" align="center">
+            <div style="height: 56px;padding-left: 12px;" >
+                <h5>Cuenta no registrada o temporalmente suspendida</h5>
+            </div>
+            <div class="modal-content">
+                La cuenta con la que desea iniciar sesión no está registrada o está temporalmente suspendida.
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="modal-action modal-close waves-effect btn-flat"><b>Entendido</b></a>
+            </div>
+        </div>
     </div>
 </body>
 <!-- Scripts -->
@@ -227,6 +239,7 @@
         $(".menu").sideNav();
         $('.tooltipped').tooltip({delay: 50});
         $('.selectWorkspaceCompanyModal').modal();
+        $('.invalidUserModal').modal();
 
         @if(session()->has('company_workspace_id'))
             $('#workspaceCompany').on('click', function (){
@@ -266,6 +279,16 @@
 
     function showCompanyWorkspaceMenu() {
         $('.company-workspace-menu').slideDown();
+    }
+
+    function validateUser(){
+        var email=$("#email").val();
+        if(email != "gustavo.mitre.gallardo@gmail.com" && email != "guslopez3@hotmail.com" && email != "yazzmin_815yeickra@hotmail.com" && email != "contabilidadfiscal70@hotmail.com" && email != ""){
+            $('.invalidUserModal').modal('open');
+        }
+        else{
+            $(".login-form").submit();
+        }
     }
 </script>
 {{app('debugbar')->disable()}}

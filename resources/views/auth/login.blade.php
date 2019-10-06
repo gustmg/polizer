@@ -8,7 +8,7 @@
                 <div class="card-content">
                     <span class="card-title">{{ __('Login') }}</span>
                     <div class="row">
-                        <form class="col s12" method="POST" action="{{ route('login') }}">
+                        <form class="col s12 login-form" method="POST" action="{{ route('login') }}">
                             @csrf
                             <div class="row">
                                 <div class="input-field col s12">
@@ -20,7 +20,7 @@
                                     <label for="password" data-error="Verifique este campo." data-success="Campo validado.">Contraseña</label>
                                 </div>
                                 <div class="col s12">
-                                    <button type="submit" class="btn btn-primary">
+                                    <button type="button" class="btn btn-primary" onclick="validateUser();">
                                             {{ __('Iniciar Sesión') }}
                                     </button>
                                 </div>
