@@ -107,6 +107,41 @@
 				</div>
 			</div>
 		</div>
+        <div class="col s12 m6">
+			<div class="card">
+				<div class="card-content" style="padding: 8px 24px 0 24px;">
+					<div class="row no-margin">
+						<h5><b>Combustible</b></h5>
+						<div class="col s12 m12 no-padding">
+							<b>Cargos</b>
+						</div>
+						<div class="col s11 offset-s1 no-padding">
+							<h6>Proveedores</h6>
+							<h6>IVA Acreditable Pagado</h6>
+						</div>
+						<div class="col s12 m12 no-padding">
+							<b>Abonos</b>
+						</div>
+						<div class="col s11 offset-s1 no-padding">
+							<h6>IVA Acreditable Pendiente</h6>
+							<h6>Bancos</h6><br>
+						</div>
+					</div>
+				</div>
+				<div class="card-action right-align">
+					@if($bank_accounts->count() == 0)
+						<span class="tooltipped" data-position="bottom" data-tooltip="No hay cuentas bancarias registradas" style="padding-bottom: 8px;padding-top: 8px;">
+							<a class="btn disabled">Cargar CFDI's</a>
+						</span>
+					@else
+						<label id="policy-type-3" class="btn">
+							Cargar CFDI's
+							<input type="file" style="display: none;" name="fuel_provider_payment_files" id="fuel_provider_payment_files" accept=".xml" onclick="setPolicyType(3);" multiple>
+						</label>
+					@endif
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
 <div class="container section2" style="width: 95%;display: none;">

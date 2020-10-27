@@ -283,7 +283,7 @@
 
     function validateUser(){
         var email=$("#email").val();
-        if(email != "gustavo.mitre.gallardo@gmail.com" && email != "guslopez3@hotmail.com" && email != "yazzmin_815yeickra@hotmail.com" && email != "contabilidadfiscal70@hotmail.com" && email != ""){
+        if(email != "gustavo.mitre.gallardo@gmail.com" && email != "guslopez3@hotmail.com" && email != "yazzmin_815yeickra@hotmail.com" && email != "contabilidadfiscal70@hotmail.com" && email != "julisa_chr@live.com.mx" && email != ""){
             $('.invalidUserModal').modal('open');
         }
         else{
