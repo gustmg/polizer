@@ -1,6 +1,14 @@
-body{
-	background: url("../img/layout.jpg") no-repeat center center fixed;
-	background-size: cover;
-	color: white;
-	font-family: "Roboto-Regular";
+html,
+body {
+    height: 100%;
+    font-family: 'Roboto', sans-serif;
+}
+
+h1 {
+    color: teal;
+    font-size: 8rem;
+}
+
+.full-height {
+    height: 100%;
 }
